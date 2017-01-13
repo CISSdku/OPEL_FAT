@@ -10,5 +10,5 @@ mkdir /mnt/normal
 mkdir /mnt/normal_event
 mkdir /mnt/parking
 mkdir /mnt/parking_event
-mkdir /mnt/automation
+mkdir /mnt/handwork
 

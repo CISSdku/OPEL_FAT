@@ -26,12 +26,13 @@
 #define TEST_ETC_AREA		3
 
 
-#define ETC_DIRECTORY  "etc"
-#define NORMAL_DIRECTORY "normal"
-#define NORMAL_EVENT_DIRECTORY "normal_event"
-#define PARKING_DIRECTORY "parking"
-#define MANUAL_DIRECTORY "parking_event"
-#define IMAGE_DIRECTORY "image"
+#define ETC_DIRECTORY 				 "etc"
+#define NORMAL_DIRECTORY 			 "normal"
+#define NORMAL_EVENT_DIRECTORY 		 "normal_event"
+#define PARKING_DIRECTORY 			 "parking"
+#define MANUAL_DIRECTORY 			 "parking_event"
+#define HANDWORK_DIRECTORY 			 "handwork"
+//#define IMAGE_DIRECTORY "image"
 
 //-----------------------------------------// 
 //          Physical Page information

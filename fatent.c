@@ -793,7 +793,10 @@ out:
 		printk( KERN_ALERT "[cheon] ==========fat_free_clusters test \n" );
 		fat_free_clusters(inode, cluster[0]);
 	}
+
+#ifdef __DEBUG__
 	printk( KERN_ALERT "[cheon] fatent.entry : %d, sbi->free_clusters : %d, sbi->bx_free_clusters[ %d ] : %d  \n", fatent.entry, sbi->free_clusters, area, sbi->bx_free_clusters[area]  );
+#endif
 	return err;
 }
 
@@ -940,9 +943,11 @@ not_rm:
 				sbi->bb_space_full = 1; 				
 			}
 #endif
-			printk( KERN_ALERT "[cheon] fat_free_clusters 2, sbi->free_clusters : %d, fatent.entry : %d, sbi->bx_free_clusters[1] : %d \n", \
-					sbi->free_clusters, fatent.entry, sbi->bx_free_clusters[1]  );
 
+#ifdef __DEBUG__
+			printk( KERN_ALERT "[cheon] fat_free_clusters , sbi->free_clusters : %d, fatent.entry : %d, sbi->bx_free_clusters[1] : %d \n", \
+					sbi->free_clusters, fatent.entry, sbi->bx_free_clusters[1]  );
+#endif
 			dirty_fsinfo = 1;
 		}
 #endif
@@ -1035,7 +1040,7 @@ void get_area_number( int *area, struct inode *inode )
 			else if(strcmp(upper_dentry->d_name.name, MANUAL_DIRECTORY ) == 0 )
 				temp_area = BB_MANUAL;
 
-			else if(strcmp(upper_dentry->d_name.name, IMAGE_DIRECTORY ) == 0 )
+			else if(strcmp(upper_dentry->d_name.name, HANDWORK_DIRECTORY ) == 0 )
 				temp_area = BB_IMAGE;
 
 
@@ -1053,7 +1058,7 @@ void get_area_number( int *area, struct inode *inode )
 
 	if( temp_area == -1 )
 	{
-		*area = TEST_ETC_AREA;
+		*area = BB_ETC;
 	}
 	else
 	{
