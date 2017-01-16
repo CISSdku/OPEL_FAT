@@ -991,7 +991,7 @@ static int vfat_rename(struct inode *old_dir, struct dentry *old_dentry,
  			inc_nlink(new_dir);
 	}
 
-	printk( KERN_ALERT "[cheon] vfat_rename \n");
+//	printk( KERN_ALERT "[cheon] vfat_rename \n");
 	err = fat_remove_entries(old_dir, &old_sinfo);	/* and releases bh */
 	old_sinfo.bh = NULL;
 	if (err)

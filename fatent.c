@@ -9,6 +9,10 @@
 #include <linux/blkdev.h>
 #include "fat.h"
 
+#define __DEBUG__
+
+
+
 struct super_block *temp_sb;
 
 struct fatent_operations {
@@ -1025,25 +1029,25 @@ void get_area_number( int *area, struct inode *inode )
 			if( upper_dentry->d_name.name == NULL )
 				break;
 
-			if(strcmp(upper_dentry->d_name.name, ETC_DIRECTORY ) == 0 )
-				temp_area = BB_ETC;
+//			if(strcmp(upper_dentry->d_name.name, ETC_DIRECTORY ) == 0 )
+//				temp_area = BB_ETC;
+			//etc는 따로 디렉터리 설정으로 하지 않고 말그대로 기타로 하겟음 ( ex ) 현재 보드상엣 /media/boot 부분에 boot.ini랑 디바이스 파일이랑 , zImage올라가있는데
+			//이 쪽 파티션이 vfat로 되어 있어서 이런 역할로 etc를 나눠 주겟음
 
-			else if(strcmp(upper_dentry->d_name.name, NORMAL_DIRECTORY ) == 0 )
-				temp_area = BB_NORMAL;
+			else if(strcmp(upper_dentry->d_name.name, DIR_1 ) == 0 )
+				temp_area = NUM_1;
 
-			else if(strcmp(upper_dentry->d_name.name, NORMAL_EVENT_DIRECTORY ) == 0 )
-				temp_area = BB_NORMAL_EVENT;
+			else if(strcmp(upper_dentry->d_name.name, DIR_2 ) == 0 )
+				temp_area = NUM_2;
 			
-			else if(strcmp(upper_dentry->d_name.name, PARKING_DIRECTORY ) == 0 )
-				temp_area = BB_PARKING;
+			else if(strcmp(upper_dentry->d_name.name, DIR_3 ) == 0 )
+				temp_area = NUM_3;
 
-			else if(strcmp(upper_dentry->d_name.name, MANUAL_DIRECTORY ) == 0 )
-				temp_area = BB_MANUAL;
+			else if(strcmp(upper_dentry->d_name.name, DIR_4 ) == 0 )
+				temp_area = NUM_4;
 
-			else if(strcmp(upper_dentry->d_name.name, HANDWORK_DIRECTORY ) == 0 )
-				temp_area = BB_IMAGE;
-
-
+			else if(strcmp(upper_dentry->d_name.name, DIR_5 ) == 0 )
+				temp_area = NUM_5;
 
 
 			if( temp_area != -1 )

@@ -10,29 +10,52 @@
 #include <linux/ratelimit.h>
 #include <linux/msdos_fs.h>
 
-#define BB_ETC 			0
-#define BB_NORMAL 		1
-#define BB_NORMAL_EVENT 2 
-#define BB_PARKING		3
-#define BB_MANUAL 		4
-#define BB_IMAGE 		5
+
+
+#define NUM_1	1  //normal
+#define NUM_2	2  //normal_event
+#define NUM_3	3  //parking
+#define NUM_4	4  //parking_event
+#define NUM_5	5  //handwork
+
+#define NUM_6	0  //etc
+
+
+//각각의 이벤트들이 확실히 정의되어 있지 않아서 그냥 DIR이라고 칭함
+#define DIR_1 		 "normal"
+#define DIR_2 		 "normal_event"
+#define DIR_3 		 "parking"
+#define DIR_4		 "parking_event"
+#define DIR_5		 "handwork"
 
 
 
 
-#define TEST_AREA_0 	0
-#define TEST_AREA_1 	1
-#define TEST_AREA_2 	2 
-#define TEST_ETC_AREA		3
+
+//////////////////////////////////////////////////////////////////////////
+//이것도 수정해야하는데..
+#define BB_NORMAL 		1   //normal
+#define BB_NORMAL_EVENT 2   //normal_event 
+#define BB_PARKING		3   //parking
+#define BB_MANUAL 		4   //parking_event
+#define BB_IMAGE 		5   //handwork
+
+#define BB_ETC 			0   //etc
 
 
-#define ETC_DIRECTORY 				 "etc"
+///////////////
 #define NORMAL_DIRECTORY 			 "normal"
 #define NORMAL_EVENT_DIRECTORY 		 "normal_event"
 #define PARKING_DIRECTORY 			 "parking"
 #define MANUAL_DIRECTORY 			 "parking_event"
 #define HANDWORK_DIRECTORY 			 "handwork"
+
+#define ETC_DIRECTORY 				 "etc"
 //#define IMAGE_DIRECTORY "image"
+
+
+
+
 
 //-----------------------------------------// 
 //          Physical Page information

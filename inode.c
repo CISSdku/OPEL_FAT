@@ -35,12 +35,14 @@
 #define CONFIG_FAT_DEFAULT_IOCHARSET	""
 #endif
 
-#define COUNT_AREA_0 1280 + 6
+
+//FOR TEST, COUNT_AREA means cluster counter
+#define COUNT_AREA_0 76800 //300M
 #define COUNT_AREA_1 524288
 #define COUNT_AREA_2 262144
-#define COUNT_AREA_3 131072
+#define COUNT_AREA_3 262144
 #define COUNT_AREA_4 131072
-#define COUNT_AREA_5 1280
+#define COUNT_AREA_5 131072
 
 
 static int fat_default_codepage = CONFIG_FAT_DEFAULT_CODEPAGE;
