@@ -1,0 +1,70 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+DIR_NUM	workload.h	24;"	d
+ETC	workload.h	/^	ETC  = 0, 			\/\/etc$/;"	e	enum:__anon1
+FD_SIZE	workload.h	20;"	d
+F_NUM	workload.h	19;"	d
+F_SIZE	workload.h	18;"	d
+HANDWORK	workload.h	/^	HANDWORK 			\/\/handwork$/;"	e	enum:__anon1
+NAME_SIZE	workload.h	15;"	d
+NORMAL	workload.h	/^	NORMAL, 			\/\/normal$/;"	e	enum:__anon1
+NORMAL_EVENT	workload.h	/^	NORMAL_EVENT, 		\/\/normal event$/;"	e	enum:__anon1
+OFF	workload.h	23;"	d
+ON	workload.h	22;"	d
+OPEL	workload.h	13;"	d
+ORIGINAL	workload.h	12;"	d
+PARKING	workload.h	/^	PARKING,			\/\/parking$/;"	e	enum:__anon1
+PARKING_EVENT	workload.h	/^	PARKING_EVENT,		\/\/parking event$/;"	e	enum:__anon1
+SAVE_LOG_AUTOMATION	workload.h	10;"	d
+SAVE_LOG_NORMAL	workload.h	4;"	d
+SAVE_LOG_PARKING	workload.h	5;"	d
+SAVE_LOG_PARKING_SHOCK	workload.h	6;"	d
+SAVE_LOG_SESSION3	workload.h	8;"	d
+SAVE_LOG_SESSION4	workload.h	9;"	d
+SAVE_LOG_SHOCK	workload.h	7;"	d
+STN_SIZE	workload.c	3;"	d	file:
+STRING_SIZE	workload.h	16;"	d
+S_AUTOMATION	workload.h	/^	S_AUTOMATION$/;"	e	enum:__anon2
+S_NORMAL_DRIVING	workload.h	/^	S_NORMAL_DRIVING = 1,$/;"	e	enum:__anon2
+S_PARKING	workload.h	/^	S_PARKING,$/;"	e	enum:__anon2
+S_PARKING_SHOCK	workload.h	/^	S_PARKING_SHOCK,$/;"	e	enum:__anon2
+S_SESSION_3	workload.h	/^	S_SESSION_3,$/;"	e	enum:__anon2
+S_SESSION_4	workload.h	/^	S_SESSION_4,$/;"	e	enum:__anon2
+S_SHOCK	workload.h	/^	S_SHOCK,	$/;"	e	enum:__anon2
+__CONTROL_FUNCTION_H__	workload.h	2;"	d
+auto_select	workload_main.c	/^static void auto_select( int *selected_dir )$/;"	f	file:
+check_portion	workload.h	/^	unsigned int check_portion;$/;"	m	struct:directory_full_t
+count	workload.h	/^	int count;$/;"	m	struct:directory_full_t
+data	workload.h	/^}data;$/;"	t	typeref:struct:each_data_t
+dir	workload.h	/^	unsigned long dir[ DIR_NUM ];	$/;"	m	struct:each_data_t
+dir_counter_e	workload.h	/^}dir_counter_e; $/;"	t	typeref:enum:__anon1
+dir_full	workload.h	/^}dir_full;$/;"	t	typeref:struct:directory_full_t
+dir_size	workload.c	/^static unsigned long dir_size( char *dn)$/;"	f	file:
+directory_full_t	workload.h	/^typedef struct directory_full_t$/;"	s
+each_data_t	workload.h	/^typedef struct each_data_t$/;"	s
+f_rand_size	workload.c	/^static unsigned long f_rand_size( int *selected_dir, int sinario, int mode_flag )$/;"	f	file:
+file	workload.h	/^	int file[ DIR_NUM ];	$/;"	m	struct:each_data_t
+file_counter	workload.h	/^	unsigned long file_counter;$/;"	m	struct:total_count_t
+file_create	workload.c	/^void file_create(char **dirs, int *selected_dir, int sinario, int mode_flag )$/;"	f
+file_num	workload.h	/^	int file_num[ DIR_NUM ];$/;"	m	struct:each_data_t
+flag	workload.h	/^	int flag;$/;"	m	struct:directory_full_t
+g_data	workload.h	/^data g_data;$/;"	v
+g_dirfull	workload.h	/^dir_full g_dirfull[ DIR_NUM ];$/;"	v
+g_fp	workload.h	/^FILE *g_fp;$/;"	v
+g_total	workload.h	/^total g_total;$/;"	v
+init	workload_main.c	/^static void init( int sinario, int *selected_dir, char *argv2, int *mode_flag  )$/;"	f	file:
+last_name	workload.h	/^	char last_name[ NAME_SIZE ];$/;"	m	struct:directory_full_t
+main	workload_main.c	/^int main( int argc, char *argv[] )$/;"	f
+open_files	workload_main.c	/^static int open_files( char *target_direcotry, char **dirs, char ***pbuf )$/;"	f	file:
+random_range	workload.c	/^static unsigned long random_range( unsigned int n1, unsigned int n2 )$/;"	f	file:
+save_load_track_to_file	workload.c	/^static void save_load_track_to_file( FILE **fpp, int sinario )$/;"	f	file:
+save_load_track_to_file	workload_main.c	/^static void save_load_track_to_file( FILE **fpp, int sinario )$/;"	f	file:
+sinario_e	workload.h	/^}sinario_e;$/;"	t	typeref:enum:__anon2
+sum_each_files	workload.h	/^	long long sum_each_files[ DIR_NUM ];$/;"	m	struct:each_data_t
+total	workload.h	/^}total;$/;"	t	typeref:struct:total_count_t
+total_count_t	workload.h	/^typedef struct total_count_t$/;"	s
+view_dirs	workload_main.c	/^static void view_dirs( char **dirs, int dir_cnt )$/;"	f	file:
