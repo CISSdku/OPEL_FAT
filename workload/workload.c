@@ -26,68 +26,6 @@ static unsigned long random_range( unsigned int n1, unsigned int n2 )
 	srand( time( NULL ) );
 	return ( unsigned long )( rand() % ( n2 - n1 ) + n1 );
 }
-static unsigned long f_rand_size( int *selected_dir, int sinario, int mode_flag )
-{
-	int ran=0;
-	int dir_num = 0;
-	char buf[ STN_SIZE ];
-	char *token = NULL;
-	unsigned long result = 0;
-	int data_counster[ 6 ] = { 10, 9, 14, 18, 7, 8 };
-
-	if( mode_flag == ORIGINAL ) 
-	{
-		save_load_track_to_file( &g_fp, sinario ); //original에 테스트를 opel 테스트에서 동일하게 적용하기 위해서 저장시킴
-
-		if( sinario != S_AUTOMATION )
-		{
-			result = random_range( 98 * 1024 * 1024, 99 * 1024 * 1024 ); 
-		}
-		else  //AUTOMATION
-		{
-			switch( *selected_dir )
-			{
-				case NORMAL : result = random_range( 98 * 1024 * 1024, 99 * 1024 * 1024 ); 	break;//상시
-				case NORMAL_EVENT : result = random_range( 53 * 1024 * 1024, 73 * 1024 * 1024 );	break;//상시 이벤트
-				case PARKING : result = random_range( 52 * 1024 * 1024, 58 * 1024 * 1024 ); 	break;//주차
-				case PARKING_EVENT : result = random_range( 8 * 1024 * 1024, 87 * 1024 * 1024 ); 	break; //주차 이벤트
-				default : break;
-			}
-		}	
-
-		fprintf( g_fp, "%d\t%lu\n",*selected_dir, result );
-
-		fclose( g_fp );
-	//	printf("result : %u, sinario : %d, ran : %d \n ", result, sinario, ran );
-	}	
-	else if( mode_flag == OPEL )
-	{
-		if( fgets( buf, sizeof( buf ), g_fp ) == NULL )
-		{
-			printf("Log End \n");
-			fclose( g_fp );
-			exit(1);
-			
-		}
-	//	printf("buf : %s \n", buf );
-		
-		token = strtok( buf, "\t" );
-		dir_num = atoi( token );
-		token = strtok( NULL, "\t" );
-		
-		result = strtoul( token, NULL, 10 );
-	
-		*selected_dir = dir_num;
-
-		printf(" dir_num : %d result : %lu \n",dir_num, result );
-	}
-	else 
-	{
-		fclose( g_fp );
-		exit(-1);
-	}
-	return result;
-}
 static unsigned long dir_size( char *dn)
 {
 	FILE *fp = NULL;
@@ -128,8 +66,78 @@ static unsigned long dir_size( char *dn)
 
 	return l_size;
 }
-#if 1
-void file_create(char **dirs, int *selected_dir, int sinario, int mode_flag )
+
+/*
+ 17.01.23
+ mode_flag을 통해 opel_fat인지 original_fat인지 구분을 통해 
+ 저장된 로그를 로드 할 것인지 결정 했었는데
+
+ load_flag를 통해 이를 대신 함 ( 두 경우 모드 load_flag를 사용할 수 도록 )
+ 
+ */
+static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag )
+{
+	int dir_num = 0;
+	char buf[ STN_SIZE ];
+	char *token = NULL;
+	unsigned long result = 0;
+
+	if( load_flag == OFF ) 
+	{
+		save_load_track_to_file( &g_fp, sinario ); //original에 테스트를 opel 테스트에서 동일하게 적용하기 위해서 저장시킴
+
+		if( sinario != S_AUTOMATION )
+		{
+			result = random_range( 98 * 1024 * 1024, 99 * 1024 * 1024 ); 
+		}
+		else  //AUTOMATION
+		{
+			switch( *selected_dir )
+			{
+				//  범위
+				case NORMAL : result = random_range( 98 * 1024 * 1024, 99 * 1024 * 1024 ); 	break;//상시
+				case NORMAL_EVENT : result = random_range( 53 * 1024 * 1024, 73 * 1024 * 1024 );	break;//상시 이벤트
+				case PARKING : result = random_range( 52 * 1024 * 1024, 58 * 1024 * 1024 ); 	break;//주차
+				case PARKING_EVENT : result = random_range( 8 * 1024 * 1024, 87 * 1024 * 1024 ); 	break; //주차 이벤트
+				default : break;
+			}
+		}	
+		
+		fprintf( g_fp, "%d\t%lu\n",*selected_dir, result );
+		fclose( g_fp );
+
+		printf("result : %lu, selected_dir : %d \n ", result, *selected_dir );
+	}	
+	else if( load_flag == ON )
+	{
+		if( fgets( buf, sizeof( buf ), g_fp ) == NULL )
+		{
+			printf("Log End \n");
+			fclose( g_fp );
+			exit(1);
+			
+		}
+	//	printf("buf : %s \n", buf );
+		
+		token = strtok( buf, "\t" );
+		dir_num = atoi( token );
+		token = strtok( NULL, "\t" );
+		
+		result = strtoul( token, NULL, 10 );
+	
+		*selected_dir = dir_num;
+
+//		printf(" dir_num : %d result : %lu \n",dir_num, result );
+	}
+	else 
+	{
+		fclose( g_fp );
+		exit(-1);
+	}
+	return result;
+}
+
+void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 {
 	FILE *fd;
 	char fn[10];//, in_name[10];
@@ -139,13 +147,13 @@ void file_create(char **dirs, int *selected_dir, int sinario, int mode_flag )
 	static int file_creator[ DIR_NUM ] = { 0, };
 	unsigned long f_size = 0;
 
-	f_size = f_rand_size( selected_dir, sinario, mode_flag );
+	f_size = f_rand_size( selected_dir, sinario, load_flag );
 
 	//printf("f_size : %luM \t", f_size/1024/1024 );
 
 	switch( *selected_dir )
 	{
-		case ETC 			: file_creator[ ETC ]++; break;
+	//	case ETC 			: file_creator[ ETC ]++; break;
 		case NORMAL 		: file_creator[ NORMAL ]++; break;
 		case NORMAL_EVENT 	: file_creator[ NORMAL_EVENT ]++; break;
 		case PARKING		: file_creator[ PARKING ]++; break;
@@ -154,21 +162,24 @@ void file_create(char **dirs, int *selected_dir, int sinario, int mode_flag )
 		default : printf("*selected_dir error \n"); break;
 	}
 
-	printf("File name : %d \t", file_creator[ *selected_dir ] );
-	sprintf(fn,"%s%d", dirs[ *selected_dir ], file_creator[ *selected_dir ] );
+	if( load_flag == ON )
+	{	
+		printf("File name : %d \t", file_creator[ *selected_dir ] );
+		sprintf(fn,"%s%d", dirs[ *selected_dir ], file_creator[ *selected_dir ] );
 
-	if((fd = fopen(fn,"w")) == NULL) {
-		printf("File create error\n");
-		exit(-1);
-	}
-	for( k=0 ; k < f_size ; k++)
-		fputs("k",fd);
-
-	g_total.file_counter++;
-	fclose(fd);
-
-	printf("File create: %s \t\t %8luM \t dir_size(): %10luM \n",fn, f_size/1024/1024, dir_size( dirs[ *selected_dir ] )/1024/1024 );
+		//실제 타겟 파일에 설정된 크기 만큼, 파일을 생성하고 씀
+		if((fd = fopen(fn,"w")) == NULL) {
+			printf("File create error\n");
+			exit(-1);
+		}
+		for( k=0 ; k < f_size ; k++)
+			fputs("k",fd);
 	
+		fclose(fd);
+	
+		g_total.file_counter++;
+	
+		printf("File create: %s \t\t %8luM \t dir_size(): %10luM \n",fn, f_size/1024/1024, dir_size( dirs[ *selected_dir ] )/1024/1024 );
+	}
 }
-#endif
 

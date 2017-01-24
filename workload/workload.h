@@ -1,13 +1,13 @@
 #ifndef __CONTROL_FUNCTION_H__
 #define __CONTROL_FUNCTION_H__
 
-#define SAVE_LOG_NORMAL 		"./original_log/normal_driving.txt"
-#define SAVE_LOG_PARKING 		"./original_log/parking.txt"
-#define SAVE_LOG_PARKING_SHOCK  "./original_log/parking_shock.txt"
-#define SAVE_LOG_SHOCK 			"./original_log/shock.txt"
-#define SAVE_LOG_SESSION3 		"./original_log/session3.txt"
-#define SAVE_LOG_SESSION4 		"./original_log/session4.txt"
-#define SAVE_LOG_AUTOMATION		"./original_log/automation.txt"
+#define SAVE_LOG_NORMAL 		"./written_log/normal_driving.txt"
+#define SAVE_LOG_PARKING 		"./written_log/parking.txt"
+#define SAVE_LOG_PARKING_SHOCK  "./written_log/parking_shock.txt"
+#define SAVE_LOG_SHOCK 			"./written_log/shock.txt"
+#define SAVE_LOG_SESSION3 		"./written_log/session3.txt"
+#define SAVE_LOG_SESSION4 		"./written_log/session4.txt"
+#define SAVE_LOG_AUTOMATION		"./written_log/automation.txt"
 
 #define ORIGINAL 0
 #define OPEL 1
@@ -21,7 +21,7 @@
 
 #define ON 1
 #define OFF 0
-#define DIR_NUM 6
+#define DIR_NUM 5
 /*
 #define DIR1_SIZE ( 512 * pow( 1024, 2 ) )
 #define DIR2_SIZE ( 2 * pow( 1024, 3 ) )
@@ -55,8 +55,8 @@ typedef enum
 */
 typedef enum //selected_dir
 {
-	ETC  = 0, 			//etc
-	NORMAL, 			//normal
+//	ETC  = 0, 			//etc
+	NORMAL = 0,			//normal
 	NORMAL_EVENT, 		//normal event
 	PARKING,			//parking
 	PARKING_EVENT,		//parking event
@@ -64,7 +64,8 @@ typedef enum //selected_dir
 }dir_counter_e; 
 typedef enum 
 {
-	S_NORMAL_DRIVING = 1,
+	S_NONE = 0,
+	S_NORMAL_DRIVING,
 	S_PARKING,
 	S_PARKING_SHOCK,
 	S_SHOCK,	
@@ -101,5 +102,5 @@ dir_full g_dirfull[ DIR_NUM ];
 total g_total;
 FILE *g_fp;
 
-void file_create( char **dirs, int *selected_dir, int sinario, int mode_flag );
+void file_create( char **dirs, int *selected_dir, int sinario, int load_flag );
 #endif

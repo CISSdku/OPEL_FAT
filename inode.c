@@ -202,23 +202,23 @@ int fat_update_super(struct super_block *sb){
 
 	fat_count_free_clusters_for_area( sb );
 
-	printk("[gandan] Complete cluster calculation \n");
-	printk("[gandab]    1. [%2d%%] ETC      [%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_ETC],  sbi->bx_start_cluster[BB_ETC], sbi->bx_end_cluster[BB_ETC],sbi->bx_free_clusters[BB_ETC], \
+	printk("[cheon] Complete cluster calculation \n");
+	printk("[cheon]    1. [%2d%%] ETC      [%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_ETC],  sbi->bx_start_cluster[BB_ETC], sbi->bx_end_cluster[BB_ETC],sbi->bx_free_clusters[BB_ETC], \
 			(sbi->bx_free_clusters[BB_ETC] * 100) / (sbi->bx_end_cluster[BB_ETC] - sbi->bx_start_cluster[BB_ETC] + 1 ) );
 
-	printk("[gandab]    2. [%2d%%] Normal       [%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_NORMAL],   sbi->bx_start_cluster[BB_NORMAL], sbi->bx_end_cluster[BB_NORMAL],sbi->bx_free_clusters[BB_NORMAL], \
+	printk("[cheon]    2. [%2d%%] Normal       [%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_NORMAL],   sbi->bx_start_cluster[BB_NORMAL], sbi->bx_end_cluster[BB_NORMAL],sbi->bx_free_clusters[BB_NORMAL], \
 			(sbi->bx_free_clusters[BB_NORMAL] * 100) / (sbi->bx_end_cluster[BB_NORMAL]-sbi->bx_start_cluster[BB_NORMAL] + 1 ) );
 
-	printk("[gandab]    3. [%2d%%] Normal Shock [%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_NORMAL_EVENT],   sbi->bx_start_cluster[BB_NORMAL_EVENT], sbi->bx_end_cluster[BB_NORMAL_EVENT],sbi->bx_free_clusters[BB_NORMAL_EVENT], \
+	printk("[cheon]    3. [%2d%%] Normal Event [%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_NORMAL_EVENT],   sbi->bx_start_cluster[BB_NORMAL_EVENT], sbi->bx_end_cluster[BB_NORMAL_EVENT],sbi->bx_free_clusters[BB_NORMAL_EVENT], \
 			(sbi->bx_free_clusters[BB_NORMAL_EVENT] * 100) / (sbi->bx_end_cluster[BB_NORMAL_EVENT]-sbi->bx_start_cluster[BB_NORMAL_EVENT] + 1 ) );
 
-	printk("[gandab]    4. [%2d%%] Parking Motion   [%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_PARKING],   sbi->bx_start_cluster[BB_PARKING], sbi->bx_end_cluster[BB_PARKING],sbi->bx_free_clusters[BB_PARKING], \
+	printk("[cheon]    4. [%2d%%] Parking   [%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_PARKING],   sbi->bx_start_cluster[BB_PARKING], sbi->bx_end_cluster[BB_PARKING],sbi->bx_free_clusters[BB_PARKING], \
 			(sbi->bx_free_clusters[BB_PARKING] * 100) / (sbi->bx_end_cluster[BB_PARKING]-sbi->bx_start_cluster[ BB_PARKING ] + 1)  );
 
-	printk("[gandab]    5. [%2d%%] Manual       [%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_MANUAL],   sbi->bx_start_cluster[BB_MANUAL], sbi->bx_end_cluster[BB_MANUAL],sbi->bx_free_clusters[BB_MANUAL], \
+	printk("[cheon]    5. [%2d%%] Parking Event       [%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_MANUAL],   sbi->bx_start_cluster[BB_MANUAL], sbi->bx_end_cluster[BB_MANUAL],sbi->bx_free_clusters[BB_MANUAL], \
 			(sbi->bx_free_clusters[BB_MANUAL] * 100) / (sbi->bx_end_cluster[BB_MANUAL]-sbi->bx_start_cluster[BB_MANUAL] + 1)  );
 
-	printk("[gandab]    6. [%2d%%] Backup       [%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_IMAGE],   sbi->bx_start_cluster[BB_IMAGE], sbi->bx_end_cluster[BB_IMAGE],sbi->bx_free_clusters[BB_IMAGE], \
+	printk("[cheon]    6. [%2d%%] HandWork       [%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_IMAGE],   sbi->bx_start_cluster[BB_IMAGE], sbi->bx_end_cluster[BB_IMAGE],sbi->bx_free_clusters[BB_IMAGE], \
 			(sbi->bx_free_clusters[BB_IMAGE] * 100) / (sbi->bx_end_cluster[BB_IMAGE]-sbi->bx_start_cluster[BB_IMAGE] + 1)  );
 
 //	printk("[gandan] Total Reserved Sectors : %d ( %d KB) \n", sbi->fat_start, sbi->fat_start/2);

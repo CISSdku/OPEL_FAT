@@ -1,4 +1,3 @@
-../workload/test/etc/
 ../workload/test/normal/
 ../workload/test/normal_event/
 ../workload/test/parking/

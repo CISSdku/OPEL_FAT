@@ -16,9 +16,7 @@ static unsigned long dir_size( char *dn)
 	//printf("%s \t", dn );
 	sprintf( stn,  "%s%s%s",ch[0],dn,ch[1] );
 
-//	printf("%s \t", stn );
-
-	//printf( "test : %s \n ", stn);
+	printf("\ntest : %s \n ", stn);
 	
 	fp = popen(stn,"r");
 	if(fp == NULL) {
@@ -28,19 +26,18 @@ static unsigned long dir_size( char *dn)
 		exit(-1);
 	}
 
-
 	fgets( buf,sizeof(buf),fp);
-
 
 	strtok(buf," ");
 	size = strtok( NULL, " ");
 
-	pclose( fp );
+//	pclose( fp );
 
+//	while(1);
 	l_size = strtoul( size, NULL, 10 );
 
 //	printf("dir_size : %luM \n", l_size / 1024  );
-	
+
 	return l_size;
 }
 
@@ -103,6 +100,7 @@ void detect_and_control( char **dirs, int dir_cnt )
 
 	while(1)
 	{
+
 		while( ( size = dir_size( dirs[ num ] ) ) > g_dir[ num ].dir_size ) // 꽉찬 경우
 		{
 			printf("Full---------------------------------------------------------------------------------------------- \n");

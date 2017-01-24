@@ -1,4 +1,3 @@
-./test/etc/
 ./test/normal/
 ./test/normal_event/
 ./test/parking/

@@ -88,11 +88,12 @@ void init( int dir_cnt, char **dirs )
 	g_dir[ HANDWORK ].dir_size 		= HANDWORK_SIZE 	 - ( HANDWORK_SIZE * 0.01 );
 
 	printf("\n");
+
 	for( i = 0 ; i < dir_cnt ; i++ )
 	{
 		g_dir[ i ].check_portion = g_dir[ i ].dir_size - ( g_dir[ i ].dir_size  / 4 );
 
-		printf("%35s Check Full Status [-1%] %luM\t After Remove Size %luM\n",dirs[ i ], g_dir[ i ].dir_size/1024 , g_dir[ i ].check_portion/1024 );
+		printf("%-35s Check Full Status [-1%] %luM\t After Remove Size %luM\n",dirs[ i ], g_dir[ i ].dir_size/1024 , g_dir[ i ].check_portion/1024 );
 	}
 
 	
@@ -112,11 +113,9 @@ int main( int argc, char *argv[] )
 	}
 
 	dir_cnt = open_files( argv[1], dirs, &buf );
-//	view_dirs( dirs, dir_cnt );
+	//view_dirs( dirs, dir_cnt );
 	init( dir_cnt, dirs );
-
-	//
-//	printf("%d \n", dir_cnt );
+	//printf("%d \n", dir_cnt );
 
 	detect_and_control( dirs, dir_cnt );		
 
