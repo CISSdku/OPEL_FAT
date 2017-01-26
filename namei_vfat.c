@@ -1169,7 +1169,7 @@ MODULE_ALIAS_FS("vfat");
 
 static int __init init_vfat_fs(void)
 {
-#if 1
+#if 0
 	int rc;
 	printk( KERN_ALERT "[cheon] FAT sysfs Test!! \n");
   
@@ -1185,7 +1185,7 @@ static int __init init_vfat_fs(void)
 
 static void __exit exit_vfat_fs(void)
 {
-	do_fs_sysfs_unregistration();
+//	do_fs_sysfs_unregistration();
 	unregister_filesystem(&vfat_fs_type);
 }
 

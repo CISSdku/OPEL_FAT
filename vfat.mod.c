@@ -18,7 +18,6 @@ static const struct modversion_info ____versions[]
 __used
 __attribute__((section("__versions"))) = {
 	{ 0x1da0d6ca, __VMLINUX_SYMBOL_STR(module_layout) },
-	{ 0x54554948, __VMLINUX_SYMBOL_STR(kobject_put) },
 	{ 0x7b99eb2f, __VMLINUX_SYMBOL_STR(fat_detach) },
 	{ 0xfe6823e6, __VMLINUX_SYMBOL_STR(kmalloc_caches) },
 	{ 0x405c1144, __VMLINUX_SYMBOL_STR(get_seconds) },
@@ -34,19 +33,14 @@ __attribute__((section("__versions"))) = {
 	{ 0xe48e40c2, __VMLINUX_SYMBOL_STR(mutex_unlock) },
 	{ 0x71fa22b6, __VMLINUX_SYMBOL_STR(mount_bdev) },
 	{ 0xa973be29, __VMLINUX_SYMBOL_STR(fat_sync_inode) },
-	{ 0x9ded188e, __VMLINUX_SYMBOL_STR(kobject_del) },
 	{ 0x5f044076, __VMLINUX_SYMBOL_STR(fat_add_entries) },
-	{ 0xb98b80fd, __VMLINUX_SYMBOL_STR(sysfs_remove_group) },
 	{ 0x7d11c268, __VMLINUX_SYMBOL_STR(jiffies) },
 	{ 0x4717aed7, __VMLINUX_SYMBOL_STR(fat_remove_entries) },
-	{ 0xecc3c7d7, __VMLINUX_SYMBOL_STR(kobject_create_and_add) },
 	{ 0xf65d7f98, __VMLINUX_SYMBOL_STR(fat_alloc_new_dir) },
 	{ 0x4502602a, __VMLINUX_SYMBOL_STR(fat_fill_super) },
 	{ 0x19ed1f80, __VMLINUX_SYMBOL_STR(fat_build_inode) },
 	{ 0x11089ac7, __VMLINUX_SYMBOL_STR(_ctype) },
 	{ 0x27e1a049, __VMLINUX_SYMBOL_STR(printk) },
-	{ 0x20c55ae0, __VMLINUX_SYMBOL_STR(sscanf) },
-	{ 0xf1448f3a, __VMLINUX_SYMBOL_STR(sysfs_create_group) },
 	{ 0x604fe828, __VMLINUX_SYMBOL_STR(fat_attach) },
 	{ 0xa1c4c12, __VMLINUX_SYMBOL_STR(d_move) },
 	{ 0x5a921311, __VMLINUX_SYMBOL_STR(strncmp) },
@@ -58,7 +52,6 @@ __attribute__((section("__versions"))) = {
 	{ 0xe2338745, __VMLINUX_SYMBOL_STR(fat_getattr) },
 	{ 0x4aa4713, __VMLINUX_SYMBOL_STR(__brelse) },
 	{ 0x5590a034, __VMLINUX_SYMBOL_STR(kmem_cache_alloc) },
-	{ 0xe9011563, __VMLINUX_SYMBOL_STR(fs_kobj) },
 	{ 0xf0fdf6cb, __VMLINUX_SYMBOL_STR(__stack_chk_fail) },
 	{ 0xfc77c68f, __VMLINUX_SYMBOL_STR(kill_block_super) },
 	{ 0x359df40c, __VMLINUX_SYMBOL_STR(fat_search_long) },
@@ -91,4 +84,4 @@ __attribute__((section(".modinfo"))) =
 "depends=fat";
 
 
-MODULE_INFO(srcversion, "0C6A60540C8365728713DB0");
+MODULE_INFO(srcversion, "7429164BDB322D1A8BB19D0");
