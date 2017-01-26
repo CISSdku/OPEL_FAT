@@ -481,7 +481,7 @@ static void fat_collect_bhs(struct buffer_head **bhs, int *nr_bhs,
 	}
 }
 
-int view_fatent_entry( void )
+int opel_view_fatent_entry( void )
 {
 	struct msdos_sb_info *sbi = MSDOS_SB( temp_sb );
 	struct fatent_operations *ops = sbi->fatent_ops;
@@ -559,7 +559,7 @@ out:
 
 	return 0;
 }   
-EXPORT_SYMBOL_GPL( view_fatent_entry );
+EXPORT_SYMBOL_GPL( opel_view_fatent_entry );
 
 
 
@@ -795,7 +795,7 @@ out:
 	if (err && idx_clus)
 	{
 		printk( KERN_ALERT "[cheon] ==========fat_free_clusters test \n" );
-		fat_free_clusters(inode, cluster[0]);
+		opel_fat_free_clusters(inode, cluster[0]);
 	}
 
 #ifdef __DEBUG__
@@ -804,7 +804,7 @@ out:
 	return err;
 }
 
-int fat_free_clusters(struct inode *inode, int cluster)
+int opel_fat_free_clusters(struct inode *inode, int cluster)
 {
 	struct super_block *sb = inode->i_sb;
 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
@@ -988,7 +988,7 @@ error:
 
 	return err;
 }
-EXPORT_SYMBOL_GPL(fat_free_clusters);
+EXPORT_SYMBOL_GPL( opel_fat_free_clusters);
 
 /* 128kb is the whole sectors for FAT12 and FAT16 */
 #define FAT_READA_SIZE		(128 * 1024)

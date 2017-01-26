@@ -20,7 +20,7 @@
  * In case the file system is remounted read-only, it can be made writable
  * again by remounting it.
  */
-void __fat_fs_error(struct super_block *sb, int report, const char *fmt, ...)
+void opel__fat_fs_error(struct super_block *sb, int report, const char *fmt, ...)
 {
 	struct fat_mount_options *opts = &MSDOS_SB(sb)->options;
 	va_list args;
@@ -42,7 +42,7 @@ void __fat_fs_error(struct super_block *sb, int report, const char *fmt, ...)
 				"set read-only\n", sb->s_id);
 	}
 }
-EXPORT_SYMBOL_GPL(__fat_fs_error);
+EXPORT_SYMBOL_GPL( opel__fat_fs_error);
 
 /**
  * fat_msg() - print preformated FAT specific messages. Every thing what is
@@ -148,7 +148,7 @@ int fat_chain_add(struct inode *inode, int new_dclus, int nr_cluster)
 		 * we sync here only directories.
 		 */
 		if (S_ISDIR(inode->i_mode) && IS_DIRSYNC(inode)) {
-			ret = fat_sync_inode(inode);
+			ret = opel_fat_sync_inode(inode);
 			if (ret)
 				return ret;
 		} else
@@ -231,7 +231,7 @@ void fat_time_fat2unix(struct msdos_sb_info *sbi, struct timespec *ts,
 }
 
 /* Convert linear UNIX date to a FAT time/date pair. */
-void fat_time_unix2fat(struct msdos_sb_info *sbi, struct timespec *ts,
+void opel_fat_time_unix2fat(struct msdos_sb_info *sbi, struct timespec *ts,
 		       __le16 *time, __le16 *date, u8 *time_cs)
 {
 	struct tm tm;
@@ -267,7 +267,7 @@ void fat_time_unix2fat(struct msdos_sb_info *sbi, struct timespec *ts,
 	if (time_cs)
 		*time_cs = (ts->tv_sec & 1) * 100 + ts->tv_nsec / 10000000;
 }
-EXPORT_SYMBOL_GPL(fat_time_unix2fat);
+EXPORT_SYMBOL_GPL( opel_fat_time_unix2fat);
 
 int fat_sync_bhs(struct buffer_head **bhs, int nr_bhs)
 {

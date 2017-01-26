@@ -48,8 +48,8 @@ int build_config_file( struct inode *dir, struct dentry *dentry, int mode )
 	de.starthi = cpu_to_le16(cluster_num) >> 16;  //high 16bit니깐 이게 맞는거 같은데 원래 괄호안에 >> 16이 있었음
 	de.size = 272 ; //length of data
 	
-	err = fat_add_entries( dir, &de, 1, _sinfo ); //int fat_add_entries(struct inode *dir, void *slots, int nr_slots,struct fat_slot_info *sinfo)
-	inode = fat_build_inode( sb, sinfo.de, sinfo.i_pos );
+	err = opel_fat_add_entries( dir, &de, 1, _sinfo ); //int fat_add_entries(struct inode *dir, void *slots, int nr_slots,struct fat_slot_info *sinfo)
+	inode = opel_fat_build_inode( sb, sinfo.de, sinfo.i_pos );
 
 	brelse( sinfo.bh );
 
@@ -67,7 +67,7 @@ out:
 /*
  	Update for pre-allocation config file setting
  */
-int fat_config_init(struct super_block *sb)
+int opel_fat_config_init(struct super_block *sb)
 {
 	struct fat_slot_info sinfo;
 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
@@ -106,4 +106,4 @@ exist:
 #endif	
 	return 0;
 }
-EXPORT_SYMBOL_GPL( fat_config_init );
+EXPORT_SYMBOL_GPL( opel_fat_config_init );

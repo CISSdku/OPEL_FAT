@@ -466,7 +466,7 @@ static int fat_parse_short(struct super_block *sb,
 /*
  * Return values: negative -> error/not found, 0 -> found.
  */
-int fat_search_long(struct inode *inode, const unsigned char *name,
+int opel_fat_search_long(struct inode *inode, const unsigned char *name,
 		    int name_len, struct fat_slot_info *sinfo)
 {
 	struct super_block *sb = inode->i_sb;
@@ -546,7 +546,7 @@ end_of_dir:
 
 	return err;
 }
-EXPORT_SYMBOL_GPL(fat_search_long);
+EXPORT_SYMBOL_GPL( opel_fat_search_long);
 
 struct fat_ioctl_filldir_callback {
 	void __user *dirent;
@@ -897,7 +897,7 @@ static int fat_get_short_entry(struct inode *dir, loff_t *pos,
  * callers are responsible for taking any locks necessary to prevent the
  * directory from changing.
  */
-int fat_get_dotdot_entry(struct inode *dir, struct buffer_head **bh,
+int opel_fat_get_dotdot_entry(struct inode *dir, struct buffer_head **bh,
 			 struct msdos_dir_entry **de)
 {
 	loff_t offset = 0;
@@ -909,10 +909,10 @@ int fat_get_dotdot_entry(struct inode *dir, struct buffer_head **bh,
 	}
 	return -ENOENT;
 }
-EXPORT_SYMBOL_GPL(fat_get_dotdot_entry);
+EXPORT_SYMBOL_GPL( opel_fat_get_dotdot_entry);
 
 /* See if directory is empty */
-int fat_dir_empty(struct inode *dir)
+int opel_fat_dir_empty(struct inode *dir)
 {
 	struct buffer_head *bh;
 	struct msdos_dir_entry *de;
@@ -931,7 +931,7 @@ int fat_dir_empty(struct inode *dir)
 	brelse(bh);
 	return result;
 }
-EXPORT_SYMBOL_GPL(fat_dir_empty);
+EXPORT_SYMBOL_GPL( opel_fat_dir_empty);
 
 /*
  * fat_subdirs counts the number of sub-directories of dir. It can be run
@@ -958,7 +958,7 @@ int fat_subdirs(struct inode *dir)
  * Scans a directory for a given file (name points to its formatted name).
  * Returns an error code or zero.
  */
-int fat_scan(struct inode *dir, const unsigned char *name,
+int opel_fat_scan(struct inode *dir, const unsigned char *name,
 	     struct fat_slot_info *sinfo)
 {
 	struct super_block *sb = dir->i_sb;
@@ -976,7 +976,7 @@ int fat_scan(struct inode *dir, const unsigned char *name,
 	}
 	return -ENOENT;
 }
-EXPORT_SYMBOL_GPL(fat_scan);
+EXPORT_SYMBOL_GPL( opel_fat_scan);
 
 /*
  * Scans a directory for a given logstart.
@@ -1039,7 +1039,7 @@ static int __fat_remove_entries(struct inode *dir, loff_t pos, int nr_slots)
 	return err;
 }
 
-int fat_remove_entries(struct inode *dir, struct fat_slot_info *sinfo)
+int opel_fat_remove_entries(struct inode *dir, struct fat_slot_info *sinfo)
 {
 	struct super_block *sb = dir->i_sb;
 	struct msdos_dir_entry *de;
@@ -1084,13 +1084,13 @@ int fat_remove_entries(struct inode *dir, struct fat_slot_info *sinfo)
 
 	dir->i_mtime = dir->i_atime = CURRENT_TIME_SEC;
 	if (IS_DIRSYNC(dir))
-		(void)fat_sync_inode(dir);
+		(void)opel_fat_sync_inode(dir);
 	else
 		mark_inode_dirty(dir);
 
 	return 0;
 }
-EXPORT_SYMBOL_GPL(fat_remove_entries);
+EXPORT_SYMBOL_GPL(opel_fat_remove_entries);
 
 static int fat_zeroed_cluster(struct inode *dir, sector_t blknr, int nr_used,
 			      struct buffer_head **bhs, int nr_bhs)
@@ -1141,7 +1141,7 @@ error:
 	return err;
 }
 
-int fat_alloc_new_dir(struct inode *dir, struct timespec *ts)
+int opel_fat_alloc_new_dir(struct inode *dir, struct timespec *ts)
 {
 	struct super_block *sb = dir->i_sb;
 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
@@ -1163,7 +1163,7 @@ int fat_alloc_new_dir(struct inode *dir, struct timespec *ts)
 		goto error_free;
 	}
 
-	fat_time_unix2fat(sbi, ts, &time, &date, &time_cs);
+	opel_fat_time_unix2fat(sbi, ts, &time, &date, &time_cs);
 
 	de = (struct msdos_dir_entry *)bhs[0]->b_data;
 	/* filling the new directory slots ("." and ".." entries) */
@@ -1198,11 +1198,11 @@ int fat_alloc_new_dir(struct inode *dir, struct timespec *ts)
 
 error_free:
 	printk( KERN_ALERT "[cheon] fat_alloc_new_dir, fat_free_clusters \n");
-	fat_free_clusters(dir, cluster);
+	opel_fat_free_clusters(dir, cluster);
 error:
 	return err;
 }
-EXPORT_SYMBOL_GPL(fat_alloc_new_dir);
+EXPORT_SYMBOL_GPL( opel_fat_alloc_new_dir);
 
 static int fat_add_new_entries(struct inode *dir, void *slots, int nr_slots,
 			       int *nr_cluster, struct msdos_dir_entry **de,
@@ -1281,12 +1281,12 @@ error_nomem:
 		bforget(bhs[i]);
 
 	printk( KERN_ALERT "[cheon] fat_add_new_entries, fat_free_clusters \n");
-	fat_free_clusters(dir, cluster[0]);
+	opel_fat_free_clusters(dir, cluster[0]);
 error:
 	return err;
 }
 
-int fat_add_entries(struct inode *dir, void *slots, int nr_slots,
+int opel_fat_add_entries(struct inode *dir, void *slots, int nr_slots,
 		    struct fat_slot_info *sinfo)
 {
 	struct super_block *sb = dir->i_sb;
@@ -1392,7 +1392,7 @@ found:
 
 			printk( KERN_ALERT "[cheon] fat_add_entries, fat_free_clusters \n");
 	
-			fat_free_clusters(dir, cluster);
+			opel_fat_free_clusters(dir, cluster);
 			goto error_remove;
 		}
 		if (dir->i_size & (sbi->cluster_size - 1)) {
@@ -1422,4 +1422,4 @@ error_remove:
 		__fat_remove_entries(dir, pos, free_slots);
 	return err;
 }
-EXPORT_SYMBOL_GPL(fat_add_entries);
+EXPORT_SYMBOL_GPL( opel_fat_add_entries);

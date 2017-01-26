@@ -127,7 +127,7 @@ static int msdos_find(struct inode *dir, const unsigned char *name, int len,
 	if (err)
 		return -ENOENT;
 
-	err = fat_scan(dir, msdos_name, sinfo);
+	err = opel_fat_scan(dir, msdos_name, sinfo);
 	if (!err && sbi->options.dotsOK) {
 		if (name[0] == '.') {
 			if (!(sinfo->de->attr & ATTR_HIDDEN))
@@ -215,7 +215,7 @@ static struct dentry *msdos_lookup(struct inode *dir, struct dentry *dentry,
 		inode = NULL;
 		break;
 	case 0:
-		inode = fat_build_inode(sb, sinfo.de, sinfo.i_pos);
+		inode = opel_fat_build_inode(sb, sinfo.de, sinfo.i_pos);
 		brelse(sinfo.bh);
 		break;
 	default:
@@ -240,7 +240,7 @@ static int msdos_add_entry(struct inode *dir, const unsigned char *name,
 	if (is_hid)
 		de.attr |= ATTR_HIDDEN;
 	de.lcase = 0;
-	fat_time_unix2fat(sbi, ts, &time, &date, NULL);
+	opel_fat_time_unix2fat(sbi, ts, &time, &date, NULL);
 	de.cdate = de.adate = 0;
 	de.ctime = 0;
 	de.ctime_cs = 0;
@@ -249,13 +249,13 @@ static int msdos_add_entry(struct inode *dir, const unsigned char *name,
 	fat_set_start(&de, cluster);
 	de.size = 0;
 
-	err = fat_add_entries(dir, &de, 1, sinfo);
+	err = opel_fat_add_entries(dir, &de, 1, sinfo);
 	if (err)
 		return err;
 
 	dir->i_ctime = dir->i_mtime = *ts;
 	if (IS_DIRSYNC(dir))
-		(void)fat_sync_inode(dir);
+		(void)opel_fat_sync_inode(dir);
 	else
 		mark_inode_dirty(dir);
 
@@ -281,7 +281,7 @@ static int msdos_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		goto out;
 	is_hid = (dentry->d_name.name[0] == '.') && (msdos_name[0] != '.');
 	/* Have to do it due to foo vs. .foo conflicts */
-	if (!fat_scan(dir, msdos_name, &sinfo)) {
+	if (!opel_fat_scan(dir, msdos_name, &sinfo)) {
 		brelse(sinfo.bh);
 		err = -EINVAL;
 		goto out;
@@ -291,7 +291,7 @@ static int msdos_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 	err = msdos_add_entry(dir, msdos_name, 0, is_hid, 0, &ts, &sinfo);
 	if (err)
 		goto out;
-	inode = fat_build_inode(sb, sinfo.de, sinfo.i_pos);
+	inode = opel_fat_build_inode(sb, sinfo.de, sinfo.i_pos);
 	brelse(sinfo.bh);
 	if (IS_ERR(inode)) {
 		err = PTR_ERR(inode);
@@ -304,7 +304,7 @@ static int msdos_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 out:
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
 	if (!err)
-		err = fat_flush_inodes(sb, dir, inode);
+		err = opel_fat_flush_inodes(sb, dir, inode);
 	return err;
 }
 
@@ -321,7 +321,7 @@ static int msdos_rmdir(struct inode *dir, struct dentry *dentry)
 	 * Check whether the directory is not in use, then check
 	 * whether it is empty.
 	 */
-	err = fat_dir_empty(inode);
+	err = opel_fat_dir_empty(inode);
 	if (err)
 		goto out;
 	err = msdos_find(dir, dentry->d_name.name, dentry->d_name.len, &sinfo);
@@ -329,18 +329,18 @@ static int msdos_rmdir(struct inode *dir, struct dentry *dentry)
 		goto out;
 
 	printk( KERN_ALERT "[cheon] msdos_rmdir \n" ); 
-	err = fat_remove_entries(dir, &sinfo);	/* and releases bh */
+	err = opel_fat_remove_entries(dir, &sinfo);	/* and releases bh */
 	if (err)
 		goto out;
 	drop_nlink(dir);
 
 	clear_nlink(inode);
 	inode->i_ctime = CURRENT_TIME_SEC;
-	fat_detach(inode);
+	opel_fat_detach(inode);
 out:
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
 	if (!err)
-		err = fat_flush_inodes(sb, dir, inode);
+		err = opel_fat_flush_inodes(sb, dir, inode);
 
 	return err;
 }
@@ -363,14 +363,14 @@ static int msdos_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 		goto out;
 	is_hid = (dentry->d_name.name[0] == '.') && (msdos_name[0] != '.');
 	/* foo vs .foo situation */
-	if (!fat_scan(dir, msdos_name, &sinfo)) {
+	if (!opel_fat_scan(dir, msdos_name, &sinfo)) {
 		brelse(sinfo.bh);
 		err = -EINVAL;
 		goto out;
 	}
 
 	ts = CURRENT_TIME_SEC;
-	cluster = fat_alloc_new_dir(dir, &ts);
+	cluster = opel_fat_alloc_new_dir(dir, &ts);
 	if (cluster < 0) {
 		err = cluster;
 		goto out;
@@ -380,7 +380,7 @@ static int msdos_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 		goto out_free;
 	inc_nlink(dir);
 
-	inode = fat_build_inode(sb, sinfo.de, sinfo.i_pos);
+	inode = opel_fat_build_inode(sb, sinfo.de, sinfo.i_pos);
 	brelse(sinfo.bh);
 	if (IS_ERR(inode)) {
 		err = PTR_ERR(inode);
@@ -394,12 +394,12 @@ static int msdos_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 	d_instantiate(dentry, inode);
 
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
-	fat_flush_inodes(sb, dir, inode);
+	opel_fat_flush_inodes(sb, dir, inode);
 	return 0;
 
 out_free:
 	printk( KERN_ALERT "[cheon] msdos_mkdir, fat_free_clusters \n" );
-	fat_free_clusters(dir, cluster);
+	opel_fat_free_clusters(dir, cluster);
 out:
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
 	return err;
@@ -419,16 +419,16 @@ static int msdos_unlink(struct inode *dir, struct dentry *dentry)
 		goto out;
 
 	printk( KERN_ALERT "[cheon] msdos_unlink \n" ); 
-	err = fat_remove_entries(dir, &sinfo);	/* and releases bh */
+	err = opel_fat_remove_entries(dir, &sinfo);	/* and releases bh */
 	if (err)
 		goto out;
 	clear_nlink(inode);
 	inode->i_ctime = CURRENT_TIME_SEC;
-	fat_detach(inode);
+	opel_fat_detach(inode);
 out:
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
 	if (!err)
-		err = fat_flush_inodes(sb, dir, inode);
+		err = opel_fat_flush_inodes(sb, dir, inode);
 
 	return err;
 }
@@ -450,7 +450,7 @@ static int do_msdos_rename(struct inode *old_dir, unsigned char *old_name,
 	old_inode = old_dentry->d_inode;
 	new_inode = new_dentry->d_inode;
 
-	err = fat_scan(old_dir, old_name, &old_sinfo);
+	err = opel_fat_scan(old_dir, old_name, &old_sinfo);
 	if (err) {
 		err = -EIO;
 		goto out;
@@ -459,14 +459,14 @@ static int do_msdos_rename(struct inode *old_dir, unsigned char *old_name,
 	is_dir = S_ISDIR(old_inode->i_mode);
 	update_dotdot = (is_dir && old_dir != new_dir);
 	if (update_dotdot) {
-		if (fat_get_dotdot_entry(old_inode, &dotdot_bh, &dotdot_de)) {
+		if ( opel_fat_get_dotdot_entry(old_inode, &dotdot_bh, &dotdot_de)) {
 			err = -EIO;
 			goto out;
 		}
 	}
 
 	old_attrs = MSDOS_I(old_inode)->i_attrs;
-	err = fat_scan(new_dir, new_name, &sinfo);
+	err = opel_fat_scan(new_dir, new_name, &sinfo);
 	if (!err) {
 		if (!new_inode) {
 			/* "foo" -> ".foo" case. just change the ATTR_HIDDEN */
@@ -479,7 +479,7 @@ static int do_msdos_rename(struct inode *old_dir, unsigned char *old_name,
 			else
 				MSDOS_I(old_inode)->i_attrs &= ~ATTR_HIDDEN;
 			if (IS_DIRSYNC(old_dir)) {
-				err = fat_sync_inode(old_inode);
+				err = opel_fat_sync_inode(old_inode);
 				if (err) {
 					MSDOS_I(old_inode)->i_attrs = old_attrs;
 					goto out;
@@ -490,7 +490,7 @@ static int do_msdos_rename(struct inode *old_dir, unsigned char *old_name,
 			old_dir->i_version++;
 			old_dir->i_ctime = old_dir->i_mtime = CURRENT_TIME_SEC;
 			if (IS_DIRSYNC(old_dir))
-				(void)fat_sync_inode(old_dir);
+				(void)opel_fat_sync_inode(old_dir);
 			else
 				mark_inode_dirty(old_dir);
 			goto out;
@@ -502,12 +502,12 @@ static int do_msdos_rename(struct inode *old_dir, unsigned char *old_name,
 		if (err)
 			goto out;
 		if (is_dir) {
-			err = fat_dir_empty(new_inode);
+			err = opel_fat_dir_empty(new_inode);
 			if (err)
 				goto out;
 		}
 		new_i_pos = MSDOS_I(new_inode)->i_pos;
-		fat_detach(new_inode);
+		opel_fat_detach(new_inode);
 	} else {
 		err = msdos_add_entry(new_dir, new_name, is_dir, is_hid, 0,
 				      &ts, &sinfo);
@@ -517,14 +517,14 @@ static int do_msdos_rename(struct inode *old_dir, unsigned char *old_name,
 	}
 	new_dir->i_version++;
 
-	fat_detach(old_inode);
-	fat_attach(old_inode, new_i_pos);
+	opel_fat_detach(old_inode);
+	opel_fat_attach(old_inode, new_i_pos);
 	if (is_hid)
 		MSDOS_I(old_inode)->i_attrs |= ATTR_HIDDEN;
 	else
 		MSDOS_I(old_inode)->i_attrs &= ~ATTR_HIDDEN;
 	if (IS_DIRSYNC(new_dir)) {
-		err = fat_sync_inode(old_inode);
+		err = opel_fat_sync_inode(old_inode);
 		if (err)
 			goto error_inode;
 	} else
@@ -544,14 +544,14 @@ static int do_msdos_rename(struct inode *old_dir, unsigned char *old_name,
 	}
 	
 	printk( KERN_ALERT "[cheon] do_msdos_rename \n");
-	err = fat_remove_entries(old_dir, &old_sinfo);	/* and releases bh */
+	err = opel_fat_remove_entries(old_dir, &old_sinfo);	/* and releases bh */
 	old_sinfo.bh = NULL;
 	if (err)
 		goto error_dotdot;
 	old_dir->i_version++;
 	old_dir->i_ctime = old_dir->i_mtime = ts;
 	if (IS_DIRSYNC(old_dir))
-		(void)fat_sync_inode(old_dir);
+		(void)opel_fat_sync_inode(old_dir);
 	else
 		mark_inode_dirty(old_dir);
 
@@ -577,13 +577,13 @@ error_dotdot:
 		corrupt |= sync_dirty_buffer(dotdot_bh);
 	}
 error_inode:
-	fat_detach(old_inode);
-	fat_attach(old_inode, old_sinfo.i_pos);
+	opel_fat_detach(old_inode);
+	opel_fat_attach(old_inode, old_sinfo.i_pos);
 	MSDOS_I(old_inode)->i_attrs = old_attrs;
 	if (new_inode) {
-		fat_attach(new_inode, new_i_pos);
+		opel_fat_attach(new_inode, new_i_pos);
 		if (corrupt)
-			corrupt |= fat_sync_inode(new_inode);
+			corrupt |= opel_fat_sync_inode(new_inode);
 	} else {
 		/*
 		 * If new entry was not sharing the data cluster, it
@@ -591,7 +591,7 @@ error_inode:
 		 */
 		
 		printk( KERN_ALERT "[cheon] do_msdos_rename, err_inode \n");
-		int err2 = fat_remove_entries(new_dir, &sinfo);
+		int err2 = opel_fat_remove_entries(new_dir, &sinfo);
 		if (corrupt)
 			corrupt |= err2;
 		sinfo.bh = NULL;
@@ -633,7 +633,7 @@ static int msdos_rename(struct inode *old_dir, struct dentry *old_dentry,
 out:
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
 	if (!err)
-		err = fat_flush_inodes(sb, old_dir, new_dir);
+		err = opel_fat_flush_inodes(sb, old_dir, new_dir);
 	return err;
 }
 
@@ -644,8 +644,8 @@ static const struct inode_operations msdos_dir_inode_operations = {
 	.mkdir		= msdos_mkdir,
 	.rmdir		= msdos_rmdir,
 	.rename		= msdos_rename,
-	.setattr	= fat_setattr,
-	.getattr	= fat_getattr,
+	.setattr	= opel_fat_setattr,
+	.getattr	= opel_fat_getattr,
 };
 
 static void setup(struct super_block *sb)
@@ -657,7 +657,7 @@ static void setup(struct super_block *sb)
 
 static int msdos_fill_super(struct super_block *sb, void *data, int silent)
 {
-	return fat_fill_super(sb, data, silent, 0, setup);
+	return opel_fat_fill_super(sb, data, silent, 0, setup);
 }
 
 static struct dentry *msdos_mount(struct file_system_type *fs_type,
@@ -669,7 +669,7 @@ static struct dentry *msdos_mount(struct file_system_type *fs_type,
 
 static struct file_system_type msdos_fs_type = {
 	.owner		= THIS_MODULE,
-	.name		= "msdos",
+	.name		= "msdos_opel",
 	.mount		= msdos_mount,
 	.kill_sb	= kill_block_super,
 	.fs_flags	= FS_REQUIRES_DEV,

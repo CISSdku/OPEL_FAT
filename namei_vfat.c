@@ -233,7 +233,7 @@ static inline int vfat_is_used_badchars(const wchar_t *s, int len)
 static int vfat_find_form(struct inode *dir, unsigned char *name)
 {
 	struct fat_slot_info sinfo;
-	int err = fat_scan(dir, name, &sinfo);
+	int err = opel_fat_scan(dir, name, &sinfo);
 	if (err)
 		return -ENOENT;
 	brelse(sinfo.bh);
@@ -652,7 +652,7 @@ shortname:
 	memcpy(de->name, msdos_name, MSDOS_NAME);
 	de->attr = is_dir ? ATTR_DIR : ATTR_ARCH;
 	de->lcase = lcase;
-	fat_time_unix2fat(sbi, ts, &time, &date, &time_cs);
+	opel_fat_time_unix2fat(sbi, ts, &time, &date, &time_cs);
 	de->time = de->ctime = time;
 	de->date = de->cdate = de->adate = date;
 	de->ctime_cs = time_cs;
@@ -684,14 +684,14 @@ static int vfat_add_entry(struct inode *dir, struct qstr *qname, int is_dir,
 	if (err)
 		goto cleanup;
 
-	err = fat_add_entries(dir, slots, nr_slots, sinfo);
+	err = opel_fat_add_entries(dir, slots, nr_slots, sinfo);
 	if (err)
 		goto cleanup;
 
 	/* update timestamp */
 	dir->i_ctime = dir->i_mtime = dir->i_atime = *ts;
 	if (IS_DIRSYNC(dir))
-		(void)fat_sync_inode(dir);
+		(void)opel_fat_sync_inode(dir);
 	else
 		mark_inode_dirty(dir);
 cleanup:
@@ -705,7 +705,7 @@ static int vfat_find(struct inode *dir, struct qstr *qname,
 	unsigned int len = vfat_striptail_len(qname);
 	if (len == 0)
 		return -ENOENT;
-	return fat_search_long(dir, qname->name, len, sinfo);
+	return opel_fat_search_long(dir, qname->name, len, sinfo);
 }
 
 /*
@@ -739,7 +739,7 @@ static struct dentry *vfat_lookup(struct inode *dir, struct dentry *dentry,
 		goto error;
 	}
 
-	inode = fat_build_inode(sb, sinfo.de, sinfo.i_pos);
+	inode = opel_fat_build_inode(sb, sinfo.de, sinfo.i_pos);
 	brelse(sinfo.bh);
 	if (IS_ERR(inode)) {
 		err = PTR_ERR(inode);
@@ -796,7 +796,7 @@ static int vfat_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		goto out;
 	dir->i_version++;
 
-	inode = fat_build_inode(sb, sinfo.de, sinfo.i_pos);
+	inode = opel_fat_build_inode(sb, sinfo.de, sinfo.i_pos);
 	brelse(sinfo.bh);
 	if (IS_ERR(inode)) {
 		err = PTR_ERR(inode);
@@ -824,21 +824,21 @@ static int vfat_rmdir(struct inode *dir, struct dentry *dentry)
 
 	mutex_lock(&MSDOS_SB(sb)->s_lock);
 
-	err = fat_dir_empty(inode);
+	err = opel_fat_dir_empty(inode);
 	if (err)
 		goto out;
 	err = vfat_find(dir, &dentry->d_name, &sinfo);
 	if (err)
 		goto out;
 
-	err = fat_remove_entries(dir, &sinfo);	/* and releases bh */
+	err = opel_fat_remove_entries(dir, &sinfo);	/* and releases bh */
 	if (err)
 		goto out;
 	drop_nlink(dir);
 
 	clear_nlink(inode);
 	inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC;
-	fat_detach(inode);
+	opel_fat_detach(inode);
 out:
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
 
@@ -862,12 +862,12 @@ static int vfat_unlink(struct inode *dir, struct dentry *dentry)
 		goto out;
 
 //	printk( KERN_ALERT "[cheon] vfat_unlink \n" ); 
-	err = fat_remove_entries(dir, &sinfo);	/* and releases bh */
+	err = opel_fat_remove_entries(dir, &sinfo);	/* and releases bh */
 	if (err)
 		goto out;
 	clear_nlink(inode);
 	inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC;
-	fat_detach(inode);
+	opel_fat_detach(inode);
 out:
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
 
@@ -885,7 +885,7 @@ static int vfat_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 	mutex_lock(&MSDOS_SB(sb)->s_lock);
 
 	ts = CURRENT_TIME_SEC;
-	cluster = fat_alloc_new_dir(dir, &ts);
+	cluster = opel_fat_alloc_new_dir(dir, &ts);
 	if (cluster < 0) {
 		err = cluster;
 		goto out;
@@ -896,7 +896,7 @@ static int vfat_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 	dir->i_version++;
 	inc_nlink(dir);
 
-	inode = fat_build_inode(sb, sinfo.de, sinfo.i_pos);
+	inode = opel_fat_build_inode(sb, sinfo.de, sinfo.i_pos);
 	brelse(sinfo.bh);
 	if (IS_ERR(inode)) {
 		err = PTR_ERR(inode);
@@ -916,7 +916,7 @@ static int vfat_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 
 out_free:
 	printk( KERN_ALERT "[cheon] vfat_mkdir, fat_free_clusters \n");
-	fat_free_clusters(dir, cluster);
+	opel_fat_free_clusters(dir, cluster);
 out:
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
 	return err;
@@ -945,7 +945,7 @@ static int vfat_rename(struct inode *old_dir, struct dentry *old_dentry,
 	is_dir = S_ISDIR(old_inode->i_mode);
 	update_dotdot = (is_dir && old_dir != new_dir);
 	if (update_dotdot) {
-		if (fat_get_dotdot_entry(old_inode, &dotdot_bh, &dotdot_de)) {
+		if ( opel_fat_get_dotdot_entry(old_inode, &dotdot_bh, &dotdot_de)) {
 			err = -EIO;
 			goto out;
 		}
@@ -954,12 +954,12 @@ static int vfat_rename(struct inode *old_dir, struct dentry *old_dentry,
 	ts = CURRENT_TIME_SEC;
 	if (new_inode) {
 		if (is_dir) {
-			err = fat_dir_empty(new_inode);
+			err = opel_fat_dir_empty(new_inode);
 			if (err)
 				goto out;
 		}
 		new_i_pos = MSDOS_I(new_inode)->i_pos;
-		fat_detach(new_inode);
+		opel_fat_detach(new_inode);
 	} else {
 		err = vfat_add_entry(new_dir, &new_dentry->d_name, is_dir, 0,
 				     &ts, &sinfo);
@@ -969,10 +969,10 @@ static int vfat_rename(struct inode *old_dir, struct dentry *old_dentry,
 	}
 	new_dir->i_version++;
 
-	fat_detach(old_inode);
-	fat_attach(old_inode, new_i_pos);
+	opel_fat_detach(old_inode);
+	opel_fat_attach(old_inode, new_i_pos);
 	if (IS_DIRSYNC(new_dir)) {
-		err = fat_sync_inode(old_inode);
+		err = opel_fat_sync_inode(old_inode);
 		if (err)
 			goto error_inode;
 	} else
@@ -992,14 +992,14 @@ static int vfat_rename(struct inode *old_dir, struct dentry *old_dentry,
 	}
 
 //	printk( KERN_ALERT "[cheon] vfat_rename \n");
-	err = fat_remove_entries(old_dir, &old_sinfo);	/* and releases bh */
+	err = opel_fat_remove_entries(old_dir, &old_sinfo);	/* and releases bh */
 	old_sinfo.bh = NULL;
 	if (err)
 		goto error_dotdot;
 	old_dir->i_version++;
 	old_dir->i_ctime = old_dir->i_mtime = ts;
 	if (IS_DIRSYNC(old_dir))
-		(void)fat_sync_inode(old_dir);
+		(void)opel_fat_sync_inode(old_dir);
 	else
 		mark_inode_dirty(old_dir);
 
@@ -1027,19 +1027,19 @@ error_dotdot:
 		corrupt |= sync_dirty_buffer(dotdot_bh);
 	}
 error_inode:
-	fat_detach(old_inode);
-	fat_attach(old_inode, old_sinfo.i_pos);
+	opel_fat_detach(old_inode);
+	opel_fat_attach(old_inode, old_sinfo.i_pos);
 	if (new_inode) {
-		fat_attach(new_inode, new_i_pos);
+		opel_fat_attach(new_inode, new_i_pos);
 		if (corrupt)
-			corrupt |= fat_sync_inode(new_inode);
+			corrupt |= opel_fat_sync_inode(new_inode);
 	} else {
 		/*
 		 * If new entry was not sharing the data cluster, it
 		 * shouldn't be serious corruption.
 		 */
 //		printk( KERN_ALERT "[cheon] vfat_rename error_inode \n");
-		int err2 = fat_remove_entries(new_dir, &sinfo);
+		int err2 = opel_fat_remove_entries(new_dir, &sinfo);
 		if (corrupt)
 			corrupt |= err2;
 		sinfo.bh = NULL;
@@ -1059,8 +1059,8 @@ static const struct inode_operations vfat_dir_inode_operations = {
 	.mkdir		= vfat_mkdir,
 	.rmdir		= vfat_rmdir,
 	.rename		= vfat_rename,
-	.setattr	= fat_setattr,
-	.getattr	= fat_getattr,
+	.setattr	= opel_fat_setattr,
+	.getattr	= opel_fat_getattr,
 };
 
 static void setup(struct super_block *sb)
@@ -1076,10 +1076,10 @@ static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 {
 	int res;	
 
-	res = fat_fill_super(sb, data, silent, 1, setup);
+	res = opel_fat_fill_super(sb, data, silent, 1, setup);
 
-	fat_config_init( sb );
-	fat_update_super( sb );
+	opel_fat_config_init( sb );
+	opel_fat_update_super( sb );
 
 	return res;
 }
@@ -1160,7 +1160,7 @@ static void do_fs_sysfs_unregistration( void )
 /////////////////////
 static struct file_system_type vfat_fs_type = {
 	.owner		= THIS_MODULE,
-	.name		= "vfat",
+	.name		= "vfat_opel",
 	.mount		= vfat_mount,
 	.kill_sb	= kill_block_super,
 	.fs_flags	= FS_REQUIRES_DEV,

@@ -97,7 +97,7 @@ static int fat_add_cluster(struct inode *inode)
 	if (err)
 	{
 		printk( KERN_ALERT "[cheon] fat_chain_add error !!!, fat_free_clusters\n");
-		fat_free_clusters(inode, cluster);
+		opel_fat_free_clusters(inode, cluster);
 	}
 	return err;
 }
@@ -115,7 +115,7 @@ void check_page_align( unsigned int *cluster, unsigned int max_cluster, unsigned
 	//*cluster = &cluster - CLUSTER_IN_PAGE;
 }
 
-int fat_update_super(struct super_block *sb){
+int opel_fat_update_super(struct super_block *sb){
 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
 
 	//////////////////////////////////////////////////////////////
@@ -227,7 +227,7 @@ int fat_update_super(struct super_block *sb){
 
 	return 0;
 }
-EXPORT_SYMBOL_GPL( fat_update_super );
+EXPORT_SYMBOL_GPL( opel_fat_update_super );
 
 
 
@@ -475,7 +475,7 @@ static void dir_hash_init(struct super_block *sb)
 		INIT_HLIST_HEAD(&sbi->dir_hashtable[i]);
 }
 
-void fat_attach(struct inode *inode, loff_t i_pos)
+void opel_fat_attach(struct inode *inode, loff_t i_pos)
 {
 	struct msdos_sb_info *sbi = MSDOS_SB(inode->i_sb);
 
@@ -502,9 +502,9 @@ void fat_attach(struct inode *inode, loff_t i_pos)
 		spin_unlock(&sbi->dir_hash_lock);
 	}
 }
-EXPORT_SYMBOL_GPL(fat_attach);
+EXPORT_SYMBOL_GPL( opel_fat_attach);
 
-void fat_detach(struct inode *inode)
+void opel_fat_detach(struct inode *inode)
 {
 	struct msdos_sb_info *sbi = MSDOS_SB(inode->i_sb);
 	spin_lock(&sbi->inode_hash_lock);
@@ -518,7 +518,7 @@ void fat_detach(struct inode *inode)
 		spin_unlock(&sbi->dir_hash_lock);
 	}
 }
-EXPORT_SYMBOL_GPL(fat_detach);
+EXPORT_SYMBOL_GPL( opel_fat_detach);
 
 struct inode *fat_iget(struct super_block *sb, loff_t i_pos)
 {
@@ -639,7 +639,7 @@ static inline void fat_unlock_build_inode(struct msdos_sb_info *sbi)
 		mutex_unlock(&sbi->nfs_build_inode_lock);
 }
 
-struct inode *fat_build_inode(struct super_block *sb,
+struct inode *opel_fat_build_inode(struct super_block *sb,
 			struct msdos_dir_entry *de, loff_t i_pos)
 {
 	struct inode *inode;
@@ -662,14 +662,14 @@ struct inode *fat_build_inode(struct super_block *sb,
 		inode = ERR_PTR(err);
 		goto out;
 	}
-	fat_attach(inode, i_pos);
+	opel_fat_attach(inode, i_pos);
 	insert_inode_hash(inode);
 out:
 	fat_unlock_build_inode(MSDOS_SB(sb));
 	return inode;
 }
 
-EXPORT_SYMBOL_GPL(fat_build_inode);
+EXPORT_SYMBOL_GPL( opel_fat_build_inode);
 
 static void fat_evict_inode(struct inode *inode)
 {
@@ -681,7 +681,7 @@ static void fat_evict_inode(struct inode *inode)
 	invalidate_inode_buffers(inode);
 	clear_inode(inode);
 	fat_cache_inval_inode(inode);
-	fat_detach(inode);
+	opel_fat_detach(inode);
 }
 
 static void fat_set_state(struct super_block *sb,
@@ -891,13 +891,13 @@ retry:
 		raw_entry->size = cpu_to_le32(inode->i_size);
 	raw_entry->attr = fat_make_attrs(inode);
 	fat_set_start(raw_entry, MSDOS_I(inode)->i_logstart);
-	fat_time_unix2fat(sbi, &inode->i_mtime, &raw_entry->time,
+	opel_fat_time_unix2fat(sbi, &inode->i_mtime, &raw_entry->time,
 			  &raw_entry->date, NULL);
 	if (sbi->options.isvfat) {
 		__le16 atime;
-		fat_time_unix2fat(sbi, &inode->i_ctime, &raw_entry->ctime,
+		opel_fat_time_unix2fat(sbi, &inode->i_ctime, &raw_entry->ctime,
 				  &raw_entry->cdate, &raw_entry->ctime_cs);
-		fat_time_unix2fat(sbi, &inode->i_atime, &atime,
+		opel_fat_time_unix2fat(sbi, &inode->i_atime, &atime,
 				  &raw_entry->adate, NULL);
 	}
 	spin_unlock(&sbi->inode_hash_lock);
@@ -925,12 +925,12 @@ static int fat_write_inode(struct inode *inode, struct writeback_control *wbc)
 	return err;
 }
 
-int fat_sync_inode(struct inode *inode)
+int opel_fat_sync_inode(struct inode *inode)
 {
 	return __fat_write_inode(inode, 1);
 }
 
-EXPORT_SYMBOL_GPL(fat_sync_inode);
+EXPORT_SYMBOL_GPL( opel_fat_sync_inode);
 
 static int fat_show_options(struct seq_file *m, struct dentry *root);
 static const struct super_operations fat_sops = {
@@ -1428,7 +1428,7 @@ static unsigned long calc_fat_clusters(struct super_block *sb)
 /*
  * Read the super block of an MS-DOS FS.
  */
-int fat_fill_super(struct super_block *sb, void *data, int silent, int isvfat,
+int opel_fat_fill_super(struct super_block *sb, void *data, int silent, int isvfat,
 		   void (*setup)(struct super_block *))
 {
 	struct inode *root_inode = NULL, *fat_inode = NULL;
@@ -1737,7 +1737,7 @@ int fat_fill_super(struct super_block *sb, void *data, int silent, int isvfat,
 	}
 	error = -ENOMEM;
 	insert_inode_hash(root_inode);
-	fat_attach(root_inode, 0);
+	opel_fat_attach(root_inode, 0);
 	sb->s_root = d_make_root(root_inode);
 	if (!sb->s_root) {
 		fat_msg(sb, KERN_ERR, "get root inode failed");
@@ -1774,7 +1774,7 @@ out_fail:
 	return error;
 }
 
-EXPORT_SYMBOL_GPL(fat_fill_super);
+EXPORT_SYMBOL_GPL( opel_fat_fill_super);
 
 /*
  * helper function for fat_flush_inodes.  This writes both the inode
@@ -1805,7 +1805,7 @@ static int writeback_inode(struct inode *inode)
  * page for a block already in flight, we will not wait and start the
  * io over again
  */
-int fat_flush_inodes(struct super_block *sb, struct inode *i1, struct inode *i2)
+int opel_fat_flush_inodes(struct super_block *sb, struct inode *i1, struct inode *i2)
 {
 	int ret = 0;
 	if (!MSDOS_SB(sb)->options.flush)
@@ -1820,7 +1820,7 @@ int fat_flush_inodes(struct super_block *sb, struct inode *i1, struct inode *i2)
 	}
 	return ret;
 }
-EXPORT_SYMBOL_GPL(fat_flush_inodes);
+EXPORT_SYMBOL_GPL( opel_fat_flush_inodes);
 
 static int __init init_fat_fs(void)
 {

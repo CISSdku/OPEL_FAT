@@ -93,7 +93,7 @@ static int fat_ioctl_set_attributes(struct file *file, u32 __user *user_attr)
 		goto out_unlock_inode;
 
 	/* This MUST be done before doing anything irreversible... */
-	err = fat_setattr(file->f_path.dentry, &ia);
+	err = opel_fat_setattr(file->f_path.dentry, &ia);
 	if (err)
 		goto out_unlock_inode;
 
@@ -142,7 +142,7 @@ static int fat_file_release(struct inode *inode, struct file *filp)
 {
 	if ((filp->f_mode & FMODE_WRITE) &&
 	     MSDOS_SB(inode->i_sb)->options.flush) {
-		fat_flush_inodes(inode->i_sb, inode, NULL);
+		opel_fat_flush_inodes(inode->i_sb, inode, NULL);
 		congestion_wait(BLK_RW_ASYNC, HZ/10);
 	}
 	return 0;
@@ -237,7 +237,7 @@ static int fat_free(struct inode *inode, int skip)
 	inode->i_ctime = inode->i_mtime = CURRENT_TIME_SEC;
 	if (wait) {
 		printk( KERN_ALERT "[cheon] fat_free skip wait1 \n");
-		err = fat_sync_inode(inode);
+		err = opel_fat_sync_inode(inode);
 		if (err) {
 			MSDOS_I(inode)->i_start = i_start;
 			MSDOS_I(inode)->i_logstart = i_logstart;
@@ -283,7 +283,7 @@ static int fat_free(struct inode *inode, int skip)
 
 	/* Freeing the remained cluster chain */
 //	printk( KERN_ALERT "[cheon] fat_free, fat_free_clusters \n");
-	return fat_free_clusters(inode, free_start);
+	return opel_fat_free_clusters(inode, free_start);
 }
 
 void fat_truncate_blocks(struct inode *inode, loff_t offset)
@@ -302,10 +302,10 @@ void fat_truncate_blocks(struct inode *inode, loff_t offset)
 	nr_clusters = (offset + (cluster_size - 1)) >> sbi->cluster_bits;
 
 	fat_free(inode, nr_clusters);
-	fat_flush_inodes(inode->i_sb, inode, NULL);
+	opel_fat_flush_inodes(inode->i_sb, inode, NULL);
 }
 
-int fat_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
+int opel_fat_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
 {
 	struct inode *inode = dentry->d_inode;
 	generic_fillattr(inode, stat);
@@ -317,7 +317,7 @@ int fat_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
 	}
 	return 0;
 }
-EXPORT_SYMBOL_GPL(fat_getattr);
+EXPORT_SYMBOL_GPL( opel_fat_getattr);
 
 static int fat_sanitize_mode(const struct msdos_sb_info *sbi,
 			     struct inode *inode, umode_t *mode_ptr)
@@ -376,7 +376,7 @@ static int fat_allow_set_time(struct msdos_sb_info *sbi, struct inode *inode)
 /* valid file mode bits */
 #define FAT_VALID_MODE	(S_IFREG | S_IFDIR | S_IRWXUGO)
 
-int fat_setattr(struct dentry *dentry, struct iattr *attr)
+int opel_fat_setattr(struct dentry *dentry, struct iattr *attr)
 {
 	struct msdos_sb_info *sbi = MSDOS_SB(dentry->d_sb);
 	struct inode *inode = dentry->d_inode;
@@ -450,9 +450,9 @@ int fat_setattr(struct dentry *dentry, struct iattr *attr)
 out:
 	return error;
 }
-EXPORT_SYMBOL_GPL(fat_setattr);
+EXPORT_SYMBOL_GPL( opel_fat_setattr);
 
 const struct inode_operations fat_file_inode_operations = {
-	.setattr	= fat_setattr,
-	.getattr	= fat_getattr,
+	.setattr	= opel_fat_setattr,
+	.getattr	= opel_fat_getattr,
 };

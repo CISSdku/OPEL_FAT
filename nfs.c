@@ -91,7 +91,7 @@ static struct inode *__fat_nfs_get_inode(struct super_block *sb,
 		if (IS_FREE(de[offset].name))
 			inode = NULL;
 		else
-			inode = fat_build_inode(sb, &de[offset], i_pos);
+			inode = opel_fat_build_inode(sb, &de[offset], i_pos);
 		brelse(bh);
 	}
 
@@ -254,7 +254,7 @@ struct inode *fat_rebuild_parent(struct super_block *sb, int parent_logstart)
 	}
 
 	if (!fat_scan_logstart(dummy_grand_parent, clus_to_match, &sinfo))
-		parent = fat_build_inode(sb, sinfo.de, sinfo.i_pos);
+		parent = opel_fat_build_inode(sb, sinfo.de, sinfo.i_pos);
 
 	brelse(parent_bh);
 	iput(dummy_grand_parent);
@@ -276,7 +276,7 @@ static struct dentry *fat_get_parent(struct dentry *child_dir)
 	struct inode *parent_inode = NULL;
 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
 
-	if (!fat_get_dotdot_entry(child_dir->d_inode, &bh, &de)) {
+	if (!opel_fat_get_dotdot_entry(child_dir->d_inode, &bh, &de)) {
 		int parent_logstart = fat_get_start(sbi, de);
 		parent_inode = fat_dget(sb, parent_logstart);
 		if (!parent_inode && sbi->options.nfs == FAT_NFS_NOSTALE_RO)

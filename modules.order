@@ -1,2 +1,2 @@
-kernel//home/cheon/다운로드/OPEL/filesystem/fat_test/OPEL_FAT/fat.ko
-kernel//home/cheon/다운로드/OPEL/filesystem/fat_test/OPEL_FAT/vfat.ko
+kernel//home/cheon/다운로드/OPEL/filesystem/fat_test/OPEL_FAT/fat_opel.ko
+kernel//home/cheon/다운로드/OPEL/filesystem/fat_test/OPEL_FAT/vfat_opel.ko
