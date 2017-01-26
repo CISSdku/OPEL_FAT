@@ -1,3 +1,3 @@
 umount /mnt
-rmmod vfat
-rmmod fat
+rmmod vfat_opel
+rmmod fat_opel

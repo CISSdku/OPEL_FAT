@@ -1,7 +1,7 @@
 make clean
 make
-insmod fat.ko
-insmod vfat.ko
+insmod fat_opel.ko
+insmod vfat_opel.ko
 mkfs.vfat /dev/sbd 
 mount /dev/sbd /mnt
 
