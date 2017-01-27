@@ -78,6 +78,8 @@ static void init( int sinario, int *selected_dir, char *argv2 , int *load_flag )
 
 		printf("Loading saved log file");
 	}
+	else 
+		*load_flag = OFF;
 
 	switch( sinario )
 	{

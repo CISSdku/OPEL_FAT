@@ -37,20 +37,22 @@
 
 
 //FOR TEST, COUNT_AREA means cluster counter
-#if 0
-#define COUNT_AREA_0 76800 //300M
-#define COUNT_AREA_1 524288
-#define COUNT_AREA_2 262144
-#define COUNT_AREA_3 262144
-#define COUNT_AREA_4 131072
-#define COUNT_AREA_5 131072
+#if 1
+#define COUNT_AREA_0 76800  //300M
+#define COUNT_AREA_1 524288 //2048M
+#define COUNT_AREA_2 262144 //1024M
+#define COUNT_AREA_3 262144 //1024M
+#define COUNT_AREA_4 131072 //512M
+#define COUNT_AREA_5 131072 //512M
 #endif
+#if 0
 #define COUNT_AREA_0 128000 //300M
 #define COUNT_AREA_1 128000
 #define COUNT_AREA_2 128000
 #define COUNT_AREA_3 128000
 #define COUNT_AREA_4 128000
 #define COUNT_AREA_5 128000
+#endif
 
 static int fat_default_codepage = CONFIG_FAT_DEFAULT_CODEPAGE;
 static char fat_default_iocharset[] = CONFIG_FAT_DEFAULT_IOCHARSET;
