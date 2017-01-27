@@ -31,7 +31,7 @@ static unsigned long dir_size( char *dn)
 	FILE *fp = NULL;
 //	char *stn = "du -scb /mnt/normal/* | grep 합계";
 	char stn[ STN_SIZE ];
-	char *ch[2]  = {  "du -scb ", "* | grep 합계" };
+	char *ch[2]  = {  "du -scb ", "* | grep total" };
 
 	char buf[50];
 	char *size = NULL;
@@ -46,8 +46,11 @@ static unsigned long dir_size( char *dn)
 	if(fp == NULL) {
 		printf("Error opening : %s\n", strerror( errno ));
 		printf("stn : %s \n", stn );
-		
 		printf("total file counter : %lu \n", g_total.file_counter );
+		
+		g_time.end_point = clock();
+
+		printf("Execution time : %f sec \n", (double)( g_time.end_point - g_time.start_point ) / CLOCKS_PER_SEC );
 
 		fclose( g_fp );
 		exit(-1);

@@ -16,7 +16,7 @@ static unsigned long dir_size( char *dn)
 	//printf("%s \t", dn );
 	sprintf( stn,  "%s%s%s",ch[0],dn,ch[1] );
 
-	printf("\ntest : %s \n ", stn);
+//	printf("\ntest : %s \n ", stn);
 	
 	fp = popen(stn,"r");
 	if(fp == NULL) {
@@ -31,7 +31,7 @@ static unsigned long dir_size( char *dn)
 	strtok(buf," ");
 	size = strtok( NULL, " ");
 
-//	pclose( fp );
+	pclose( fp );
 
 //	while(1);
 	l_size = strtoul( size, NULL, 10 );

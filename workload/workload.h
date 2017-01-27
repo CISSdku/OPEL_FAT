@@ -97,10 +97,18 @@ typedef struct total_count_t
 
 }total;
 
+typedef struct time_check_t
+{
+	clock_t start_point,
+			end_point;
+}time_check;
+
 data g_data;
 dir_full g_dirfull[ DIR_NUM ];
 total g_total;
 FILE *g_fp;
+
+time_check g_time;
 
 void file_create( char **dirs, int *selected_dir, int sinario, int load_flag );
 #endif

@@ -97,6 +97,7 @@ static void init( int sinario, int *selected_dir, char *argv2 , int *load_flag )
 		default           	  : printf("sinario is ?? \n");                              						 break;
 	}
 
+	g_time.start_point = clock();
 	printf("\n");
 }
 
@@ -189,8 +190,8 @@ int main( int argc, char *argv[] )
 
 	while(1)
 	{
-		sleep(1);
-//		usleep(10000);
+//		sleep(1);
+		usleep(10);
 		
 		run_workload( dirs, sinario, selected_dir, load_flag );
 	}
