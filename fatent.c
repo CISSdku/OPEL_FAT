@@ -627,7 +627,6 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 	struct super_block *sb = inode->i_sb;
 	
 //	test_sb = sb;
-	temp_sb = sb;
 
 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
 	struct fatent_operations *ops = sbi->fatent_ops;
@@ -641,6 +640,7 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 
 	BUG_ON(nr_cluster > (MAX_BUF_PER_PAGE / 2));	/* fixed limit */
 
+	temp_sb = sb;
 	//printk( KERN_ALERT "[cheon] =================fat_alloc_clusters=============== \n");
 #if 1
 	//[cheon]
@@ -815,7 +815,6 @@ int opel_fat_free_clusters(struct inode *inode, int cluster)
 	int first_cl = cluster, dirty_fsinfo = 0;
 
 	//choen
-	int area;
 
 	nr_bhs = 0;
 	fatent_init(&fatent);

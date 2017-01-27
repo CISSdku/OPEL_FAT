@@ -1165,11 +1165,11 @@ static struct file_system_type vfat_fs_type = {
 	.kill_sb	= kill_block_super,
 	.fs_flags	= FS_REQUIRES_DEV,
 };
-MODULE_ALIAS_FS("vfat");
+MODULE_ALIAS_FS("vfat_opel");
 
 static int __init init_vfat_fs(void)
 {
-#if 1
+#if 0
 	int rc;
 	printk( KERN_ALERT "[cheon] FAT sysfs Test!! \n");
   
@@ -1179,13 +1179,13 @@ static int __init init_vfat_fs(void)
 		printk( KERN_ALERT "[cheon] sysfs registration faild \b");
 	}
 #endif
-
+	printk( KERN_ALERT "OPEL_FAT\n");
 	return register_filesystem(&vfat_fs_type);
 }
 
 static void __exit exit_vfat_fs(void)
 {
-	do_fs_sysfs_unregistration();
+//	do_fs_sysfs_unregistration();
 	unregister_filesystem(&vfat_fs_type);
 }
 

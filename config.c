@@ -69,11 +69,11 @@ out:
  */
 int opel_fat_config_init(struct super_block *sb)
 {
-	struct fat_slot_info sinfo;
+	//struct fat_slot_info sinfo;
 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
 	struct dentry *root_de = sb->s_root;
-	struct inode *root = root_de->d_inode;
-	int err;
+//	struct inode *root = root_de->d_inode;
+	//int err;
 
 	printk( KERN_ALERT "[cheon] fat_config_init test\n");
 	
