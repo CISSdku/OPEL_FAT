@@ -7,7 +7,7 @@ static unsigned long dir_size( char *dn)
 	FILE *fp = NULL;
 	char stn[ STN_SIZE ];
 //	char *ch[2]  = {  "du -scb ", "* | grep 합계" };
-	char *ch[2]  = {  "ls --size ", " | grep 합계" };
+	char *ch[2]  = {  "ls --size ", " | grep total" };
 
 	char buf[50];
 	char *size = NULL;

@@ -1,5 +1,0 @@
-./test/normal/
-./test/normal_event/
-./test/parking/
-./test/parking_event/
-./test/handwork/

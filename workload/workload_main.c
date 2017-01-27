@@ -189,8 +189,8 @@ int main( int argc, char *argv[] )
 
 	while(1)
 	{
-	//	sleep(1);
-		usleep(10000);
+		sleep(1);
+//		usleep(10000);
 		
 		run_workload( dirs, sinario, selected_dir, load_flag );
 	}

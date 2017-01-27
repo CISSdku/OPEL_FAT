@@ -70,7 +70,7 @@ void init( int dir_cnt, char **dirs )
 	memset( ( void *)g_dir, 0x0, sizeof( g_dir ) * dir_cnt );
 
 	//전체 크기에서 1% 뺀 크기를 기준으로 디렉터리가 꽉 찼는지 판단
-	g_dir[ ETC ].dir_size 			= ETC_SIZE; 
+//	g_dir[ ETC ].dir_size 			= ETC_SIZE; 
 	g_dir[ NORMAL ].dir_size 		= NORMAL_SIZE;
 	g_dir[ NORMAL_EVENT ].dir_size  = NORMAL_EVENT_SIZE;
 	g_dir[ PARKING ].dir_size 		= PARKING_SIZE;
@@ -80,7 +80,7 @@ void init( int dir_cnt, char **dirs )
 	for( i = 0 ; i < dir_cnt ; i++ )
 		printf("%luM ", g_dir[ i ].dir_size / 1024  ); // M 단위
 
-	g_dir[ ETC ].dir_size 			= ETC_SIZE 		     - ( ETC_SIZE * 0.01 );
+//	g_dir[ ETC ].dir_size 			= ETC_SIZE 		     - ( ETC_SIZE * 0.01 );
 	g_dir[ NORMAL ].dir_size 		= NORMAL_SIZE	  	 - ( NORMAL_SIZE * 0.01 );
 	g_dir[ NORMAL_EVENT ].dir_size  = NORMAL_EVENT_SIZE	 - ( NORMAL_EVENT_SIZE * 0.01 );
 	g_dir[ PARKING ].dir_size 		= PARKING_SIZE 		 - ( PARKING_SIZE * 0.01 );
