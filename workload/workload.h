@@ -110,5 +110,7 @@ FILE *g_fp;
 
 time_check g_time;
 
+int g_line_to_read;
+
 void file_create( char **dirs, int *selected_dir, int sinario, int load_flag );
 #endif

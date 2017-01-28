@@ -116,14 +116,12 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 		if( fgets( buf, sizeof( buf ), g_fp ) == NULL )
 		{
 			printf("Log End \n");
+			printf("%d\n", g_line_to_read ); 
+			
 			fclose( g_fp );
 
-		//	g_time.end_point = clock();
-
+			//g_time.end_point = clock();
 			//printf("Execution time : %f sec \n", (double)( g_time.end_point - g_time.start_point ) / CLOCKS_PER_SEC );
-			
-
-
 
 			exit(1);
 			
@@ -147,7 +145,22 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 	}
 	return result;
 }
+static int detect_file_counter( int file_counter )
+{
+	if( file_counter >= g_line_to_read )
+	{
+		printf("Detect_file_counter is operating \n");
+		printf("%d\n", g_line_to_read ); 
 
+		fclose( g_fp );	
+		exit(1);
+	}
+	else 
+		printf("detect_file_counter error \n");
+
+
+	return 0;
+}
 void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 {
 	FILE *fd;
@@ -189,8 +202,14 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 		fclose(fd);
 	
 		g_total.file_counter++;
-	
 		printf("File create: %s \t\t %8luM \t dir_size(): %10luM \n",fn, f_size/1024/1024, dir_size( dirs[ *selected_dir ] )/1024/1024 );
+		
+		detect_file_counter( g_total.file_counter );
+	}
+	else //if load_flag is off, this program make logs
+	{
+	
+	
 	}
 }
 

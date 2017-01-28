@@ -69,9 +69,9 @@ static void load_saved_log_file( FILE **fpp, int sinario )
 	}
 }
 
-static void init( int sinario, int *selected_dir, char *argv2 , int *load_flag )
+static void init( int sinario, int *selected_dir, char *argv3 , int *load_flag )
 {
-	if( !strcmp( argv2, "on" ) || !strcmp( argv2, "On" ) || !strcmp( argv2, "ON" ))
+	if( !strcmp( argv3, "on" ) || !strcmp( argv3, "On" ) || !strcmp( argv3, "ON" ))
 	{
 		*load_flag = ON;
 		load_saved_log_file( &g_fp, sinario );
@@ -98,6 +98,13 @@ static void init( int sinario, int *selected_dir, char *argv2 , int *load_flag )
 	}
 
 //	g_time.start_point = clock();
+	g_line_to_read = atoi( argv3 + strlen( argv3 ) + 1 );
+	printf("%d \n", g_line_to_read );
+
+
+	//////
+	g_total.file_counter = 0;
+
 	printf("\n");
 }
 
@@ -171,7 +178,7 @@ int main( int argc, char *argv[] )
 	{
 		printf("%d \n", argc );
 		
-		printf("USAGE : ./a.out (sinario_num) (load_flag) (target_list dir) \n");
+		printf("USAGE : ./a.out (sinario_num) (target_list dir) (load_flag) (line_to_read)  \n");
 
 		printf("sinario 1 : normal driving \n");
 		printf("sinario 2 : parking \n");
@@ -185,10 +192,9 @@ int main( int argc, char *argv[] )
 		return 0;
 	}
 	sinario = atoi( argv[1] );
-	dir_cnt = open_files( argv[3], dirs, &buf );
-	line_to_read = atoi( argv[4] );
+	dir_cnt = open_files( argv[2], dirs, &buf );
 	view_dirs( dirs, dir_cnt );
-	init( sinario, &selected_dir, argv[2], &load_flag );
+	init( sinario, &selected_dir, argv[3], &load_flag );
 
 	while(1)
 	{
