@@ -124,7 +124,7 @@ void detect_and_control( char **dirs, int dir_cnt )
 		if( num > ( dir_cnt - 1 ) )
 			num = 0;
 
-		usleep(1000);
+		usleep(100000);
 	//	sleep(1);
 	}
 	

@@ -97,7 +97,7 @@ static void init( int sinario, int *selected_dir, char *argv2 , int *load_flag )
 		default           	  : printf("sinario is ?? \n");                              						 break;
 	}
 
-	g_time.start_point = clock();
+//	g_time.start_point = clock();
 	printf("\n");
 }
 
@@ -164,7 +164,8 @@ int main( int argc, char *argv[] )
 	int dir_cnt,
 		sinario,
 		selected_dir,
-		load_flag; // load  flag on 되면 
+		load_flag, // load  flag on 되면 
+		line_to_read;
 
 	if( argc < 4 )
 	{
@@ -185,13 +186,14 @@ int main( int argc, char *argv[] )
 	}
 	sinario = atoi( argv[1] );
 	dir_cnt = open_files( argv[3], dirs, &buf );
+	line_to_read = atoi( argv[4] );
 	view_dirs( dirs, dir_cnt );
 	init( sinario, &selected_dir, argv[2], &load_flag );
 
 	while(1)
 	{
 //		sleep(1);
-		usleep(10);
+//		usleep(10);
 		
 		run_workload( dirs, sinario, selected_dir, load_flag );
 	}

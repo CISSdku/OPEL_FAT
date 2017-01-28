@@ -48,9 +48,9 @@ static unsigned long dir_size( char *dn)
 		printf("stn : %s \n", stn );
 		printf("total file counter : %lu \n", g_total.file_counter );
 		
-		g_time.end_point = clock();
+//		g_time.end_point = clock();
 
-		printf("Execution time : %f sec \n", (double)( g_time.end_point - g_time.start_point ) / CLOCKS_PER_SEC );
+//		printf("Execution time : %f sec \n", (double)( g_time.end_point - g_time.start_point ) / CLOCKS_PER_SEC );
 
 		fclose( g_fp );
 		exit(-1);
@@ -117,6 +117,14 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 		{
 			printf("Log End \n");
 			fclose( g_fp );
+
+		//	g_time.end_point = clock();
+
+			//printf("Execution time : %f sec \n", (double)( g_time.end_point - g_time.start_point ) / CLOCKS_PER_SEC );
+			
+
+
+
 			exit(1);
 			
 		}
