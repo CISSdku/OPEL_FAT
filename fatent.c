@@ -651,6 +651,10 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 	//check area number from d_parent
 	get_area_number( &area, inode );
 
+//	area = 1;
+
+
+
 	//g_area = area;
 ///////
 //	printk( KERN_ALERT "[cheon] area : %d \n", area ); 
@@ -669,8 +673,8 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 		printk( KERN_ALERT "[cheon] No space storage / bx current free %u / nr_cluster %d / area : %d  \n", sbi->bx_free_clusters[ area ], nr_cluster, area );
 	
 		
-		sbi->bb_space_full = 1;
-		sbi->bb_no_alloc = 1;		
+//		sbi->bb_space_full = 1;
+//		sbi->bb_no_alloc = 1;		
 		unlock_fat(sbi);
 		return -ENOSPC;
 	}
