@@ -10,7 +10,7 @@
 #include "fat.h"
 
 #define __DEBUG__
-
+#define __ORIGINAL_FAT_TEST__
 
 
 struct super_block *temp_sb;
@@ -651,8 +651,10 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 	//check area number from d_parent
 	get_area_number( &area, inode );
 
-//	area = 1;
+#ifdef __ORIGINAL_FAT_TEST__
 
+	area = 1;
+#endif
 
 
 	//g_area = area;
@@ -666,7 +668,7 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 		unlock_fat(sbi);
 		return -ENOSPC;
 	}
-#if 1
+#ifndef __ORIGINAL_FAT_TEST__
 	//Free space check for each area
 	else if( sbi->bx_free_clusters[ area ] < nr_cluster )
 	{
@@ -869,6 +871,11 @@ int fat_free_clusters(struct inode *inode, int cluster)
 		if (sbi->free_clusters != -1) {
 			sbi->free_clusters++;
 
+#ifdef __ORIGINAL_FAT_TEST__ 
+			sbi->bx_free_clusters[ 1 ]++;
+#endif
+
+#ifndef __ORIGINAL_FAT_TEST__
 			if( sbi->bx_start_cluster[ BB_ETC ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_ETC ] )
 				(sbi->bx_free_clusters[ BB_ETC ])++;
 
@@ -886,7 +893,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 
 			else if( sbi->bx_start_cluster[ BB_IMAGE ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_IMAGE ] )
 				(sbi->bx_free_clusters[ BB_IMAGE ])++;
-
+#endif
 
 #if 0
 			if( sbi->bb_space_full == 1  )

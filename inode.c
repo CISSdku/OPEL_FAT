@@ -37,7 +37,7 @@
 
 
 //FOR TEST, COUNT_AREA means cluster counter
-#if 1
+#if 0
 #define COUNT_AREA_0 76800  //300M
 #define COUNT_AREA_1 524288 //2048M
 #define COUNT_AREA_2 262144 //1024M
@@ -45,7 +45,7 @@
 #define COUNT_AREA_4 131072 //512M
 #define COUNT_AREA_5 131072 //512M
 #endif
-#if 0
+#if 1
 #define COUNT_AREA_0 128000 //300M
 #define COUNT_AREA_1 128000
 #define COUNT_AREA_2 128000
