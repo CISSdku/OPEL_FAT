@@ -9,7 +9,7 @@
 #include <linux/blkdev.h>
 #include "fat.h"
 
-#define __DEBUG__
+//#define __DEBUG__
 #define __ORIGINAL_FAT_TEST__
 
 
@@ -652,8 +652,10 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 	get_area_number( &area, inode );
 
 #ifdef __ORIGINAL_FAT_TEST__
-
-	area = 1;
+	if( area == BB_ETC )
+		area = BB_ETC;
+	else
+		area = BB_NORMAL;
 #endif
 
 
@@ -674,7 +676,6 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 	{
 		printk( KERN_ALERT "[cheon] No space storage / bx current free %u / nr_cluster %d / area : %d  \n", sbi->bx_free_clusters[ area ], nr_cluster, area );
 	
-		
 //		sbi->bb_space_full = 1;
 //		sbi->bb_no_alloc = 1;		
 		unlock_fat(sbi);
@@ -872,7 +873,11 @@ int fat_free_clusters(struct inode *inode, int cluster)
 			sbi->free_clusters++;
 
 #ifdef __ORIGINAL_FAT_TEST__ 
-			sbi->bx_free_clusters[ 1 ]++;
+				
+			if( sbi->bx_start_cluster[ BB_ETC ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_ETC ] )
+				(sbi->bx_free_clusters[ BB_ETC ])++;
+			else
+				sbi->bx_free_clusters[ BB_NORMAL ]++;
 #endif
 
 #ifndef __ORIGINAL_FAT_TEST__
