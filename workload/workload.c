@@ -155,8 +155,8 @@ static int detect_file_counter( int file_counter )
 		fclose( g_fp );	
 		exit(1);
 	}
-	else 
-		printf("detect_file_counter error \n");
+	else; 
+//		printf("detect_file_counter error \n");
 
 
 	return 0;

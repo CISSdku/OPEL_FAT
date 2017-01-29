@@ -176,7 +176,7 @@ int main( int argc, char *argv[] )
 
 	if( argc < 4 )
 	{
-		printf("%d \n", argc );
+		//printf("%d \n", argc );
 		
 		printf("USAGE : ./a.out (sinario_num) (target_list dir) (load_flag) (line_to_read)  \n");
 
