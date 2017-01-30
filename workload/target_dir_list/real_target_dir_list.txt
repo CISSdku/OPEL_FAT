@@ -1,0 +1,5 @@
+/mnt/normal/
+/mnt/normal_event/
+/mnt/parking/
+/mnt/parking_event/
+/mnt/handwork/
