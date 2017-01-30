@@ -113,31 +113,30 @@ static void auto_select( int *selected_dir )
 	static int before_num = 0;
 	int invoked;
 
-retry:
-	srand( time( NULL ) );
+//retry:
 	invoked = ( rand( ) % 8 ) ; // 4 : 2 : 1 : 1
 
 	//현재 auto_select는 normal, normal_event, parking, parking_event 
 	//4가지 경우를 위의 비율로 파일을 생성시킴
 
 
-	if( 0 <= invoked && invoked <= 3 )
+	if( 0 <= invoked && invoked <= 1 )
 		*selected_dir = NORMAL;
-	else if( 4 <= invoked && invoked <= 5 )
+	else if( 2 <= invoked && invoked <= 3 )
 	{   
 		//주차 다음에 바로 상시 이벤트가 올 수 없다는 가정
-		if( before_num == PARKING || before_num == PARKING_EVENT )
-			goto retry;
+//		if( before_num == PARKING || before_num == PARKING_EVENT )
+//			goto retry;
 
 		*selected_dir = NORMAL_EVENT;
 	}
-	else if( invoked == 6 )
+	else if( 4 <= invoked && invoked <= 5 )
 		*selected_dir = PARKING;
-	else if( invoked == 7 )
+	else if( 6 <= invoked && invoked <= 7 )
 	{
 		//상시 다음에 바로 주차 이벤트가 올 수 없다.
-		if( before_num == NORMAL || before_num == NORMAL_EVENT )
-			goto retry;
+//		if( before_num == NORMAL || before_num == NORMAL_EVENT )
+//			goto retry;
 
 		*selected_dir = PARKING_EVENT;
 	}
@@ -174,6 +173,7 @@ int main( int argc, char *argv[] )
 		load_flag, // load  flag on 되면 
 		line_to_read;
 
+	srand( time( NULL ) );
 	if( argc < 4 )
 	{
 		//printf("%d \n", argc );
@@ -198,7 +198,7 @@ int main( int argc, char *argv[] )
 
 	while(1)
 	{
-//		sleep(1);
+		sleep(1);
 //		usleep(10);
 		
 		run_workload( dirs, sinario, selected_dir, load_flag );

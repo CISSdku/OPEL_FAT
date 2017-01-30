@@ -23,7 +23,7 @@ static void save_load_track_to_file( FILE **fpp, int sinario )
 }
 static unsigned long random_range( unsigned int n1, unsigned int n2 )
 {
-	srand( time( NULL ) );
+//	srand( time( NULL ) );
 	return ( unsigned long )( rand() % ( n2 - n1 ) + n1 );
 }
 static unsigned long dir_size( char *dn)
@@ -98,10 +98,17 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 			switch( *selected_dir )
 			{
 				//  범위
+#if 0
 				case NORMAL : result = random_range( 98 * 1024 * 1024, 99 * 1024 * 1024 ); 	break;//상시
 				case NORMAL_EVENT : result = random_range( 53 * 1024 * 1024, 73 * 1024 * 1024 );	break;//상시 이벤트
 				case PARKING : result = random_range( 52 * 1024 * 1024, 58 * 1024 * 1024 ); 	break;//주차
 				case PARKING_EVENT : result = random_range( 8 * 1024 * 1024, 87 * 1024 * 1024 ); 	break; //주차 이벤트
+#endif
+				case NORMAL : result = random_range( 390 * 1024, 400 * 1024 ); 	break;//상시
+				case NORMAL_EVENT : result = random_range( 200 * 1024, 300 * 1024 );	break;//상시 이벤트
+				case PARKING : result = random_range( 180 * 1024, 250 * 1024 ); 	break;//주차
+				case PARKING_EVENT : result = random_range( 100 * 1024, 200 * 1024 ); 	break; //주차 이벤트
+
 				default : break;
 			}
 		}	
@@ -145,19 +152,19 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 	}
 	return result;
 }
-static int detect_file_counter( int file_counter )
+static int detect_file_counter( int file_counter, int load_flag )
 {
 	if( file_counter >= g_line_to_read )
 	{
 		printf("Detect_file_counter is operating \n");
 		printf("%d\n", g_line_to_read ); 
 
-		fclose( g_fp );	
+		if( load_flag == ON )
+			fclose( g_fp );	
+
 		exit(1);
 	}
 	else; 
-//		printf("detect_file_counter error \n");
-
 
 	return 0;
 }
@@ -204,11 +211,13 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 		g_total.file_counter++;
 		printf("File create: %s \t\t %8luM \t dir_size(): %10luM \n",fn, f_size/1024/1024, dir_size( dirs[ *selected_dir ] )/1024/1024 );
 		
-		detect_file_counter( g_total.file_counter );
+		detect_file_counter( g_total.file_counter, load_flag );
 	}
 	else //if load_flag is off, this program make logs
 	{
-	
+		g_total.file_counter++;
+		
+		detect_file_counter( g_total.file_counter, load_flag );
 	
 	}
 }

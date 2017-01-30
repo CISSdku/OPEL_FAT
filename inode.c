@@ -45,13 +45,22 @@
 #define COUNT_AREA_4 131072 //512M
 #define COUNT_AREA_5 131072 //512M
 #endif
-#if 1
+#if 0 //ORIGINAL_5기가 test
 #define COUNT_AREA_0 76800 //300M
 #define COUNT_AREA_1 1310720
 #define COUNT_AREA_2 100
 #define COUNT_AREA_3 100
 #define COUNT_AREA_4 100
 #define COUNT_AREA_5 100
+#endif
+
+#if 1 //Fine grained test
+#define COUNT_AREA_0 76800 //300M
+#define COUNT_AREA_1 10240 //40M
+#define COUNT_AREA_2 5120 
+#define COUNT_AREA_3 5120
+#define COUNT_AREA_4 2560
+#define COUNT_AREA_5 2560 
 #endif
 
 static int fat_default_codepage = CONFIG_FAT_DEFAULT_CODEPAGE;
