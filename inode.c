@@ -46,12 +46,12 @@
 #define COUNT_AREA_5 131072 //512M
 #endif
 #if 1
-#define COUNT_AREA_0 128000 //300M
-#define COUNT_AREA_1 128000
-#define COUNT_AREA_2 128000
-#define COUNT_AREA_3 128000
-#define COUNT_AREA_4 128000
-#define COUNT_AREA_5 128000
+#define COUNT_AREA_0 76800 //300M
+#define COUNT_AREA_1 1310720
+#define COUNT_AREA_2 100
+#define COUNT_AREA_3 100
+#define COUNT_AREA_4 100
+#define COUNT_AREA_5 100
 #endif
 
 static int fat_default_codepage = CONFIG_FAT_DEFAULT_CODEPAGE;
