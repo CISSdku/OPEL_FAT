@@ -152,13 +152,59 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 	}
 	return result;
 }
+
+/*
+	프로그램 수행 시에 설정한 파일 갯수 만큼 수행되면,
+	단편화 체크를 위해 파일 일부를 지우고 
+	단편화 체크 모듈을 삽입할 준비를 함
+ */
+static void remove_file_for_calculate_fragmentation( char *dn )
+{
+	DIR *dir;
+	struct dirent *de;
+	char fn[40], selec_file[40];
+	int cnt = 0;
+
+	dir = opendir(dn);
+	if(dir != NULL)
+	{
+		while(de = readdir(dir))
+		{
+			if(!strcmp(de->d_name,".") || !strcmp(de->d_name,".."))
+				continue;
+
+			sprintf( fn,"%s%s",dn,de->d_name);
+			strcpy( selec_file, fn );
+
+			cnt++;	
+			
+			if( !(cnt % 10) ) //read되는 파일 10번마다 한개 파일 삭제
+			{
+				remove( selec_file );
+				printf("remove file : %s, dir : %s \n", selec_file, dn );
+			}
+
+		}
+	}
+
+	closedir( dir );
+}
+
+
+
 static int detect_file_counter( int file_counter, int load_flag )
 {
 	if( file_counter >= g_line_to_read )
 	{
 		printf("Detect_file_counter is operating \n");
 		printf("%d\n", g_line_to_read ); 
+	
+		remove_file_for_calculate_fragmentation( "/mnt/normal/" );
+		remove_file_for_calculate_fragmentation( "/mnt/normal_event/" );
+		remove_file_for_calculate_fragmentation( "/mnt/parking/" );
+		remove_file_for_calculate_fragmentation( "/mnt/parking_event" );
 
+		
 		if( load_flag == ON )
 			fclose( g_fp );	
 
