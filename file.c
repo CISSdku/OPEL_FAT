@@ -186,7 +186,8 @@ static int fat_cont_expand(struct inode *inode, loff_t size)
 	if (err)
 		goto out;
 
-	inode->i_ctime = inode->i_mtime = CURRENT_TIME_SEC;
+	inode->i_ctime = inode->i_mtime = CURRENT_TIME_SEC_OPEL;
+	//inode->i_ctime = inode->i_mtime = CURRENT_TIME_SEC;
 	mark_inode_dirty(inode);
 	if (IS_SYNC(inode)) {
 		int err2;
@@ -234,7 +235,8 @@ static int fat_free(struct inode *inode, int skip)
 		MSDOS_I(inode)->i_logstart = 0;
 	}
 	MSDOS_I(inode)->i_attrs |= ATTR_ARCH;
-	inode->i_ctime = inode->i_mtime = CURRENT_TIME_SEC;
+	inode->i_ctime = inode->i_mtime = CURRENT_TIME_SEC_OPEL;
+	//inode->i_ctime = inode->i_mtime = CURRENT_TIME_SEC;
 	if (wait) {
 		printk( KERN_ALERT "[cheon] fat_free skip wait1 \n");
 		err = fat_sync_inode(inode);
@@ -308,6 +310,9 @@ void fat_truncate_blocks(struct inode *inode, loff_t offset)
 int fat_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
 {
 	struct inode *inode = dentry->d_inode;
+	
+//	printk( KERN_ALERT "fat_getattr \n");
+
 	generic_fillattr(inode, stat);
 	stat->blksize = MSDOS_SB(inode->i_sb)->cluster_size;
 
@@ -382,6 +387,8 @@ int fat_setattr(struct dentry *dentry, struct iattr *attr)
 	struct inode *inode = dentry->d_inode;
 	unsigned int ia_valid;
 	int error;
+
+//	printk( KERN_ALERT "[cheon] fat_setattr \n");
 
 	/* Check for setting the inode time. */
 	ia_valid = attr->ia_valid;

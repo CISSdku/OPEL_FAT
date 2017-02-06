@@ -1082,7 +1082,15 @@ int fat_remove_entries(struct inode *dir, struct fat_slot_info *sinfo)
 		}
 	}
 
-	dir->i_mtime = dir->i_atime = CURRENT_TIME_SEC;
+	//dir->i_mtime = dir->i_atime = CURRENT_TIME_SEC;
+	dir->i_mtime = dir->i_atime = CURRENT_TIME_SEC_OPEL;
+
+	//TEST_i_atime
+//		printk("[cheon] fat_remove_entries \n");
+//		printk("dir->i_mtime.tv_sec : %lu \n", dir->i_mtime.tv_sec );
+//		printk("dir->i_mtime.tv_nsec : %ld \n", dir->i_mtime.tv_nsec );
+
+
 	if (IS_DIRSYNC(dir))
 		(void)fat_sync_inode(dir);
 	else

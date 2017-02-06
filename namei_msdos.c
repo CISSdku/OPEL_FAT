@@ -287,7 +287,8 @@ static int msdos_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		goto out;
 	}
 
-	ts = CURRENT_TIME_SEC;
+	//ts = CURRENT_TIME_SEC;
+	ts = CURRENT_TIME_SEC_OPEL;
 	err = msdos_add_entry(dir, msdos_name, 0, is_hid, 0, &ts, &sinfo);
 	if (err)
 		goto out;
@@ -335,7 +336,8 @@ static int msdos_rmdir(struct inode *dir, struct dentry *dentry)
 	drop_nlink(dir);
 
 	clear_nlink(inode);
-	inode->i_ctime = CURRENT_TIME_SEC;
+	//inode->i_ctime = CURRENT_TIME_SEC;
+	inode->i_ctime = CURRENT_TIME_SEC_OPEL;
 	fat_detach(inode);
 out:
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
@@ -369,7 +371,8 @@ static int msdos_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 		goto out;
 	}
 
-	ts = CURRENT_TIME_SEC;
+	ts = CURRENT_TIME_SEC_OPEL;
+	//ts = CURRENT_TIME_SEC;
 	cluster = fat_alloc_new_dir(dir, &ts);
 	if (cluster < 0) {
 		err = cluster;
@@ -423,7 +426,8 @@ static int msdos_unlink(struct inode *dir, struct dentry *dentry)
 	if (err)
 		goto out;
 	clear_nlink(inode);
-	inode->i_ctime = CURRENT_TIME_SEC;
+	inode->i_ctime = CURRENT_TIME_SEC_OPEL;
+	//inode->i_ctime = CURRENT_TIME_SEC;
 	fat_detach(inode);
 out:
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
@@ -488,7 +492,8 @@ static int do_msdos_rename(struct inode *old_dir, unsigned char *old_name,
 				mark_inode_dirty(old_inode);
 
 			old_dir->i_version++;
-			old_dir->i_ctime = old_dir->i_mtime = CURRENT_TIME_SEC;
+			old_dir->i_ctime = old_dir->i_mtime = CURRENT_TIME_SEC_OPEL;
+//			old_dir->i_ctime = old_dir->i_mtime = CURRENT_TIME_SEC;
 			if (IS_DIRSYNC(old_dir))
 				(void)fat_sync_inode(old_dir);
 			else
@@ -497,7 +502,8 @@ static int do_msdos_rename(struct inode *old_dir, unsigned char *old_name,
 		}
 	}
 
-	ts = CURRENT_TIME_SEC;
+	//ts = CURRENT_TIME_SEC;
+	ts = CURRENT_TIME_SEC_OPEL;
 	if (new_inode) {
 		if (err)
 			goto out;

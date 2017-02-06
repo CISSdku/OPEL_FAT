@@ -27,6 +27,7 @@
 #include <linux/namei.h>
 #include "fat.h"
 
+#define TIME_TEST ( (struct timespec) { 99, 99 } )
 
 /*
  * If new entry was created in the parent, it could create the 8.3
@@ -690,6 +691,14 @@ static int vfat_add_entry(struct inode *dir, struct qstr *qname, int is_dir,
 
 	/* update timestamp */
 	dir->i_ctime = dir->i_mtime = dir->i_atime = *ts;
+
+	//TEST_i_atime
+//		printk("[cheon] vfat_add_entry  \n");
+//		printk("dir->i_mtime.tv_sec : %lu \n", dir->i_mtime.tv_sec );
+//		printk("dir->i_mtime.tv_nsec : %ld \n", dir->i_mtime.tv_nsec );
+
+
+
 	if (IS_DIRSYNC(dir))
 		(void)fat_sync_inode(dir);
 	else
@@ -769,7 +778,11 @@ out:
 	dentry->d_time = dentry->d_parent->d_inode->i_version;
 	dentry = d_splice_alias(inode, dentry);
 	if (dentry)
+	{
 		dentry->d_time = dentry->d_parent->d_inode->i_version;
+
+		//dentry->d_time = 99;
+	}
 	return dentry;
 
 error:
@@ -790,7 +803,8 @@ static int vfat_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 
 	mutex_lock(&MSDOS_SB(sb)->s_lock);
 
-	ts = CURRENT_TIME_SEC;
+	ts = CURRENT_TIME_SEC_OPEL;
+	//ts = CURRENT_TIME_SEC;
 	err = vfat_add_entry(dir, &dentry->d_name, 0, 0, &ts, &sinfo);
 	if (err)
 		goto out;
@@ -803,10 +817,24 @@ static int vfat_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		goto out;
 	}
 	inode->i_version++;
+
 	inode->i_mtime = inode->i_atime = inode->i_ctime = ts;
+
+	//TEST_i_atime
+		printk("[cheon] vfat_create \n");
+		printk("inode->i_mtime.tv_sec : %lu \n", inode->i_ctime.tv_sec );
+		printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_ctime.tv_nsec );
+	
+//		struct timespec now = CURRENT_TIME_SEC_OPEL;
+		
+//		printk("opel now.tv_sec : %lu \n", now.tv_sec );
+//		printk("opel now.tv_nsec : %ld \n", now.tv_nsec );
+
 	/* timestamp is already written, so mark_inode_dirty() is unneeded. */
 
+
 	dentry->d_time = dentry->d_parent->d_inode->i_version;
+
 	d_instantiate(dentry, inode);
 out:
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
@@ -837,7 +865,15 @@ static int vfat_rmdir(struct inode *dir, struct dentry *dentry)
 	drop_nlink(dir);
 
 	clear_nlink(inode);
-	inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC;
+	inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC_OPEL;
+	//inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC;
+
+	//cheon
+	//TEST_i_atime
+		printk("[cheon] vfat_rmdir \n");
+		printk("inode->i_mtime.tv_sec : %lu \n", inode->i_mtime.tv_sec );
+		printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_mtime.tv_nsec );
+
 	fat_detach(inode);
 out:
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
@@ -866,7 +902,15 @@ static int vfat_unlink(struct inode *dir, struct dentry *dentry)
 	if (err)
 		goto out;
 	clear_nlink(inode);
-	inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC;
+	inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC_OPEL;
+	//inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC;
+
+	//cheon
+		printk("[cheon] vfat_unlink \n");
+		printk("inode->i_mtime.tv_sec : %lu \n", inode->i_mtime.tv_sec );
+		printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_mtime.tv_nsec );
+
+
 	fat_detach(inode);
 out:
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
@@ -882,9 +926,12 @@ static int vfat_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 	struct timespec ts;
 	int err, cluster;
 
+//	printk( KERN_ALERT "[cheon] vfat_mkdir \n" );
+
 	mutex_lock(&MSDOS_SB(sb)->s_lock);
 
-	ts = CURRENT_TIME_SEC;
+	//ts = CURRENT_TIME_SEC;
+	ts = CURRENT_TIME_SEC_OPEL;
 	cluster = fat_alloc_new_dir(dir, &ts);
 	if (cluster < 0) {
 		err = cluster;
@@ -908,14 +955,24 @@ static int vfat_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 	inode->i_mtime = inode->i_atime = inode->i_ctime = ts;
 	/* timestamp is already written, so mark_inode_dirty() is unneeded. */
 
+		
+//		inode->i_mtime.tv_sec  = 1400000000;
+//		inode->i_mtime.tv_nsec = 1; 
+
+		printk("[cheon] vfat_mkdir \n");
+		printk("inode->i_mtime.tv_sec : %lu \n",  inode->i_mtime.tv_sec );
+		printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_mtime.tv_nsec );
+
+
 	dentry->d_time = dentry->d_parent->d_inode->i_version;
+//	dentry->d_time = 99;
 	d_instantiate(dentry, inode);
 
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
 	return 0;
 
 out_free:
-	printk( KERN_ALERT "[cheon] vfat_mkdir, fat_free_clusters \n");
+//	printk( KERN_ALERT "[cheon] vfat_mkdir, fat_free_clusters \n");
 	fat_free_clusters(dir, cluster);
 out:
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
@@ -934,6 +991,8 @@ static int vfat_rename(struct inode *old_dir, struct dentry *old_dentry,
 	int err, is_dir, update_dotdot, corrupt = 0;
 	struct super_block *sb = old_dir->i_sb;
 
+	printk( KERN_ALERT "[cheon] vfat_rename \n");
+
 	old_sinfo.bh = sinfo.bh = dotdot_bh = NULL;
 	old_inode = old_dentry->d_inode;
 	new_inode = new_dentry->d_inode;
@@ -951,7 +1010,8 @@ static int vfat_rename(struct inode *old_dir, struct dentry *old_dentry,
 		}
 	}
 
-	ts = CURRENT_TIME_SEC;
+	ts = CURRENT_TIME_SEC_OPEL;
+	//ts = CURRENT_TIME_SEC;
 	if (new_inode) {
 		if (is_dir) {
 			err = fat_dir_empty(new_inode);
@@ -991,7 +1051,6 @@ static int vfat_rename(struct inode *old_dir, struct dentry *old_dentry,
  			inc_nlink(new_dir);
 	}
 
-//	printk( KERN_ALERT "[cheon] vfat_rename \n");
 	err = fat_remove_entries(old_dir, &old_sinfo);	/* and releases bh */
 	old_sinfo.bh = NULL;
 	if (err)

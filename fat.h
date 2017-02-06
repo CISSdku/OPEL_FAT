@@ -555,4 +555,20 @@ extern const struct export_operations fat_export_ops_nostale;
 /* helper for printk */
 typedef unsigned long long	llu;
 
+
+
+
+//cheon //TEST2
+static inline unsigned long time_ordering( void )
+{
+	static unsigned long order = 0;
+
+	order++;
+
+	return order;
+}
+
+#define CURRENT_TIME_SEC_OPEL ( ( struct timespec ){ get_seconds(), time_ordering() } )
+
+
 #endif /* !_FAT_H */

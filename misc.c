@@ -199,6 +199,10 @@ void fat_time_fat2unix(struct msdos_sb_info *sbi, struct timespec *ts,
 	u16 time = le16_to_cpu(__time), date = le16_to_cpu(__date);
 	time_t second, day, leap_day, month, year;
 
+	//cheon
+//	struct timespec now;
+
+
 	year  = date >> 9;
 	month = max(1, (date >> 5) & 0xf);
 	day   = max(1, date & 0x1f) - 1;
@@ -224,10 +228,26 @@ void fat_time_fat2unix(struct msdos_sb_info *sbi, struct timespec *ts,
 	if (time_cs) {
 		ts->tv_sec = second + (time_cs / 100);
 		ts->tv_nsec = (time_cs % 100) * 10000000;
+
+		//cheon
+	//	ts->tv_sec = 99;
+	//	ts->tv_nsec = 99;
+		//now = current_fs_time( sbi );
+
+
 	} else {
 		ts->tv_sec = second;
 		ts->tv_nsec = 0;
+
+
+
+	//	ts->tv_sec = 99;
+	//	ts->tv_nsec = 99;
+
+
 	}
+
+
 }
 
 /* Convert linear UNIX date to a FAT time/date pair. */
@@ -256,7 +276,7 @@ void fat_time_unix2fat(struct msdos_sb_info *sbi, struct timespec *ts,
 	}
 
 	/* from 1900 -> from 1980 */
-	tm.tm_year -= 80;
+	tm.tm_year -= 80; //cheon original 80
 	/* 0~11 -> 1~12 */
 	tm.tm_mon++;
 	/* 0~59 -> 0~29(2sec counts) */
@@ -265,7 +285,13 @@ void fat_time_unix2fat(struct msdos_sb_info *sbi, struct timespec *ts,
 	*time = cpu_to_le16(tm.tm_hour << 11 | tm.tm_min << 5 | tm.tm_sec);
 	*date = cpu_to_le16(tm.tm_year << 9 | tm.tm_mon << 5 | tm.tm_mday);
 	if (time_cs)
+	{
 		*time_cs = (ts->tv_sec & 1) * 100 + ts->tv_nsec / 10000000;
+	}
+	else
+	{
+	
+	}
 }
 EXPORT_SYMBOL_GPL(fat_time_unix2fat);
 

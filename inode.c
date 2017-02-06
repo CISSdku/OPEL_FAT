@@ -369,7 +369,8 @@ static int fat_write_end(struct file *file, struct address_space *mapping,
 	if (err < len)
 		fat_write_failed(mapping, pos + len);
 	if (!(err < 0) && !(MSDOS_I(inode)->i_attrs & ATTR_ARCH)) {
-		inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC;
+		inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC_OPEL;
+		//inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC;
 		MSDOS_I(inode)->i_attrs |= ATTR_ARCH;
 		mark_inode_dirty(inode);
 	}
@@ -631,7 +632,16 @@ int fat_fill_inode(struct inode *inode, struct msdos_dir_entry *de)
 				  de->cdate, de->ctime_cs);
 		fat_time_fat2unix(sbi, &inode->i_atime, 0, de->adate, 0);
 	} else
+	{	
 		inode->i_ctime = inode->i_atime = inode->i_mtime;
+	
+		//TEST_i_atime
+		printk("[cheon] fat_fill_inode \n");
+		printk("inode->i_mtime.tv_sec : %lu \n", inode->i_mtime.tv_sec );
+		printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_mtime.tv_nsec );
+	}
+
+
 
 	return 0;
 }
@@ -902,13 +912,40 @@ retry:
 	fat_set_start(raw_entry, MSDOS_I(inode)->i_logstart);
 	fat_time_unix2fat(sbi, &inode->i_mtime, &raw_entry->time,
 			  &raw_entry->date, NULL);
+
+	inode->i_mtime = CURRENT_TIME_SEC_OPEL;
+
 	if (sbi->options.isvfat) {
 		__le16 atime;
 		fat_time_unix2fat(sbi, &inode->i_ctime, &raw_entry->ctime,
 				  &raw_entry->cdate, &raw_entry->ctime_cs);
 		fat_time_unix2fat(sbi, &inode->i_atime, &atime,
 				  &raw_entry->adate, NULL);
+
+
+		inode->i_ctime = inode->i_atime = CURRENT_TIME_SEC_OPEL;
 	}
+
+	//TEST_i_atime
+
+
+	//	inode->i_mtime.tv_sec = 1400000000; 
+	//	inode->i_mtime.tv_nsec = 9999;
+
+//		struct timespec now; 
+
+//		now = current_fs_time( inode->i_sb );
+
+
+		printk("[cheon] __fat_write_inode \n");
+		printk("inode->i_mtime.tv_sec : %lu \n", inode->i_mtime.tv_sec );
+		printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_mtime.tv_nsec );
+	
+//		printk("now.tv_sec : %lu \n", now.tv_sec );
+//		printk("now.tv_nsec : %ld \n", now.tv_nsec );
+		
+
+
 	spin_unlock(&sbi->inode_hash_lock);
 	mark_buffer_dirty(bh);
 	err = 0;
@@ -936,6 +973,7 @@ static int fat_write_inode(struct inode *inode, struct writeback_control *wbc)
 
 int fat_sync_inode(struct inode *inode)
 {
+	printk( KERN_ALERT "[cheon] fat_sync_inode \n");
 	return __fat_write_inode(inode, 1);
 }
 
