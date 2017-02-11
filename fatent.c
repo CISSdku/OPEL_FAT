@@ -10,7 +10,7 @@
 #include "fat.h"
 
 //#define __DEBUG__
-#define __ORIGINAL_FAT_TEST__
+//#define __ORIGINAL_FAT_TEST__
 
 
 struct super_block *temp_sb;

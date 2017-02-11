@@ -7,7 +7,8 @@ static unsigned long dir_size( char *dn)
 	FILE *fp = NULL;
 	char stn[ STN_SIZE ];
 //	char *ch[2]  = {  "du -scb ", "* | grep 합계" };
-	char *ch[2]  = {  "ls --size ", " | grep total" };
+//	char *ch[2]  = {  "ls --size ", " | grep total" };
+	char *ch[2]  = {  "ls --size ", " | grep 합계" };
 
 	char buf[50];
 	char *size = NULL;
@@ -18,6 +19,7 @@ static unsigned long dir_size( char *dn)
 
 //	printf("\ntest : %s \n ", stn);
 	
+		
 	fp = popen(stn,"r");
 	if(fp == NULL) {
 		printf("Error opening : %s\n", strerror( errno ));
@@ -88,8 +90,9 @@ static void file_old_remove( char *dn, int selected_dir )
 	}
 
 	remove(old_name);
-
-	printf("Old file remove : %s \t  %lu \t  %lu \t %lu [M]\n",old_name, temp_st.st_size /1024/1024, dir_size( dn ) /1024, g_dir[ selected_dir ].check_portion/1024 );
+	closedir( dir );
+	//printf("Old file remove : %s \t  %lu \t  %lu \t %lu M \t %d\n",old_name, temp_st.st_size /1024, dir_size( dn ) /1024, g_dir[ selected_dir ].check_portion/1024, g_dir[ selected_dir ].full_count );
+	printf("Old file remove %15s\tmtime %12lu\tnsec %12lu\tdir_size %8lu\tcheck_portion %lu full_count %5d \n",old_name, temp_st.st_mtime, temp_st.st_mtim.tv_nsec, dir_size( dn ) /1024, g_dir[ selected_dir ].check_portion/1024, g_dir[ selected_dir ].full_count );
 }
 
 void detect_and_control( char **dirs, int dir_cnt )
@@ -103,6 +106,7 @@ void detect_and_control( char **dirs, int dir_cnt )
 
 		while( ( size = dir_size( dirs[ num ] ) ) > g_dir[ num ].dir_size ) // 꽉찬 경우
 		{
+
 			printf("Full---------------------------------------------------------------------------------------------- \n");
 			printf("%s	%lu \n", dirs[ num ], size/1024 );
 
@@ -124,7 +128,7 @@ void detect_and_control( char **dirs, int dir_cnt )
 		if( num > ( dir_cnt - 1 ) )
 			num = 0;
 
-		usleep(100000);
+//		usleep(100000);
 	//	sleep(1);
 	}
 	

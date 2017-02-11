@@ -5,54 +5,74 @@ sleep 10
 
 
 ./initialize.sh
-time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 100 >> message.txt
-./rm.sh
-sleep 10
-
-./initialize.sh
-time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 200 >> message.txt
-./rm.sh
-sleep 10
-
-./initialize.sh
-time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 300 >> message.txt
-./rm.sh
-sleep 10
-
-./initialize.sh
-time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 400 >> message.txt
-./rm.sh
-sleep 10
-
-./initialize.sh
-time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 500 >> message.txt
-./rm.sh
-sleep 10
-
-./initialize.sh
-time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 600 >> message.txt
-./rm.sh
-sleep 10
-
-./initialize.sh
-time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 700 >> message.txt
-./rm.sh
-sleep 10
-
-./initialize.sh
-time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 800 >> message.txt
-./rm.sh
-sleep 10
-
-./initialize.sh
-time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 900 >> message.txt
-./rm.sh
-sleep 10
-
-./initialize.sh
 time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 1000 >> message.txt
+insmod ../../view_fatent/view_fatent.ko
 ./rm.sh
 sleep 10
+rmmod view_fatent
+
+./initialize.sh
+time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 2000 >> message.txt
+insmod ../../view_fatent/view_fatent.ko
+./rm.sh
+sleep 10
+rmmod view_fatent
+
+./initialize.sh
+time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 3000 >> message.txt
+insmod ../../view_fatent/view_fatent.ko
+./rm.sh
+sleep 10
+rmmod view_fatent
+
+./initialize.sh
+time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 4000 >> message.txt
+insmod ../../view_fatent/view_fatent.ko
+./rm.sh
+sleep 10
+rmmod view_fatent
+
+./initialize.sh
+time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 5000 >> message.txt
+insmod ../../view_fatent/view_fatent.ko
+./rm.sh
+sleep 10
+rmmod view_fatent
+
+./initialize.sh
+time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 6000 >> message.txt
+insmod ../../view_fatent/view_fatent.ko
+./rm.sh
+sleep 10
+rmmod view_fatent
+
+./initialize.sh
+time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 7000 >> message.txt
+insmod ../../view_fatent/view_fatent.ko
+./rm.sh
+sleep 10
+rmmod view_fatent
+
+./initialize.sh
+time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 8000 >> message.txt
+insmod ../../view_fatent/view_fatent.ko
+./rm.sh
+sleep 10
+rmmod view_fatent
+
+./initialize.sh
+time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 9000 >> message.txt
+insmod ../../view_fatent/view_fatent.ko
+./rm.sh
+sleep 10
+rmmod view_fatent
+
+./initialize.sh
+time ./workload 7 ./target_dir_list/real_target_dir_list.txt on 10000 >> message.txt
+insmod ../../view_fatent/view_fatent.ko
+./rm.sh
+sleep 10
+rmmod view_fatent
 
 
 

@@ -45,7 +45,7 @@
 #define COUNT_AREA_4 131072 //512M
 #define COUNT_AREA_5 131072 //512M
 #endif
-#if 1
+#if 0 //ORIGINAL_5기가 test
 #define COUNT_AREA_0 76800 //300M
 #define COUNT_AREA_1 1310720
 #define COUNT_AREA_2 100
@@ -54,15 +54,45 @@
 #define COUNT_AREA_5 100
 #endif
 
+#if 1 //Fine grained test
+#define COUNT_AREA_0 76800 //300M
+#define COUNT_AREA_1 10240 //40M
+#define COUNT_AREA_2 5120 
+#define COUNT_AREA_3 5120
+#define COUNT_AREA_4 2560
+#define COUNT_AREA_5 2560 
+#endif
+
 static int fat_default_codepage = CONFIG_FAT_DEFAULT_CODEPAGE;
 static char fat_default_iocharset[] = CONFIG_FAT_DEFAULT_IOCHARSET;
+
+unsigned long time_ordering( void )
+{
+	static unsigned long order = 0;
+	static u64 previous_sec = 0;
+
+#if 1
+	if( previous_sec == get_seconds() ) //same secondes 
+	{
+		order++;
+	}
+	else //if diffrent sec, dont need to ditinguish
+	{
+		order = 0;
+	}
+#endif
+
+	previous_sec = get_seconds();
+
+	return order;
+}
+EXPORT_SYMBOL_GPL( time_ordering ); 
 
 
 static int fat_add_cluster(struct inode *inode)
 {
 	// [cheon]
 	struct super_block *sb = inode->i_sb;
-	struct msdos_sb_info *sbi = MSDOS_SB(sb);	
 //	struct dentry *dentry = NULL;
 //	struct dentry *p_dentry = NULL;
 //	int area = -1 ;
@@ -937,9 +967,9 @@ retry:
 //		now = current_fs_time( inode->i_sb );
 
 
-		printk("[cheon] __fat_write_inode \n");
-		printk("inode->i_mtime.tv_sec : %lu \n", inode->i_mtime.tv_sec );
-		printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_mtime.tv_nsec );
+		//printk("[cheon] __fat_write_inode \n");
+	//	printk("inode->i_mtime.tv_sec : %lu \n", inode->i_mtime.tv_sec );
+	//	printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_mtime.tv_nsec );
 	
 //		printk("now.tv_sec : %lu \n", now.tv_sec );
 //		printk("now.tv_nsec : %ld \n", now.tv_nsec );

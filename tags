@@ -23,13 +23,13 @@ BX_START	fat.h	76;"	d
 CLUSTER_IN_BLOCK	fat.h	66;"	d
 CLUSTER_IN_PAGE	fat.h	65;"	d
 CONFIG_FAT_DEFAULT_IOCHARSET	inode.c	35;"	d	file:
-COUNT_AREA_0	inode.c	49;"	d	file:
-COUNT_AREA_1	inode.c	50;"	d	file:
-COUNT_AREA_2	inode.c	51;"	d	file:
-COUNT_AREA_3	inode.c	52;"	d	file:
-COUNT_AREA_4	inode.c	53;"	d	file:
-COUNT_AREA_5	inode.c	54;"	d	file:
-CURRENT_TIME_SEC_OPEL	fat.h	571;"	d
+COUNT_AREA_0	inode.c	58;"	d	file:
+COUNT_AREA_1	inode.c	59;"	d	file:
+COUNT_AREA_2	inode.c	60;"	d	file:
+COUNT_AREA_3	inode.c	61;"	d	file:
+COUNT_AREA_4	inode.c	62;"	d	file:
+COUNT_AREA_5	inode.c	63;"	d	file:
+CURRENT_TIME_SEC_OPEL	fat.h	581;"	d
 DAYS_DELTA	misc.c	184;"	d	file:
 DIR_1	fat.h	25;"	d
 DIR_2	fat.h	26;"	d
@@ -59,7 +59,7 @@ FAT_READA_SIZE	fatent.c	1010;"	d	file:
 FAT_VALID_MODE	file.c	382;"	d	file:
 HANDWORK_DIRECTORY	fat.h	51;"	d
 IMAGE_AREA_RATIO	fat.h	103;"	d
-INIT_SHORTNAME_INFO	namei_vfat.c	269;"	d	file:
+INIT_SHORTNAME_INFO	namei_vfat.c	268;"	d	file:
 IS_LEAP_YEAR	misc.c	187;"	d	file:
 MANUAL_AREA_RATIO	fat.h	102;"	d
 MANUAL_DIRECTORY	fat.h	50;"	d
@@ -129,7 +129,6 @@ SECS_PER_DAY	misc.c	182;"	d	file:
 SECS_PER_HOUR	misc.c	181;"	d	file:
 SECS_PER_MIN	misc.c	180;"	d	file:
 TIMES_SET_FLAGS	file.c	380;"	d	file:
-TIME_TEST	namei_vfat.c	30;"	d	file:
 VFAT_IOCTL_READDIR_BOTH32	dir.c	828;"	d	file:
 VFAT_IOCTL_READDIR_SHORT32	dir.c	829;"	d	file:
 VFAT_SFN_CREATE_WIN95	fat.h	118;"	d
@@ -139,7 +138,6 @@ VFAT_SFN_DISPLAY_WIN95	fat.h	116;"	d
 VFAT_SFN_DISPLAY_WINNT	fat.h	117;"	d
 YEAR_2100	misc.c	186;"	d	file:
 _FAT_H	fat.h	2;"	d
-__ORIGINAL_FAT_TEST__	fatent.c	13;"	d	file:
 __fat_cache_inval_inode	cache.c	/^static void __fat_cache_inval_inode(struct inode *inode)$/;"	f	file:
 __fat_fs_error	misc.c	/^EXPORT_SYMBOL_GPL(__fat_fs_error);$/;"	v
 __fat_fs_error	misc.c	/^void __fat_fs_error(struct super_block *sb, int report, const char *fmt, ...)$/;"	f
@@ -534,7 +532,8 @@ sys_immutable	fat.h	/^		 sys_immutable:1,  \/* set = system files are immutable 
 temp_sb	fatent.c	/^struct super_block *temp_sb;$/;"	v	typeref:struct:super_block
 time	fat.h	/^	unsigned int time;$/;"	m	struct:msdos_sb_info
 time_offset	fat.h	/^	int time_offset;	   \/* Offset of timestamps from UTC (in minutes) *\/$/;"	m	struct:fat_mount_options
-time_ordering	fat.h	/^static inline unsigned long time_ordering( void )$/;"	f
+time_ordering	inode.c	/^EXPORT_SYMBOL_GPL( time_ordering ); $/;"	v
+time_ordering	inode.c	/^unsigned long time_ordering( void )$/;"	f
 to_shortname_char	namei_vfat.c	/^static inline int to_shortname_char(struct nls_table *nls,$/;"	f	file:
 truncate_lock	fat.h	/^	struct rw_semaphore truncate_lock; \/* protect bmap against truncate *\/$/;"	m	struct:msdos_inode_info	typeref:struct:msdos_inode_info::rw_semaphore
 tz_set	fat.h	/^		 tz_set:1,	   \/* Filesystem timestamps' offset set *\/$/;"	m	struct:fat_mount_options

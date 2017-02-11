@@ -556,19 +556,28 @@ extern const struct export_operations fat_export_ops_nostale;
 typedef unsigned long long	llu;
 
 
-
-
 //cheon //TEST2
-static inline unsigned long time_ordering( void )
-{
-	static unsigned long order = 0;
+extern unsigned long time_ordering( void );
+#if 0
+extern {
+	static unsigned long order = 0;	
+	static u64 previous_sec = 0;
+	
+	if( previous_sec == get_seconds() ) //same secondes 
+	{
+		order++;
+	}
+	else //if diffrent sec, dont need to ditinguish
+	{
+		order = 0;
+	}
 
-	order++;
+	previous_sec = get_seconds();
 
 	return order;
 }
+#endif
 
 #define CURRENT_TIME_SEC_OPEL ( ( struct timespec ){ get_seconds(), time_ordering() } )
-
 
 #endif /* !_FAT_H */

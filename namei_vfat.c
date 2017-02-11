@@ -27,7 +27,6 @@
 #include <linux/namei.h>
 #include "fat.h"
 
-#define TIME_TEST ( (struct timespec) { 99, 99 } )
 
 /*
  * If new entry was created in the parent, it could create the 8.3
@@ -804,7 +803,7 @@ static int vfat_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 	mutex_lock(&MSDOS_SB(sb)->s_lock);
 
 	ts = CURRENT_TIME_SEC_OPEL;
-	//ts = CURRENT_TIME_SEC;
+//	ts = CURRENT_TIME_SEC;
 	err = vfat_add_entry(dir, &dentry->d_name, 0, 0, &ts, &sinfo);
 	if (err)
 		goto out;
@@ -821,9 +820,9 @@ static int vfat_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 	inode->i_mtime = inode->i_atime = inode->i_ctime = ts;
 
 	//TEST_i_atime
-		printk("[cheon] vfat_create \n");
-		printk("inode->i_mtime.tv_sec : %lu \n", inode->i_ctime.tv_sec );
-		printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_ctime.tv_nsec );
+//		printk("[cheon] vfat_create \n");
+//		printk("inode->i_mtime.tv_sec : %lu \n", inode->i_ctime.tv_sec );
+///		printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_ctime.tv_nsec );
 	
 //		struct timespec now = CURRENT_TIME_SEC_OPEL;
 		
@@ -906,9 +905,9 @@ static int vfat_unlink(struct inode *dir, struct dentry *dentry)
 	//inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC;
 
 	//cheon
-		printk("[cheon] vfat_unlink \n");
-		printk("inode->i_mtime.tv_sec : %lu \n", inode->i_mtime.tv_sec );
-		printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_mtime.tv_nsec );
+//		printk("[cheon] vfat_unlink \n");
+//		printk("inode->i_mtime.tv_sec : %lu \n", inode->i_mtime.tv_sec );
+//		printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_mtime.tv_nsec );
 
 
 	fat_detach(inode);
@@ -959,9 +958,9 @@ static int vfat_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 //		inode->i_mtime.tv_sec  = 1400000000;
 //		inode->i_mtime.tv_nsec = 1; 
 
-		printk("[cheon] vfat_mkdir \n");
-		printk("inode->i_mtime.tv_sec : %lu \n",  inode->i_mtime.tv_sec );
-		printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_mtime.tv_nsec );
+//		printk("[cheon] vfat_mkdir \n");
+//		printk("inode->i_mtime.tv_sec : %lu \n",  inode->i_mtime.tv_sec );
+//		printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_mtime.tv_nsec );
 
 
 	dentry->d_time = dentry->d_parent->d_inode->i_version;
@@ -1137,7 +1136,8 @@ static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 
 	res = fat_fill_super(sb, data, silent, 1, setup);
 
-	fat_config_init( sb );
+	
+//	fat_config_init( sb );
 	fat_update_super( sb );
 
 	return res;
@@ -1147,6 +1147,7 @@ static struct dentry *vfat_mount(struct file_system_type *fs_type,
 		       int flags, const char *dev_name,
 		       void *data)
 {
+	printk( KERN_ALERT "[cheon] 0130 1855\n");
 	printk( KERN_ALERT "[cheon] vfat_mount !! \n");
 	return mount_bdev(fs_type, flags, dev_name, data, vfat_fill_super);
 }
