@@ -163,8 +163,8 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 
 struct file_info {
 		char fn[40];
-			unsigned long time;
-				long point;
+		unsigned long time;
+		long point;
 };
 
 int compare_time(const void *node1, const void *node2)
@@ -199,10 +199,12 @@ void fdel(char *dn, int gap)
 	struct file_info *farr = NULL;
 	char fn[40];
 	char numch[10];
+	char openpath[30];
 	int fs_err=0;
 	int filenum=0, filecnt=0;
 
-	po = popen("find /mnt/normal/ -type f | wc -l","r");
+	sprintf(openpath,"%s%s%s","find ",dn," -type f | wc -l");
+	po = popen(openpath,"r");
 	if(po != NULL) {
 		fgets(numch,sizeof(numch),po);
 	}
@@ -381,10 +383,10 @@ static int detect_file_counter( int file_counter, int load_flag )
 	//	remove_file_for_calculate_fragmentation( "/mnt/parking/" );
 	//	remove_file_for_calculate_fragmentation( "/mnt/parking_event" );
 
-		fdel( "/mnt/normal/", 10 );
-		fdel( "/mnt/normal_event/", 10 );
-		fdel( "/mnt/parking/", 10 );
-		fdel( "/mnt/parking_event/", 10 );
+		fdel( "./test/normal/", 10 );
+		fdel( "./test/normal_event/", 10 );
+		fdel( "./test/parking/", 10 );
+		fdel( "./test/parking_event/", 10 );
 
 		
 		if( load_flag == ON )
