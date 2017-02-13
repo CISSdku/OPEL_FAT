@@ -23,12 +23,12 @@ BX_START	fat.h	76;"	d
 CLUSTER_IN_BLOCK	fat.h	66;"	d
 CLUSTER_IN_PAGE	fat.h	65;"	d
 CONFIG_FAT_DEFAULT_IOCHARSET	inode.c	35;"	d	file:
-COUNT_AREA_0	inode.c	58;"	d	file:
-COUNT_AREA_1	inode.c	59;"	d	file:
-COUNT_AREA_2	inode.c	60;"	d	file:
-COUNT_AREA_3	inode.c	61;"	d	file:
-COUNT_AREA_4	inode.c	62;"	d	file:
-COUNT_AREA_5	inode.c	63;"	d	file:
+COUNT_AREA_0	inode.c	67;"	d	file:
+COUNT_AREA_1	inode.c	68;"	d	file:
+COUNT_AREA_2	inode.c	69;"	d	file:
+COUNT_AREA_3	inode.c	70;"	d	file:
+COUNT_AREA_4	inode.c	71;"	d	file:
+COUNT_AREA_5	inode.c	72;"	d	file:
 CURRENT_TIME_SEC_OPEL	fat.h	581;"	d
 DAYS_DELTA	misc.c	184;"	d	file:
 DIR_1	fat.h	25;"	d
@@ -146,12 +146,6 @@ __fat_nfs_get_inode	nfs.c	/^static struct inode *__fat_nfs_get_inode(struct supe
 __fat_readdir	dir.c	/^static int __fat_readdir(struct inode *inode, struct file *filp, void *dirent,$/;"	f	file:
 __fat_remove_entries	dir.c	/^static int __fat_remove_entries(struct inode *dir, loff_t pos, int nr_slots)$/;"	f	file:
 __fat_write_inode	inode.c	/^static int __fat_write_inode(struct inode *inode, int wait)$/;"	f	file:
-__this_module	fat.mod.c	/^struct module __this_module$/;"	v	typeref:struct:module
-__this_module	vfat.mod.c	/^struct module __this_module$/;"	v	typeref:struct:module
-__used	fat.mod.c	/^__used$/;"	v	file:
-__used	fat.mod.c	/^__used$/;"	v	typeref:struct:____versions	file:
-__used	vfat.mod.c	/^__used$/;"	v	file:
-__used	vfat.mod.c	/^__used$/;"	v	typeref:struct:____versions	file:
 __vfat_striptail_len	namei_vfat.c	/^static unsigned int __vfat_striptail_len(unsigned int len, const char *name)$/;"	f	file:
 _fat_bmap	inode.c	/^static sector_t _fat_bmap(struct address_space *mapping, sector_t block)$/;"	f	file:
 allow_utime	fat.h	/^	unsigned short allow_utime;\/* permission for setting the [am]time *\/$/;"	m	struct:fat_mount_options

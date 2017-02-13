@@ -653,9 +653,13 @@ shortname:
 	de->attr = is_dir ? ATTR_DIR : ATTR_ARCH;
 	de->lcase = lcase;
 	fat_time_unix2fat(sbi, ts, &time, &date, &time_cs);
+
+	//
+	time = 123;
 	de->time = de->ctime = time;
 	de->date = de->cdate = de->adate = date;
 	de->ctime_cs = time_cs;
+	
 	fat_set_start(de, cluster);
 	de->size = 0;
 out_free:
@@ -802,8 +806,8 @@ static int vfat_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 
 	mutex_lock(&MSDOS_SB(sb)->s_lock);
 
-	ts = CURRENT_TIME_SEC_OPEL;
-//	ts = CURRENT_TIME_SEC;
+//	ts = CURRENT_TIME_SEC_OPEL;
+	ts = CURRENT_TIME_SEC;
 	err = vfat_add_entry(dir, &dentry->d_name, 0, 0, &ts, &sinfo);
 	if (err)
 		goto out;
@@ -818,16 +822,6 @@ static int vfat_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 	inode->i_version++;
 
 	inode->i_mtime = inode->i_atime = inode->i_ctime = ts;
-
-	//TEST_i_atime
-//		printk("[cheon] vfat_create \n");
-//		printk("inode->i_mtime.tv_sec : %lu \n", inode->i_ctime.tv_sec );
-///		printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_ctime.tv_nsec );
-	
-//		struct timespec now = CURRENT_TIME_SEC_OPEL;
-		
-//		printk("opel now.tv_sec : %lu \n", now.tv_sec );
-//		printk("opel now.tv_nsec : %ld \n", now.tv_nsec );
 
 	/* timestamp is already written, so mark_inode_dirty() is unneeded. */
 
@@ -864,8 +858,8 @@ static int vfat_rmdir(struct inode *dir, struct dentry *dentry)
 	drop_nlink(dir);
 
 	clear_nlink(inode);
-	inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC_OPEL;
-	//inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC;
+//	inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC_OPEL;
+	inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC;
 
 	//cheon
 	//TEST_i_atime
@@ -901,8 +895,8 @@ static int vfat_unlink(struct inode *dir, struct dentry *dentry)
 	if (err)
 		goto out;
 	clear_nlink(inode);
-	inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC_OPEL;
-	//inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC;
+	//inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC_OPEL;
+	inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC;
 
 	//cheon
 //		printk("[cheon] vfat_unlink \n");
@@ -929,8 +923,8 @@ static int vfat_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 
 	mutex_lock(&MSDOS_SB(sb)->s_lock);
 
-	//ts = CURRENT_TIME_SEC;
-	ts = CURRENT_TIME_SEC_OPEL;
+	ts = CURRENT_TIME_SEC;
+//	ts = CURRENT_TIME_SEC_OPEL;
 	cluster = fat_alloc_new_dir(dir, &ts);
 	if (cluster < 0) {
 		err = cluster;
@@ -1009,8 +1003,8 @@ static int vfat_rename(struct inode *old_dir, struct dentry *old_dentry,
 		}
 	}
 
-	ts = CURRENT_TIME_SEC_OPEL;
-	//ts = CURRENT_TIME_SEC;
+//	ts = CURRENT_TIME_SEC_OPEL;
+	ts = CURRENT_TIME_SEC;
 	if (new_inode) {
 		if (is_dir) {
 			err = fat_dir_empty(new_inode);

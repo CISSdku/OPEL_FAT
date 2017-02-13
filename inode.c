@@ -54,13 +54,22 @@
 #define COUNT_AREA_5 100
 #endif
 
-#if 1 //Fine grained test
+#if 0 //Fine grained test
 #define COUNT_AREA_0 76800 //300M
 #define COUNT_AREA_1 10240 //40M
-#define COUNT_AREA_2 5120 
+#define COUNT_AREA_2 5120 //20  
 #define COUNT_AREA_3 5120
 #define COUNT_AREA_4 2560
 #define COUNT_AREA_5 2560 
+#endif
+
+#if 1 //Fine grained test
+#define COUNT_AREA_0 76800 //300M
+#define COUNT_AREA_1 20480 //40M
+#define COUNT_AREA_2 10240 //20  
+#define COUNT_AREA_3 10240
+#define COUNT_AREA_4 5120
+#define COUNT_AREA_5 5120
 #endif
 
 static int fat_default_codepage = CONFIG_FAT_DEFAULT_CODEPAGE;
@@ -399,8 +408,8 @@ static int fat_write_end(struct file *file, struct address_space *mapping,
 	if (err < len)
 		fat_write_failed(mapping, pos + len);
 	if (!(err < 0) && !(MSDOS_I(inode)->i_attrs & ATTR_ARCH)) {
-		inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC_OPEL;
-		//inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC;
+	//	inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC_OPEL;
+		inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC;
 		MSDOS_I(inode)->i_attrs |= ATTR_ARCH;
 		mark_inode_dirty(inode);
 	}
@@ -666,9 +675,9 @@ int fat_fill_inode(struct inode *inode, struct msdos_dir_entry *de)
 		inode->i_ctime = inode->i_atime = inode->i_mtime;
 	
 		//TEST_i_atime
-		printk("[cheon] fat_fill_inode \n");
-		printk("inode->i_mtime.tv_sec : %lu \n", inode->i_mtime.tv_sec );
-		printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_mtime.tv_nsec );
+	//	printk("[cheon] fat_fill_inode \n");
+//		printk("inode->i_mtime.tv_sec : %lu \n", inode->i_mtime.tv_sec );
+//		printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_mtime.tv_nsec );
 	}
 
 
@@ -943,7 +952,7 @@ retry:
 	fat_time_unix2fat(sbi, &inode->i_mtime, &raw_entry->time,
 			  &raw_entry->date, NULL);
 
-	inode->i_mtime = CURRENT_TIME_SEC_OPEL;
+	//inode->i_mtime = CURRENT_TIME_SEC_OPEL;
 
 	if (sbi->options.isvfat) {
 		__le16 atime;
@@ -953,7 +962,7 @@ retry:
 				  &raw_entry->adate, NULL);
 
 
-		inode->i_ctime = inode->i_atime = CURRENT_TIME_SEC_OPEL;
+	//	inode->i_ctime = inode->i_atime = CURRENT_TIME_SEC_OPEL;
 	}
 
 	//TEST_i_atime

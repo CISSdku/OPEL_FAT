@@ -192,15 +192,13 @@ static time_t days_in_year[] = {
 	0,   0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334, 0, 0, 0,
 };
 
+
 /* Convert a FAT time/date pair to a UNIX date (seconds since 1 1 70). */
 void fat_time_fat2unix(struct msdos_sb_info *sbi, struct timespec *ts,
 		       __le16 __time, __le16 __date, u8 time_cs)
 {
 	u16 time = le16_to_cpu(__time), date = le16_to_cpu(__date);
 	time_t second, day, leap_day, month, year;
-
-	//cheon
-//	struct timespec now;
 
 
 	year  = date >> 9;
@@ -241,8 +239,6 @@ void fat_time_fat2unix(struct msdos_sb_info *sbi, struct timespec *ts,
 
 
 
-	//	ts->tv_sec = 99;
-	//	ts->tv_nsec = 99;
 
 
 	}

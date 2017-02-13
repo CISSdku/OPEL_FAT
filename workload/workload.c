@@ -106,10 +106,16 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 				case PARKING : result = random_range( 52 * 1024 * 1024, 58 * 1024 * 1024 ); 	break;//주차
 				case PARKING_EVENT : result = random_range( 8 * 1024 * 1024, 87 * 1024 * 1024 ); 	break; //주차 이벤트
 #endif
+#if 0
 				case NORMAL : result = random_range( 390 * 1024, 400 * 1024 ); 	break;//상시
 				case NORMAL_EVENT : result = random_range( 200 * 1024, 300 * 1024 );	break;//상시 이벤트
 				case PARKING : result = random_range( 180 * 1024, 250 * 1024 ); 	break;//주차
 				case PARKING_EVENT : result = random_range( 100 * 1024, 200 * 1024 ); 	break; //주차 이벤트
+#endif
+				case NORMAL : result = random_range( 780 * 1024, 800 * 1024 ); 	break;//상시
+				case NORMAL_EVENT : result = random_range( 400 * 1024, 600 * 1024 );	break;//상시 이벤트
+				case PARKING : result = random_range( 360 * 1024, 500 * 1024 ); 	break;//주차
+				case PARKING_EVENT : result = random_range( 200 * 1024, 400 * 1024 ); 	break; //주차 이벤트
 
 				default : break;
 			}
@@ -335,41 +341,6 @@ static void remove_file_for_calculate_fragmentation( char *dn )
 }
 #endif
 
-#if 0
-static void remove_file_for_calculate_fragmentation( char *dn )
-{
-	DIR *dir;
-	struct dirent *de;
-	char fn[40], selec_file[40];
-	int cnt = 0;
-
-	dir = opendir(dn);
-	if(dir != NULL)
-	{
-		while(de = readdir(dir))
-		{
-			if(!strcmp(de->d_name,".") || !strcmp(de->d_name,".."))
-				continue;
-
-			sprintf( fn,"%s%s",dn,de->d_name);
-			strcpy( selec_file, fn );
-
-			cnt++;	
-			
-			if( !(cnt % 10) ) //read되는 파일 10번마다 한개 파일 삭제
-			{
-				remove( selec_file );
-				printf("remove file : %s, dir : %s \n", selec_file, dn );
-			}
-
-		}
-	}
-
-	closedir( dir );
-}
-#endif
-
-
 
 static int detect_file_counter( int file_counter, int load_flag )
 {
@@ -383,10 +354,10 @@ static int detect_file_counter( int file_counter, int load_flag )
 	//	remove_file_for_calculate_fragmentation( "/mnt/parking/" );
 	//	remove_file_for_calculate_fragmentation( "/mnt/parking_event" );
 
-		fdel( "./test/normal/", 10 );
-		fdel( "./test/normal_event/", 10 );
-		fdel( "./test/parking/", 10 );
-		fdel( "./test/parking_event/", 10 );
+		fdel( "./mnt/normal/", 10 );
+		fdel( "./mnt/normal_event/", 10 );
+		fdel( "./mnt/parking/", 10 );
+		fdel( "./mnt/parking_event/", 10 );
 
 		
 		if( load_flag == ON )
@@ -400,11 +371,11 @@ static int detect_file_counter( int file_counter, int load_flag )
 }
 void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 {
-//	FILE *fd;
+	FILE *fd;
 	char fn[10];//, in_name[10];
 	char temp_full_file[ NAME_SIZE ];
 	int k;
-	int fd;
+	//int fd;
 	
 	static int file_creator[ DIR_NUM ] = { 0, };
 	unsigned long f_size = 0;
@@ -431,7 +402,7 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 
 		//printf("%s \n", fn );
 		//실제 타겟 파일에 설정된 크기 만큼, 파일을 생성하고 씀
-#if 0
+#if 1
 		if((fd = fopen(fn,"w")) == NULL) {
 			printf("File create error\n");
 			exit(-1);
@@ -441,9 +412,9 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 			fputs("k",fd);
 	
 		fclose( fd );
-		fflush(stdout);
+	//	fflush(stdout);
 #endif
-#if 1
+#if 0
 		fd = open( fn, O_WRONLY | O_CREAT, 0644);
 		if( !fd )
 		{
