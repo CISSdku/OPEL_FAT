@@ -85,8 +85,8 @@ static void init( int sinario, int *selected_dir, char *argv3 , int *load_flag )
 	{
 		//AUTOMATION의 의미는 상시, 상시이벤트, 주차, 주차이벤트를 랜덤으로 섞어서 파일을 만들어 내는거임
 		//AUTOMATION을 제외한 나머지 실험은 아직 제대로 정의 안되어 있음 
-		case S_NORMAL_DRIVING : printf("sinario : NORMAL_DRIVING \n");    *selected_dir = S_AUTOMATION;      break;
-		case S_PARKING        : printf("sinario : PARKING \n");           *selected_dir = S_AUTOMATION;      break;
+		case S_NORMAL_DRIVING : printf("sinario : NORMAL_DRIVING \n");    *selected_dir = S_NORMAL_DRIVING;      break;
+		case S_PARKING        : printf("sinario : PARKING \n");           *selected_dir = S_AUTOMATION;  	    break;
 		case S_PARKING_SHOCK  : printf("sinario : PARKING_SHOCK \n");     *selected_dir = S_AUTOMATION;      break;
 		case S_SHOCK          : printf("sinario : SHOCK \n");             *selected_dir = S_AUTOMATION;      break;
 		case S_SESSION_3      : printf("sinario : SESSION_3 \n");         *selected_dir = S_AUTOMATION;      break;
@@ -94,7 +94,7 @@ static void init( int sinario, int *selected_dir, char *argv3 , int *load_flag )
 
 		case S_AUTOMATION     : printf("sinario : AUTOMATION \n");        *selected_dir = S_AUTOMATION;		 break;
 
-		default           	  : printf("sinario is ?? \n");                              						 break;
+		default           	  : printf("sinario is ?? \n");                              					 break;
 	}
 
 //	g_time.start_point = clock();

@@ -967,13 +967,17 @@ int fat_scan(struct inode *dir, const unsigned char *name,
 	sinfo->bh = NULL;
 	while (fat_get_short_entry(dir, &sinfo->slot_off, &sinfo->bh,
 				   &sinfo->de) >= 0) {
+//		printk( KERN_ALERT "[cheon] fat_scan test \n");
 		if (!strncmp(sinfo->de->name, name, MSDOS_NAME)) {
+
+
 			sinfo->slot_off -= sizeof(*sinfo->de);
 			sinfo->nr_slots = 1;
 			sinfo->i_pos = fat_make_i_pos(sb, sinfo->bh, sinfo->de);
 			return 0;
 		}
 	}
+//		printk( KERN_ALERT "sinfo->de->name : %s	%s\n", sinfo->de->name, name );
 	return -ENOENT;
 }
 EXPORT_SYMBOL_GPL(fat_scan);

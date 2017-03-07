@@ -1131,7 +1131,7 @@ static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 	res = fat_fill_super(sb, data, silent, 1, setup);
 
 	
-//	fat_config_init( sb );
+	fat_config_init( sb );
 	fat_update_super( sb );
 
 	return res;
@@ -1141,7 +1141,7 @@ static struct dentry *vfat_mount(struct file_system_type *fs_type,
 		       int flags, const char *dev_name,
 		       void *data)
 {
-	printk( KERN_ALERT "[cheon] 0130 1855\n");
+	printk( KERN_ALERT "[cheon] 0221 1859\n");
 	printk( KERN_ALERT "[cheon] vfat_mount !! \n");
 	return mount_bdev(fs_type, flags, dev_name, data, vfat_fill_super);
 }

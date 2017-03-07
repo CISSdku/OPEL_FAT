@@ -214,7 +214,7 @@ struct msdos_sb_info {
 
 	// for test, time value
 	unsigned int i_ino;
-	char* file_name;
+	const char* file_name;
 	unsigned int time;
 	unsigned int count;
 	
@@ -487,6 +487,8 @@ extern int fat_ent_write(struct inode *inode, struct fat_entry *fatent,
 			 int new, int wait);
 extern int fat_alloc_clusters(struct inode *inode, int *cluster,
 			      int nr_cluster);
+extern int fat_alloc_cluster(struct inode *inode, int *cluster, int mode);
+
 extern int fat_free_clusters(struct inode *inode, int cluster);
 extern int fat_count_free_clusters(struct super_block *sb);
 

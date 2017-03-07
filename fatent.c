@@ -622,6 +622,102 @@ out:
 }
 EXPORT_SYMBOL_GPL( view_fatent_entry );
 #endif
+
+int fat_alloc_cluster( struct inode *inode, int *cluster, int mode )
+{
+	struct super_block *sb = inode->i_sb;
+	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+	struct fatent_operations *ops = sbi->fatent_ops;
+	struct fat_entry fatent, prev_ent;
+	struct buffer_head *bhs[MAX_BUF_PER_PAGE];
+	int i, count, err, nr_bhs, idx_clus;
+
+	if(mode == -1){
+		//get_area_number(&area,inode);
+		printk("[gandan] Not 'etc' type file need one cluster allocation ! \n");
+		return -1;
+	}
+//	else
+//		area = mode;
+
+	lock_fat(sbi);
+
+	err = nr_bhs = idx_clus = 0;
+	count = FAT_START_ENT;
+	fatent_init(&prev_ent);
+	fatent_init(&fatent);
+
+	fatent_set_entry(&fatent, 0);
+
+	while (count < sbi->max_cluster) {
+		if (fatent.entry >= sbi->max_cluster)
+			fatent.entry = FAT_START_ENT;
+		else if(fatent.entry <  FAT_START_ENT)
+			fatent.entry = FAT_START_ENT;
+		//loop      
+
+		fatent_set_entry(&fatent, fatent.entry);
+		err = fat_ent_read_block(sb, &fatent);
+
+		if (err)
+			goto out;
+
+		/* Find the free entries in a block */
+
+		do {
+			if (ops->ent_get(&fatent) == FAT_ENT_FREE) {
+				int entry = fatent.entry;
+
+				/* make the cluster chain */
+				ops->ent_put(&fatent, FAT_ENT_EOF);
+				if (prev_ent.nr_bhs)
+					ops->ent_put(&prev_ent, entry);
+
+				fat_collect_bhs(bhs, &nr_bhs, &fatent);
+
+				sbi->prev_free = entry;
+		//		sbi->bx_prev_free[area] = entry;
+				//gandan
+				//update for each area data
+				if (sbi->free_clusters != -1){
+					sbi->free_clusters--;
+		//			sbi->bx_free_clusters[area]--;
+				}
+			//	sb->s_dirt = 1;
+
+				cluster[idx_clus] = entry;
+				idx_clus++;
+
+				goto out;
+
+			}
+
+			count++;
+			if (count == sbi->max_cluster)
+				break;
+		} while (fat_ent_next(sbi, &fatent));
+		//if cat't find free cluster on current fat block
+	}
+
+out:
+	unlock_fat(sbi);
+	mark_fsinfo_dirty( sb );
+	fatent_brelse(&fatent);
+	if (!err) {
+		if (inode_needs_sync(inode))
+			err = fat_sync_bhs(bhs, nr_bhs);
+		if (!err)
+			err = fat_mirror_bhs(sb, bhs, nr_bhs);
+	}
+	for (i = 0; i < nr_bhs; i++)
+		brelse(bhs[i]);
+
+	if (err && idx_clus)
+		fat_free_clusters(inode, cluster[0]);
+
+	return err;
+}
+
 int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 {
 	struct super_block *sb = inode->i_sb;
@@ -822,7 +918,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 	int first_cl = cluster, dirty_fsinfo = 0;
 
 	//choen
-	int area;
+	//int area;
 
 	nr_bhs = 0;
 	fatent_init(&fatent);
