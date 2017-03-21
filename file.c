@@ -140,6 +140,9 @@ static long fat_generic_compat_ioctl(struct file *filp, unsigned int cmd,
 
 static int fat_file_release(struct inode *inode, struct file *filp)
 {
+//	printk("[cheon] fat_file_release \n");
+
+
 	if ((filp->f_mode & FMODE_WRITE) &&
 	     MSDOS_SB(inode->i_sb)->options.flush) {
 		fat_flush_inodes(inode->i_sb, inode, NULL);

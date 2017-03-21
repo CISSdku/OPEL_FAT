@@ -55,7 +55,7 @@ FAT_MAX_UNI_CHARS	dir.c	35;"	d	file:
 FAT_MAX_UNI_SIZE	dir.c	36;"	d	file:
 FAT_NFS_NOSTALE_RO	fat.h	126;"	d
 FAT_NFS_STALE_RW	fat.h	125;"	d
-FAT_READA_SIZE	fatent.c	1106;"	d	file:
+FAT_READA_SIZE	fatent.c	1109;"	d	file:
 FAT_VALID_MODE	file.c	382;"	d	file:
 HANDWORK_DIRECTORY	fat.h	51;"	d
 IMAGE_AREA_RATIO	fat.h	103;"	d
@@ -124,6 +124,7 @@ PARKING_EVENT_AREA_RATIO	fat.h	101;"	d
 PARSE_EOF	dir.c	/^enum { PARSE_INVALID = 1, PARSE_NOT_LONGNAME, PARSE_EOF, };$/;"	e	enum:__anon1	file:
 PARSE_INVALID	dir.c	/^enum { PARSE_INVALID = 1, PARSE_NOT_LONGNAME, PARSE_EOF, };$/;"	e	enum:__anon1	file:
 PARSE_NOT_LONGNAME	dir.c	/^enum { PARSE_INVALID = 1, PARSE_NOT_LONGNAME, PARSE_EOF, };$/;"	e	enum:__anon1	file:
+PRE_ALLOC_ON	inode.c	85;"	d	file:
 SD_PAGE_SIZE	fat.h	63;"	d
 SECS_PER_DAY	misc.c	182;"	d	file:
 SECS_PER_HOUR	misc.c	181;"	d	file:
@@ -259,6 +260,7 @@ fat_aops	inode.c	/^static const struct address_space_operations fat_aops = {$/;"
 fat_attach	inode.c	/^EXPORT_SYMBOL_GPL(fat_attach);$/;"	v
 fat_attach	inode.c	/^void fat_attach(struct inode *inode, loff_t i_pos)$/;"	f
 fat_bits	fat.h	/^	unsigned char fats, fat_bits; \/* number of FATs, FAT bits (12 or 16) *\/$/;"	m	struct:msdos_sb_info
+fat_block	inode.c	/^static int fat_block = -1;$/;"	v	file:
 fat_bmap	cache.c	/^int fat_bmap(struct inode *inode, sector_t sector, sector_t *phys,$/;"	f
 fat_bmap_cluster	cache.c	/^static int fat_bmap_cluster(struct inode *inode, int cluster)$/;"	f	file:
 fat_build_inode	inode.c	/^EXPORT_SYMBOL_GPL(fat_build_inode);$/;"	v
@@ -437,7 +439,8 @@ fats	fat.h	/^	unsigned char fats, fat_bits; \/* number of FATs, FAT bits (12 or 
 fatwchar_to16	fat.h	/^static inline void fatwchar_to16(__u8 *dst, const wchar_t *src, size_t len)$/;"	f
 fcluster	cache.c	/^	int fcluster;	\/* cluster number in the file. *\/$/;"	m	struct:fat_cache	file:
 fcluster	cache.c	/^	int fcluster;$/;"	m	struct:fat_cache_id	file:
-file_name	fat.h	/^	char* file_name;$/;"	m	struct:msdos_sb_info
+file_name	fat.h	/^	const char* file_name;$/;"	m	struct:msdos_sb_info
+find_valid_new_next	inode.c	/^static unsigned int find_valid_new_next(struct inode *inode, int area, unsigned int* next, unsigned int* prev)$/;"	f	file:
 floor	fat.h	73;"	d
 flush	fat.h	/^		 flush:1,	   \/* write things quickly *\/$/;"	m	struct:fat_mount_options
 free_clus_valid	fat.h	/^	unsigned int free_clus_valid; \/* is free_clusters valid? *\/$/;"	m	struct:msdos_sb_info
@@ -493,7 +496,7 @@ msdos_inode_info	fat.h	/^struct msdos_inode_info {$/;"	s
 msdos_lookup	namei_msdos.c	/^static struct dentry *msdos_lookup(struct inode *dir, struct dentry *dentry,$/;"	f	file:
 msdos_mkdir	namei_msdos.c	/^static int msdos_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)$/;"	f	file:
 msdos_mount	namei_msdos.c	/^static struct dentry *msdos_mount(struct file_system_type *fs_type,$/;"	f	file:
-msdos_name	config.c	/^unsigned char msdos_name[ MSDOS_NAME ] = "BXFS_CONFAT";$/;"	v
+msdos_name	config.c	/^unsigned char msdos_name[ MSDOS_NAME ] = "BXFS_CONtxt";$/;"	v
 msdos_rename	namei_msdos.c	/^static int msdos_rename(struct inode *old_dir, struct dentry *old_dentry,$/;"	f	file:
 msdos_rmdir	namei_msdos.c	/^static int msdos_rmdir(struct inode *dir, struct dentry *dentry)$/;"	f	file:
 msdos_sb_info	fat.h	/^struct msdos_sb_info {$/;"	s
@@ -517,6 +520,7 @@ parent_i_gen	nfs.c	/^	u32 parent_i_gen;$/;"	m	struct:fat_fid	file:
 parent_i_pos_hi	nfs.c	/^	u16 parent_i_pos_hi;$/;"	m	struct:fat_fid	file:
 parent_i_pos_low	nfs.c	/^	u32 parent_i_pos_low;$/;"	m	struct:fat_fid	file:
 parse_options	inode.c	/^static int parse_options(struct super_block *sb, char *options, int is_vfat,$/;"	f	file:
+preAlloc	inode.c	/^static void preAlloc(struct super_block *sb, unsigned int next, unsigned int prev, unsigned int* new_next, unsigned int* new_prev, int allocated, int need_to_alloc, int area){$/;"	f	file:
 prev_free	fat.h	/^	unsigned int prev_free;      \/* previously allocated cluster number *\/$/;"	m	struct:msdos_sb_info
 quiet	fat.h	/^	unsigned quiet:1,          \/* set = fake successful chmods and chowns *\/$/;"	m	struct:fat_mount_options
 ratelimit	fat.h	/^	struct ratelimit_state ratelimit;$/;"	m	struct:msdos_sb_info	typeref:struct:msdos_sb_info::ratelimit_state

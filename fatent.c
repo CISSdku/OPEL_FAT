@@ -893,7 +893,10 @@ out:
 			err = fat_mirror_bhs(sb, bhs, nr_bhs);
 	}
 	for (i = 0; i < nr_bhs; i++)
+	{
+	//	printk( KERN_ALERT "[cheon] fat_alloc_clusters, b_blocknr : %lu \n", bhs[ i ]->b_blocknr );
 		brelse(bhs[i]);
+	}
 
 	if (err && idx_clus)
 	{

@@ -94,7 +94,10 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 		if( sinario != S_AUTOMATION )
 		{
 		//	result = random_range( 98 * 1024 * 1024, 99 * 1024 * 1024 ); 
-			result = random_range( 7 * 1024 * 1024, 8 * 1024 * 1024 ); 
+		//	result = random_range( 7 * 1024 * 1024, 8 * 1024 * 1024 ); 
+			result = random_range( 512 * 1024, 1 * 1024 * 1024 ); 
+//			result = 1 * 1024 * 1024;
+
 		}
 		else  //AUTOMATION
 		{
@@ -119,10 +122,12 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 				case PARKING : result = random_range( 360 * 1024, 500 * 1024 ); 	break;//주차
 				case PARKING_EVENT : result = random_range( 200 * 1024, 400 * 1024 ); 	break; //주차 이벤트
 #endif		
+#if 1
 				case NORMAL : result = random_range( 7 * 1024 * 1024, 8 * 1024 * 1024 );    break;//상시
 				case NORMAL_EVENT : result = random_range( 5 * 1024 * 1024, 6 * 1024 * 1024 );  break;//상시 이벤트
 				case PARKING : result = random_range( 4 * 1024 * 1024, 5 * 1024 * 1024 );   break;//주차
 				case PARKING_EVENT : result = random_range( 3 * 1024 * 1024, 4 * 1024 * 1024 );     break; //주차 이벤트
+#endif
 
 				default : break;
 			}
