@@ -140,9 +140,61 @@ static long fat_generic_compat_ioctl(struct file *filp, unsigned int cmd,
 
 static int fat_file_release(struct inode *inode, struct file *filp)
 {
-//	printk("[cheon] fat_file_release \n");
 
+	printk("[cheon] fat_file_release \n");
+#if 0	
+	struct msdos_sb_info *sbi = MSDOS_SB( inode->i_sb );
+	int area_num;
+	unsigned int used_size = ( unsigned int )( inode->i_size );
+	unsigned int pre_alloc_size;
 
+	//Edir for free to pre allocated clusters and reupdate DE 
+
+	get_area_number( &area_num, inode );
+	pre_alloc_size = sbi->bx_pre_size[ area_num ] * 1024 * 1024; //MB
+
+	if( area_num == BB_ETX );
+
+	else if( pre_alloc_size < inode->i_size )
+	{
+		printk("[cheon] Error, Bad prediction case \n");	
+	}
+	else 
+	{
+		int differ = (pre_alloc_size - used_size) / ((pre_alloc_size) / 100 ) ;
+
+		printk("[cheon] area num %d, pre_alloc size %u \n",    area_num, pre_alloc_size);
+		printk("[cheon] File size Check, Pre : %u, Real : %u, differ %d \n", pre_alloc_size, (unsigned int)inode->i_size, differ);
+
+		//if(differ >= BX_REUPDATE_META_DIFFER){
+		//if((pre_alloc_size - used_size) > 1048576){
+		if(1){
+			printk("[cheon] Occur De/FAT reupdate \n");
+			//Not used space is exceed threshold, need to update meta data.
+
+			//First - Write journal
+			//--------------------------------------------//    
+			//write_jdata_inode(inode->i_sb, inode, BX_JOUR_WITH_REUPDATE);
+			//--------------------------------------------//    
+
+			//Second - Update DE
+			//--------------------------------------------//            
+			de_reupdate(inode->i_sb, inode);
+			//--------------------------------------------//
+
+			//Third - Update FAT
+			//--------------------------------------------//        
+			clusterchain_reupdate(inode->i_sb, inode);
+			//--------------------------------------------//
+		}
+		else{
+			printk("[cheon] Not occur De/FAT reupdate \n");
+
+			//write_jdata_inode(inode->i_sb, inode, BX_JOUR_WITHOUT_REUPDATE);
+		}
+	}
+#endif
+	////////////////////////ORIGIN///////////////////////////
 	if ((filp->f_mode & FMODE_WRITE) &&
 	     MSDOS_SB(inode->i_sb)->options.flush) {
 		fat_flush_inodes(inode->i_sb, inode, NULL);

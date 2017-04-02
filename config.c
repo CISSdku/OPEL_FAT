@@ -17,9 +17,9 @@
 #include <asm/unaligned.h>
 #include "fat.h"
 
-const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =70\r\n\tBX_NORMAL_EVENT    =20\r\n\tBX_PARKING_EVENT   =7\r\n\tBX_MANUAL       =2\r\n\tBX_IMAGE        =2\r\n\tBX_ETC          =7\r\n\r\nPreallocation Setting[MB]\r\n\tBX_NORMAL      =28\r\n\tBX_NORMAL_EVENT    =28\r\n\tBX_PARKING_EVENT   =28\r\n\tBX_MANUAL      =28\r\n\t\0";
+const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =30\r\n\tBX_NORMAL_EVENT    =20\r\n\tBX_PARKING_EVENT   =10\r\n\tBX_MANUAL       =5\r\n\tBX_IMAGE        =5\r\n\tBX_ETC          =30\r\n\r\nPreallocation Setting[MB]\r\n\tBX_NORMAL      =28\r\n\tBX_NORMAL_EVENT    =28\r\n\tBX_PARKING_EVENT   =28\r\n\tBX_MANUAL      =28\r\n\t\0";
+//const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =70\r\n\tBX_NORMAL_EVENT    =20\r\n\tBX_PARKING_EVENT   =7\r\n\tBX_MANUAL       =2\r\n\tBX_IMAGE        =2\r\n\tBX_ETC          =7\r\n\r\nPreallocation Setting[MB]\r\n\tBX_NORMAL      =28\r\n\tBX_NORMAL_EVENT    =28\r\n\tBX_PARKING_EVENT   =28\r\n\tBX_MANUAL      =28\r\n\t\0";
 //const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =70\r\n\tBX_NORMAL_EVENT    =20\r\n\tBX_PARKING_EVENT   =7\r\n\tBX_MANUAL       =2\r\n\tBX_IMAGE        =2\r\n\tBX_ETC          =7\r\n\r\n";
-//const char *config_data = "cheon\0"; 
 
 unsigned char msdos_name[ MSDOS_NAME ] = "BXFS_CONtxt";
 
@@ -103,9 +103,8 @@ static int read_config_data(struct super_block *sb, char *data)
 	printk("[cheon] %u \n", sbi->bx_area_ratio[ BB_PARKING ] );
 	printk("[cheon] %u \n", sbi->bx_area_ratio[ BB_MANUAL ] );
 	printk("[cheon] %u \n", sbi->bx_area_ratio[ BB_IMAGE ] );
-	printk("[cheon] %u \n", sbi->bx_area_ratio[ BB_ETC ] );
+	printk("[cheon] %u \n\n", sbi->bx_area_ratio[ BB_ETC ] );
 #endif
-
 	
 
 #if 0

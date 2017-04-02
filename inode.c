@@ -72,7 +72,7 @@
 #define COUNT_AREA_5 5120
 #endif
 
-#define COUNT_AREA_0 131072 
+#define COUNT_AREA_0 2560
 #define COUNT_AREA_1 131072
 #define COUNT_AREA_2 131072
 #define COUNT_AREA_3 131072
@@ -319,7 +319,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 
 	if( area == BB_ETC )
 	{
-		printk("[cheon] ETC : Using normal allocation \n");
+//		printk("[cheon] ETC : Using normal allocation \n");
 		goto NORMAL_ALLOC;			
 	}
 
@@ -340,12 +340,12 @@ int fat_handle_cluster( struct inode *inode, int mode )
 		goto NORMAL_ALLOC;
 	} 
 
-	printk("[cheon] File Name : %s \n", dentry->d_name.name );
+	//printk("[cheon] File Name : %s \n", dentry->d_name.name );
 
 	if( strstr( dentry->d_name.name, "avi" ) == NULL )
 	{
 		//영상 파일이 아니면	
-		printk("[cheon] Name Check \n");
+//		printk("[cheon] Name Check \n");
 		goto NORMAL_ALLOC;
 	}
 		
@@ -357,7 +357,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	 */
 	next_start = sbi->bx_next_start[ area ]; //초기화 확인
 
-	printk("[cheon] inode->i_ino : %lu, next_start : %u \n", inum, next_start );	
+//	printk("[cheon] inode->i_ino : %lu, next_start : %u \n", inum, next_start );	
 
 
 	//Abnormal case : New alloc or Reboot alloc
@@ -379,6 +379,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 
 			//Align check
 			if(next % CLUSTER_IN_PAGE  != 0){
+				printk("[cheon] Align Check 1 \n");
 				next = next + (CLUSTER_IN_PAGE  - (next % CLUSTER_IN_PAGE )); 
 				prev = next-1;
 			}
@@ -432,7 +433,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 		sbi->bx_prev_free[area] = new_prev;
 
 	}
-#if 1
+#if 0
 	else
 	{
 		next = sbi->bx_next_start[area];
@@ -481,7 +482,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	}
 #endif
 
-	printk("[cheon] Complete alloc.... \n");
+//	printk("[cheon] Complete alloc.... \n");
 	return 0;
 
 #if 0
@@ -604,7 +605,7 @@ void check_page_align( unsigned int *cluster, unsigned int max_cluster, unsigned
 	//align for 8kb page size - 2048 clusters in 1 page
 
 	int adjust = fat_start % BLOCK_IN_PAGE; //eight block in one page
-	int offset = (*cluster + adjust*CLUSTER_IN_BLOCK) % CLUSTER_IN_PAGE; //1024 cluster in one page
+	int offset = (*cluster + adjust * CLUSTER_IN_BLOCK) % CLUSTER_IN_PAGE; //1024 cluster in one page
 
 	*cluster = *cluster + (CLUSTER_IN_PAGE - offset);
 
@@ -630,8 +631,8 @@ int fat_update_super(struct super_block *sb){
 	check_page_align( &sbi->bx_start_cluster[ BX_ETC ], sbi->max_cluster, sbi->fat_start );
 	//max_cluster : total_clusters+FAT_START_ENT
 	//sbi->fat_start : 32
-#if 0
-	sbi->bx_start_cluster[ BB_NORMAL ] = sbi->bx_start_cluster[ BB_ETC ] + ( sbi->max_cluster * sbi->bx_area_ratio[ BX_ETC ] ) / 100;
+#if 1
+	sbi->bx_start_cluster[ BB_NORMAL ] = sbi->bx_start_cluster[ BB_ETC ] + ( sbi->max_cluster * sbi->bx_area_ratio[ BB_ETC ] ) / 100;
 	check_page_align( &sbi->bx_start_cluster[ BB_NORMAL ], sbi->max_cluster, sbi->fat_start );
 
 	sbi->bx_start_cluster[ BB_NORMAL_EVENT ] = sbi->bx_start_cluster[ BB_NORMAL ] + ( sbi->max_cluster * sbi->bx_area_ratio[ BB_NORMAL ] ) / 100;
@@ -654,7 +655,7 @@ int fat_update_super(struct super_block *sb){
 	sbi->bx_end_cluster[ BB_IMAGE        ] = sbi->max_cluster;
 #endif
 
-#if 1
+#if 0
 	sbi->bx_start_cluster[ BB_ETC          ] = FAT_START_ENT + 2;
 	sbi->bx_start_cluster[ BB_NORMAL       ] = FAT_START_ENT + 2 + COUNT_AREA_0;
 	sbi->bx_start_cluster[ BB_NORMAL_EVENT ] = FAT_START_ENT + 2 + COUNT_AREA_0 + ( COUNT_AREA_1 );  //10M + 400k : 400k는 여유 공간
@@ -1367,8 +1368,56 @@ static int __fat_write_inode(struct inode *inode, int wait)
 	sector_t blocknr;
 	int err, offset;
 
+	//cheon
+	static unsigned int i_num = 0; //store previous inum	
+	int area_num;
+	struct dentry *dentry = NULL;
+
 	if (inode->i_ino == MSDOS_ROOT_INO)
 		return 0;
+
+#if 0
+	if( S_ISDIR( inode->i_mode ) ); 
+	else
+	{
+		if( inode->i_ino == i_num )
+		{
+		//	printk("[cheon] Skip De update, inum : %d \n", i_num );		
+			return 0;	
+		}
+		else
+		{
+			i_num = inode->i_ino;	
+		
+			if( inode->i_size >= 25000 )
+			{
+				get_area_number( &area_num, inode );
+#if 0
+				dentry = list_entry( inode->i_dentry.first, struct dentry, d_u.d_alias );
+				if( dentry == NULL )
+				{
+					printk("[cheon] __fat_write_inode, dentry pointer is NULL \n");
+				}
+				else
+				{
+					if( dentry->d_name.name != NULL )			
+					{
+						//printk("[cheon] %s\n", ( unsigned char * )dentry->d_name.name );
+
+						if( strstr( dentry->d_name.name, "avi" ) )
+							printk("[cheon] __fat_write_inode, avi file detected \n"); 
+					}
+				}
+#endif
+
+			}
+
+			//	printk("[cheon] area_num : %d \n", area_num );
+		}
+	}
+#endif
+//	printk("[cheon] __fat_write_inode, test \n");
+
 
 retry:
 	i_pos = fat_i_pos_read(sbi, inode);
@@ -1393,13 +1442,14 @@ retry:
 	if (S_ISDIR(inode->i_mode))
 		raw_entry->size = 0;
 	else
+	{
+	//	printk("[cheon] i_size update \n");
 		raw_entry->size = cpu_to_le32(inode->i_size);
+	}
 	raw_entry->attr = fat_make_attrs(inode);
 	fat_set_start(raw_entry, MSDOS_I(inode)->i_logstart);
 	fat_time_unix2fat(sbi, &inode->i_mtime, &raw_entry->time,
 			  &raw_entry->date, NULL);
-
-	//inode->i_mtime = CURRENT_TIME_SEC_OPEL;
 
 	if (sbi->options.isvfat) {
 		__le16 atime;
@@ -1407,31 +1457,8 @@ retry:
 				  &raw_entry->cdate, &raw_entry->ctime_cs);
 		fat_time_unix2fat(sbi, &inode->i_atime, &atime,
 				  &raw_entry->adate, NULL);
-
-
-	//	inode->i_ctime = inode->i_atime = CURRENT_TIME_SEC_OPEL;
 	}
-
-	//TEST_i_atime
-
-
-	//	inode->i_mtime.tv_sec = 1400000000; 
-	//	inode->i_mtime.tv_nsec = 9999;
-
-//		struct timespec now; 
-
-//		now = current_fs_time( inode->i_sb );
-
-
-		//printk("[cheon] __fat_write_inode \n");
-	//	printk("inode->i_mtime.tv_sec : %lu \n", inode->i_mtime.tv_sec );
-	//	printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_mtime.tv_nsec );
 	
-//		printk("now.tv_sec : %lu \n", now.tv_sec );
-//		printk("now.tv_nsec : %ld \n", now.tv_nsec );
-		
-
-
 	spin_unlock(&sbi->inode_hash_lock);
 	mark_buffer_dirty(bh);
 	err = 0;
