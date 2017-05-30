@@ -153,7 +153,7 @@ static int fat_file_release(struct inode *inode, struct file *filp)
 	get_area_number( &area_num, inode );
 	pre_alloc_size = sbi->bx_pre_size[ area_num ] * 1024 * 1024; //MB
 
-	if( area_num == BB_ETX );
+	if( area_num == BB_ETC );
 
 	else if( pre_alloc_size < inode->i_size )
 	{
@@ -169,7 +169,7 @@ static int fat_file_release(struct inode *inode, struct file *filp)
 		//if(differ >= BX_REUPDATE_META_DIFFER){
 		//if((pre_alloc_size - used_size) > 1048576){
 		if(1){
-			printk("[cheon] Occur De/FAT reupdate \n");
+	//		printk("[cheon] Occur De/FAT reupdate \n");
 			//Not used space is exceed threshold, need to update meta data.
 
 			//First - Write journal
@@ -179,12 +179,12 @@ static int fat_file_release(struct inode *inode, struct file *filp)
 
 			//Second - Update DE
 			//--------------------------------------------//            
-			de_reupdate(inode->i_sb, inode);
+			//de_reupdate(inode->i_sb, inode);
 			//--------------------------------------------//
 
 			//Third - Update FAT
 			//--------------------------------------------//        
-			clusterchain_reupdate(inode->i_sb, inode);
+			//clusterchain_reupdate(inode->i_sb, inode);
 			//--------------------------------------------//
 		}
 		else{

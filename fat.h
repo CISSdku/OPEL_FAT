@@ -467,13 +467,11 @@ static inline void fatent_brelse(struct fat_entry *fatent)
 }
 
 
-
+extern void de_reupdate(struct super_block *sb, struct inode *inode);
+extern void clusterchain_reupdate(struct super_block *sb, struct inode *inode);
 
 extern int view_fatent_entry( void );
 extern void get_area_number( int *area, struct inode *inode );
-
-
-
 
 
 extern int fat_update_super(struct super_block *sb);

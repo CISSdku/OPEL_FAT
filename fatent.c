@@ -634,7 +634,7 @@ int fat_alloc_cluster( struct inode *inode, int *cluster, int mode )
 
 	if(mode == -1){
 		//get_area_number(&area,inode);
-		printk("[gandan] Not 'etc' type file need one cluster allocation ! \n");
+		printk("[cheon] Not 'etc' type file need one cluster allocation ! \n");
 		return -1;
 	}
 //	else
@@ -965,7 +965,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 		}
 #endif
 
-	//	printk( KERN_ALERT "[cheon] fat_free_clusters \n");
+		printk( KERN_ALERT "[cheon] fat_free_clusters \n");
 #if 1 //origin
 		ops->ent_put(&fatent, FAT_ENT_FREE);
 		if (sbi->free_clusters != -1) {

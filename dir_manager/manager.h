@@ -1,8 +1,8 @@
 #ifndef __MANAGER_H__
 #define __MANAGER_H__
 
-#define NAME_SIZE 50
-#define STRING_SIZE 50
+#define NAME_SIZE 100
+#define STRING_SIZE 100
 #define DIR_COUNT 20
 
 #include <sys/types.h>
@@ -31,10 +31,10 @@
 #define HANDWORK_SIZE 		( ( 512 * pow( 1024, 2) )  / UNIT_CON )
 #endif
 //#define ETC_SIZE 			( ( 512 * pow( 1024, 2 ) ) / UNIT_CON )
-#define NORMAL_SIZE 		( ( 40 * pow( 1024, 2 ) )   / UNIT_CON )
-#define NORMAL_EVENT_SIZE 	( ( 20 * pow( 1024, 2 ) )   / UNIT_CON )
-#define PARKING_SIZE 		( ( 20 * pow( 1024, 2) )  / UNIT_CON )
-#define PARKING_EVENT_SIZE  ( ( 10 * pow( 1024, 2) )  / UNIT_CON ) 
+#define NORMAL_SIZE 		( ( 3 * pow( 1024, 3 ) )   / UNIT_CON )
+#define NORMAL_EVENT_SIZE 	( ( 2 * pow( 1024, 3 ) )   / UNIT_CON )
+#define PARKING_SIZE 		( ( 1.4 * pow( 1024, 3) )  / UNIT_CON )
+#define PARKING_EVENT_SIZE  ( ( 1 * pow( 1024, 3) )  / UNIT_CON ) 
 #define HANDWORK_SIZE 		( ( 10 * pow( 1024, 2) )  / UNIT_CON )
 #if 0
 typedef enum

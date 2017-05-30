@@ -12,8 +12,8 @@
 #define ORIGINAL 0
 #define OPEL 1
 
-#define NAME_SIZE 50
-#define STRING_SIZE 50
+#define NAME_SIZE 100
+#define STRING_SIZE 100
 
 #define F_SIZE 8192
 #define F_NUM 5

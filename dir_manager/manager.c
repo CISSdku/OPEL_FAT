@@ -1,6 +1,6 @@
 #include"manager.h"
 
-#define STN_SIZE 50
+#define STN_SIZE 100
 
 static unsigned long dir_size( char *dn)
 {
@@ -48,7 +48,7 @@ static void file_old_remove( char *dn, int selected_dir )
 	DIR *dir;
 	struct dirent *de;
 	struct stat st, temp_st;
-	char fn[40], old_name[40];
+	char fn[ 100 ], old_name[ 100 ];
 	int fs_err=0;
 	unsigned long old_time = ULONG_MAX;
 	long decimal_point = LONG_MAX;

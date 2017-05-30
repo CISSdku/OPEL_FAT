@@ -81,11 +81,11 @@ void init( int dir_cnt, char **dirs )
 		printf("%luM ", g_dir[ i ].dir_size / 1024  ); // M 단위
 
 //	g_dir[ ETC ].dir_size 			= ETC_SIZE 		     - ( ETC_SIZE * 0.01 );
-	g_dir[ NORMAL ].dir_size 		= NORMAL_SIZE	  	 - ( NORMAL_SIZE * 0.02 );
-	g_dir[ NORMAL_EVENT ].dir_size  = NORMAL_EVENT_SIZE	 - ( NORMAL_EVENT_SIZE * 0.02 );
-	g_dir[ PARKING ].dir_size 		= PARKING_SIZE 		 - ( PARKING_SIZE * 0.02 );
-	g_dir[ PARKING_EVENT ].dir_size = PARKING_EVENT_SIZE - ( PARKING_EVENT_SIZE * 0.02 );
-	g_dir[ HANDWORK ].dir_size 		= HANDWORK_SIZE 	 - ( HANDWORK_SIZE * 0.02 );
+	g_dir[ NORMAL ].dir_size 		= NORMAL_SIZE	  	 - ( NORMAL_SIZE * 0.005 );
+	g_dir[ NORMAL_EVENT ].dir_size  = NORMAL_EVENT_SIZE	 - ( NORMAL_EVENT_SIZE * 0.005 );
+	g_dir[ PARKING ].dir_size 		= PARKING_SIZE 		 - ( PARKING_SIZE * 0.005 );
+	g_dir[ PARKING_EVENT ].dir_size = PARKING_EVENT_SIZE - ( PARKING_EVENT_SIZE * 0.005 );
+	g_dir[ HANDWORK ].dir_size 		= HANDWORK_SIZE 	 - ( HANDWORK_SIZE * 0.005 );
 
 	printf("\n");
 
@@ -93,7 +93,7 @@ void init( int dir_cnt, char **dirs )
 	{
 		g_dir[ i ].check_portion = g_dir[ i ].dir_size - ( g_dir[ i ].dir_size  / 4 );
 
-		printf("%-35s Check Full Status [-2%] %luM\t After Remove Size %luM\n",dirs[ i ], g_dir[ i ].dir_size/1024 , g_dir[ i ].check_portion/1024 );
+		printf("%-35s Check Full Status [-1%] %luM\t After Remove Size %luM\n",dirs[ i ], g_dir[ i ].dir_size/1024 , g_dir[ i ].check_portion/1024 );
 	}
 
 	

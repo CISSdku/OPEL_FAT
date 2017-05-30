@@ -1,6 +1,6 @@
 #include "workload.h"
 
-#define STN_SIZE 50
+#define STN_SIZE 100
 /*
  98 * 1024 * 1024 = 102760448
  99 * 1024 * 1024 = 103809024
@@ -123,10 +123,10 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 				case PARKING_EVENT : result = random_range( 200 * 1024, 400 * 1024 ); 	break; //주차 이벤트
 #endif		
 #if 1
-				case NORMAL : result = random_range( 7 * 1024 * 1024, 8 * 1024 * 1024 );    break;//상시
-				case NORMAL_EVENT : result = random_range( 5 * 1024 * 1024, 6 * 1024 * 1024 );  break;//상시 이벤트
-				case PARKING : result = random_range( 4 * 1024 * 1024, 5 * 1024 * 1024 );   break;//주차
-				case PARKING_EVENT : result = random_range( 3 * 1024 * 1024, 4 * 1024 * 1024 );     break; //주차 이벤트
+				case NORMAL 		: result = random_range( 9 * 1024 * 1024, 11 * 1024 * 1024 );    break;//상시
+				case NORMAL_EVENT 	: result = random_range( 7 * 1024 * 1024, 9 * 1024 * 1024 );  break;//상시 이벤트
+				case PARKING 		: result = random_range( 5 * 1024 * 1024, 7 * 1024 * 1024 );   break;//주차
+				case PARKING_EVENT  : result = random_range( 3 * 1024 * 1024, 5 * 1024 * 1024 );     break; //주차 이벤트
 #endif
 
 				default : break;
@@ -180,7 +180,7 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
  */
 
 struct file_info {
-		char fn[40];
+		char fn[50];
 		unsigned long time;
 		long point;
 };
@@ -215,9 +215,9 @@ void fdel(char *dn, int gap)
 	struct dirent *de;
 	struct stat st;
 	struct file_info *farr = NULL;
-	char fn[40];
-	char numch[10];
-	char openpath[30];
+	char fn[50];
+	char numch[50];
+	char openpath[50];
 	int fs_err=0;
 	int filenum=0, filecnt=0;
 
@@ -366,10 +366,10 @@ static int detect_file_counter( int file_counter, int load_flag )
 	//	remove_file_for_calculate_fragmentation( "/mnt/parking/" );
 	//	remove_file_for_calculate_fragmentation( "/mnt/parking_event" );
 
-		fdel( "./mnt/normal/", 10 );
-		fdel( "./mnt/normal_event/", 10 );
-		fdel( "./mnt/parking/", 10 );
-		fdel( "./mnt/parking_event/", 10 );
+		fdel( "./mnt/normal/", 20 );
+		fdel( "./mnt/normal_event/", 20 );
+		fdel( "./mnt/parking/", 20 );
+		fdel( "./mnt/parking_event/", 20 );
 
 		
 		if( load_flag == ON )
@@ -384,7 +384,7 @@ static int detect_file_counter( int file_counter, int load_flag )
 void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 {
 	FILE *fd;
-	char fn[10];//, in_name[10];
+	char fn[ NAME_SIZE ];//, in_name[10];
 	char temp_full_file[ NAME_SIZE ];
 	int k;
 	//int fd;
