@@ -142,7 +142,7 @@ static int fat_file_release(struct inode *inode, struct file *filp)
 {
 
 	printk("[cheon] fat_file_release \n");
-#if 0	
+#if 1	
 	struct msdos_sb_info *sbi = MSDOS_SB( inode->i_sb );
 	int area_num;
 	unsigned int used_size = ( unsigned int )( inode->i_size );
@@ -179,12 +179,12 @@ static int fat_file_release(struct inode *inode, struct file *filp)
 
 			//Second - Update DE
 			//--------------------------------------------//            
-			//de_reupdate(inode->i_sb, inode);
+			de_reupdate(inode->i_sb, inode);
 			//--------------------------------------------//
 
 			//Third - Update FAT
 			//--------------------------------------------//        
-			//clusterchain_reupdate(inode->i_sb, inode);
+			clusterchain_reupdate(inode->i_sb, inode);
 			//--------------------------------------------//
 		}
 		else{

@@ -507,7 +507,7 @@ static void preAlloc(struct super_block *sb, unsigned int next, unsigned int pre
 	printk("[cheon] num_of_page : %d, page_offset : %d, CLUSTER_IN_PAGE : %d \n\n", num_of_page, page_offset, CLUSTER_IN_PAGE);
 	printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
 
-	if( num_of_page > 7 ) //num_of_page 하나 당 4MB
+	if( num_of_page > 8 ) //num_of_page 하나 당 4MB
 	{
 		printk("[cheon] ==================error, num_of_page is large!================== \n");
 	}
@@ -988,28 +988,41 @@ int fat_update_super(struct super_block *sb){
 
 	fat_count_free_clusters_for_area( sb );
 
+
 	printk("[cheon] Complete cluster calculation \n");
-	printk("[cheon]    1. [%2d%%] ETC  	       	[%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_ETC],  sbi->bx_start_cluster[BB_ETC], sbi->bx_end_cluster[BB_ETC],sbi->bx_free_clusters[BB_ETC], \
-			(sbi->bx_free_clusters[BB_ETC] * 100) / (sbi->bx_end_cluster[BB_ETC] - sbi->bx_start_cluster[BB_ETC] + 1 ) );
+	printk("[cheon]    1. [%2d%%] ETC           [%6d ~%6d] / Free %6d(%3d%%) / MB : %d  \n", sbi->bx_area_ratio[BB_ETC],  sbi->bx_start_cluster[BB_ETC], sbi->bx_end_cluster[BB_ETC],sbi->bx_free_clusters[BB_ETC], \
+			(sbi->bx_free_clusters[BB_ETC] * 100) / (sbi->bx_end_cluster[BB_ETC] - sbi->bx_start_cluster[BB_ETC] + 1 ), sbi->bx_free_clusters[ BB_ETC ] * 4 / 1024 );
 
-	printk("[cheon]    2. [%2d%%] Normal       	[%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_NORMAL],   sbi->bx_start_cluster[BB_NORMAL], sbi->bx_end_cluster[BB_NORMAL],sbi->bx_free_clusters[BB_NORMAL], \
-			(sbi->bx_free_clusters[BB_NORMAL] * 100) / (sbi->bx_end_cluster[BB_NORMAL]-sbi->bx_start_cluster[BB_NORMAL] + 1 ) );
+	printk("[cheon]    2. [%2d%%] Normal        [%6d ~%6d] / Free %6d(%3d%%) / MB : %d\n", sbi->bx_area_ratio[BB_NORMAL],   sbi->bx_start_cluster[BB_NORMAL], sbi->bx_end_cluster[BB_NORMAL],sbi->bx_free_clusters[BB_NORMAL], \
+			(sbi->bx_free_clusters[BB_NORMAL] * 100) / (sbi->bx_end_cluster[BB_NORMAL]-sbi->bx_start_cluster[BB_NORMAL] + 1 ) , sbi->bx_free_clusters[ BB_NORMAL ] * 4 / 1024 );
 
-	printk("[cheon]    3. [%2d%%] Normal Event 	[%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_NORMAL_EVENT],   sbi->bx_start_cluster[BB_NORMAL_EVENT], sbi->bx_end_cluster[BB_NORMAL_EVENT],sbi->bx_free_clusters[BB_NORMAL_EVENT], \
-			(sbi->bx_free_clusters[BB_NORMAL_EVENT] * 100) / (sbi->bx_end_cluster[BB_NORMAL_EVENT]-sbi->bx_start_cluster[BB_NORMAL_EVENT] + 1 ) );
+	printk("[cheon]    3. [%2d%%] Normal Event  [%6d ~%6d] / Free %6d(%3d%%) / MB : %d \n", sbi->bx_area_ratio[BB_NORMAL_EVENT],   sbi->bx_start_cluster[BB_NORMAL_EVENT], sbi->bx_end_cluster[BB_NORMAL_EVENT],sbi->bx_free_clusters[BB_NORMAL_EVENT], \
+			(sbi->bx_free_clusters[BB_NORMAL_EVENT] * 100) / (sbi->bx_end_cluster[BB_NORMAL_EVENT]-sbi->bx_start_cluster[BB_NORMAL_EVENT] + 1 ) , sbi->bx_free_clusters[ BB_NORMAL_EVENT ] * 4 / 1024 );
 
-	printk("[cheon]    4. [%2d%%] Parking	   	[%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_PARKING],   sbi->bx_start_cluster[BB_PARKING], sbi->bx_end_cluster[BB_PARKING],sbi->bx_free_clusters[BB_PARKING], \
-			(sbi->bx_free_clusters[BB_PARKING] * 100) / (sbi->bx_end_cluster[BB_PARKING]-sbi->bx_start_cluster[ BB_PARKING ] + 1)  );
+	printk("[cheon]    4. [%2d%%] Parking       [%6d ~%6d] / Free %6d(%3d%%) / MB : %d \n", sbi->bx_area_ratio[BB_PARKING],   sbi->bx_start_cluster[BB_PARKING], sbi->bx_end_cluster[BB_PARKING],sbi->bx_free_clusters[BB_PARKING], \
+			(sbi->bx_free_clusters[BB_PARKING] * 100) / (sbi->bx_end_cluster[BB_PARKING]-sbi->bx_start_cluster[ BB_PARKING ] + 1)  , sbi->bx_free_clusters[ BB_PARKING ] * 4 / 1024 );
 
-	printk("[cheon]    5. [%2d%%] Parking Event [%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_MANUAL],   sbi->bx_start_cluster[BB_MANUAL], sbi->bx_end_cluster[BB_MANUAL],sbi->bx_free_clusters[BB_MANUAL], \
-			(sbi->bx_free_clusters[BB_MANUAL] * 100) / (sbi->bx_end_cluster[BB_MANUAL]-sbi->bx_start_cluster[BB_MANUAL] + 1)  );
+	printk("[cheon]    5. [%2d%%] Parking Event [%6d ~%6d] / Free %6d(%3d%%) / MB : %d \n", sbi->bx_area_ratio[BB_MANUAL],   sbi->bx_start_cluster[BB_MANUAL], sbi->bx_end_cluster[BB_MANUAL],sbi->bx_free_clusters[BB_MANUAL], \
+			(sbi->bx_free_clusters[BB_MANUAL] * 100) / (sbi->bx_end_cluster[BB_MANUAL]-sbi->bx_start_cluster[BB_MANUAL] + 1)  , sbi->bx_free_clusters[ BB_MANUAL ] * 4 / 1024 );
 
-	printk("[cheon]    6. [%2d%%] HandWork      [%6d ~%6d] / Free %6d(%3d%%)  \n", sbi->bx_area_ratio[BB_IMAGE],   sbi->bx_start_cluster[BB_IMAGE], sbi->bx_end_cluster[BB_IMAGE],sbi->bx_free_clusters[BB_IMAGE], \
-			(sbi->bx_free_clusters[BB_IMAGE] * 100) / (sbi->bx_end_cluster[BB_IMAGE]-sbi->bx_start_cluster[BB_IMAGE] + 1)  );
+	printk("[cheon]    6. [%2d%%] HandWork      [%6d ~%6d] / Free %6d(%3d%%) / MB : %d \n", sbi->bx_area_ratio[BB_IMAGE],   sbi->bx_start_cluster[BB_IMAGE], sbi->bx_end_cluster[BB_IMAGE],sbi->bx_free_clusters[BB_IMAGE], \
+			(sbi->bx_free_clusters[BB_IMAGE] * 100) / (sbi->bx_end_cluster[BB_IMAGE]-sbi->bx_start_cluster[BB_IMAGE] + 1)  , sbi->bx_free_clusters[ BB_IMAGE ] * 4 / 1024 );
 
-//	printk("[cheon] Total Reserved Sectors : %d ( %d KB) \n", sbi->fat_start, sbi->fat_start/2);
+	//  printk("[cheon] Total Reserved Sectors : %d ( %d KB) \n", sbi->fat_start, sbi->fat_start/2);
 
 	printk("[cheon] sbi->free_clusters : %d \n", sbi->free_clusters );
+
+
+
+
+
+
+
+
+
+
+
+
 
 	return 0;
 }
@@ -1655,9 +1668,9 @@ static int __fat_write_inode(struct inode *inode, int wait)
 	int err, offset;
 
 	//cheon
-	static unsigned int i_num = 0; //store previous inum	
-	int area_num;
-	struct dentry *dentry = NULL;
+//	static unsigned int i_num = 0; //store previous inum	
+//	int area_num;
+//	struct dentry *dentry = NULL;
 
 	if (inode->i_ino == MSDOS_ROOT_INO)
 		return 0;

@@ -427,6 +427,13 @@ extern int fat_add_entries(struct inode *dir, void *slots, int nr_slots,
 			   struct fat_slot_info *sinfo);
 extern int fat_remove_entries(struct inode *dir, struct fat_slot_info *sinfo);
 
+
+
+extern int fat_scan_opel(struct inode *dir, const unsigned char *name,
+	     struct fat_slot_info *sinfo);
+
+
+
 /* fat/fatent.c */
 struct fat_entry {
 	int entry;

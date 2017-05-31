@@ -965,7 +965,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 		}
 #endif
 
-		printk( KERN_ALERT "[cheon] fat_free_clusters \n");
+//		printk( KERN_ALERT "[cheon] fat_free_clusters \n");
 #if 1 //origin
 		ops->ent_put(&fatent, FAT_ENT_FREE);
 		if (sbi->free_clusters != -1) {

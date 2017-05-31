@@ -17,11 +17,11 @@
 #include <asm/unaligned.h>
 #include "fat.h"
 
-const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =30\r\n\tBX_NORMAL_EVENT    =20\r\n\tBX_PARKING_EVENT   =10\r\n\tBX_MANUAL       =5\r\n\tBX_IMAGE        =5\r\n\tBX_ETC          =30\r\n\r\nPreallocation Setting[MB]\r\n\tBX_NORMAL      =28\r\n\tBX_NORMAL_EVENT    =28\r\n\tBX_PARKING_EVENT   =28\r\n\tBX_MANUAL      =28\r\n\t\0";
+const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =30\r\n\tBX_NORMAL_EVENT    =20\r\n\tBX_PARKING_EVENT   =10\r\n\tBX_MANUAL       =5\r\n\tBX_IMAGE        =5\r\n\tBX_ETC          =30\r\n\r\nPreallocation Setting[MB]\r\n\tBX_NORMAL      =32\r\n\tBX_NORMAL_EVENT    =32\r\n\tBX_PARKING_EVENT   =32\r\n\tBX_MANUAL      =32\r\n\t\0";
 //const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =70\r\n\tBX_NORMAL_EVENT    =20\r\n\tBX_PARKING_EVENT   =7\r\n\tBX_MANUAL       =2\r\n\tBX_IMAGE        =2\r\n\tBX_ETC          =7\r\n\r\nPreallocation Setting[MB]\r\n\tBX_NORMAL      =28\r\n\tBX_NORMAL_EVENT    =28\r\n\tBX_PARKING_EVENT   =28\r\n\tBX_MANUAL      =28\r\n\t\0";
 //const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =70\r\n\tBX_NORMAL_EVENT    =20\r\n\tBX_PARKING_EVENT   =7\r\n\tBX_MANUAL       =2\r\n\tBX_IMAGE        =2\r\n\tBX_ETC          =7\r\n\r\n";
 
-unsigned char msdos_name[ MSDOS_NAME ] = "BXFS_CONtxt";
+unsigned char msdos_name[ MSDOS_NAME ] = "BXFS_CON";
 
 static int read_config_data(struct super_block *sb, char *data)
 {
@@ -188,7 +188,7 @@ int build_config_file( struct inode *dir, struct dentry *dentry, int mode )
 
 //	struct dentry *root_de = sb->s_root;
 //	struct inode *root = root_de->d_inode;
-
+#if 0
 	if( !fat_scan( dir, msdos_name, &sinfo ) )
 	{
 		printk("[cheon] build_config_file : existing file ");
@@ -196,6 +196,7 @@ int build_config_file( struct inode *dir, struct dentry *dentry, int mode )
 		err = -EINVAL;
 		goto out;
 	}
+#endif
 
 	//First, Create empty file
 	memcpy( de.name, msdos_name, MSDOS_NAME ); //msdos_dir_entry의 name에 msdos_name배열 안에 이름을
@@ -262,10 +263,10 @@ static inline sector_t fat_clus_to_blknr(struct msdos_sb_info *sbi, int clus)
 }   
 #endif
 
-static int vfat_find_form( struct msdos_sb_info *sbi, struct inode *dir, unsigned char *name, sector_t *blknr )
+static int opel_vfat_find_form( struct msdos_sb_info *sbi, struct inode *dir, unsigned char *name, sector_t *blknr )
 {
 	struct fat_slot_info sinfo;
-	int err = fat_scan(dir, name, &sinfo);	
+	int err = fat_scan_opel(dir, name, &sinfo);	
 	if (err)
 		    return -ENOENT;
 	else 
@@ -309,10 +310,10 @@ int fat_config_init(struct super_block *sb)
 	printk("[cheon] Start fat_config_init \n");
 
 #if 1
-	if( !fat_scan( root, msdos_name, &sinfo ) )
+	if( !fat_scan_opel( root, msdos_name, &sinfo ) )
 	{
-		brelse( sinfo.bh );	
 		printk("[cheon] config file already exist \n");
+		brelse( sinfo.bh );	
 
 		goto exist;
 	}
@@ -320,11 +321,13 @@ int fat_config_init(struct super_block *sb)
 	//First - Create file
 	printk("[cheon] Create config File \n");
 	err = build_config_file( root, root_de, 0 );
+/////////////////////////////////////
 
 	//Second - Data Input
-	if( vfat_find_form( sbi, root, msdos_name, &blknr ) == -ENOENT )
-		printk("[cheon] vfat_find_form error \n");
-	
+	if( opel_vfat_find_form( sbi, root, msdos_name, &blknr ) == -ENOENT )
+		printk("[cheon] opel_vfat_find_form error \n");
+
+
 	printk("[cheon] blknr : %u \n", blknr );
 
 //	blknr = 16402;
@@ -342,6 +345,8 @@ int fat_config_init(struct super_block *sb)
 	mark_buffer_dirty(bh);
 	err = sync_dirty_buffer(bh);
 	brelse(bh);
+
+	printk("[cheon] Complete write data \n");
 
 	if (fat_scan(root, msdos_name, &sinfo)) 
 	{
@@ -381,15 +386,19 @@ exist:
 	//Data read and Set sb info	
 
 	printk("[cheon] Data Read \n");
-#if 1	
-	if( vfat_find_form( sbi, root, msdos_name, &blknr ) == -ENOENT )
-		printk("[cheon] vfat_find_form error \n");
 
-	//printk("[cheon] blknr : %u \n", blknr );
+//	block_pos = ((sinfo.de->start - 2) * sbi->sec_per_clus ) + sbi->data_start ;
+
+#if 1	
+	if( opel_vfat_find_form( sbi, root, msdos_name, &blknr ) == -ENOENT )
+		printk("[cheon] opel_vfat_find_form error \n");
+
+	printk("[cheon] blknr : %u \n", blknr );
 	bh = sb_bread( sb, blknr );	
 	read_config_data( sb, bh->b_data );
 	brelse( bh );
 #endif
+	printk("[cheon] Start data read...complete\n");
 
 	return 0;
 }

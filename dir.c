@@ -966,10 +966,14 @@ int fat_scan(struct inode *dir, const unsigned char *name,
 	sinfo->slot_off = 0;
 	sinfo->bh = NULL;
 	while (fat_get_short_entry(dir, &sinfo->slot_off, &sinfo->bh,
-				   &sinfo->de) >= 0) {
+			   &sinfo->de) >= 0) {
+//	while(1)
 //		printk( KERN_ALERT "[cheon] fat_scan test \n");
+//		printk( KERN_ALERT "sinfo->de->name : %s	%s\n", sinfo->de->name, name );
+//		printk( KERN_ALERT "sizeof : %d	%d\n", sizeof(sinfo->de->name), sizeof( name ) );
+	
 		if (!strncmp(sinfo->de->name, name, MSDOS_NAME)) {
-
+	//	if (!strcmp(sinfo->de->name, name)) {
 
 			sinfo->slot_off -= sizeof(*sinfo->de);
 			sinfo->nr_slots = 1;
@@ -981,6 +985,58 @@ int fat_scan(struct inode *dir, const unsigned char *name,
 	return -ENOENT;
 }
 EXPORT_SYMBOL_GPL(fat_scan);
+
+int fat_scan_opel(struct inode *dir, const unsigned char *name,
+	     struct fat_slot_info *sinfo)
+{
+	int i = 0;
+	struct super_block *sb = dir->i_sb;
+
+	sinfo->slot_off = 0;
+	sinfo->bh = NULL;
+
+	for( i = 0 ; i < 50 ; i++ )
+	{
+		fat_get_short_entry(dir, &sinfo->slot_off, &sinfo->bh, &sinfo->de);
+
+		printk( KERN_ALERT "sinfo->de->name : %s	%s\n", sinfo->de->name, name );
+	//	printk( KERN_ALERT "sizeof : %d	%d\n", sizeof(sinfo->de->name), sizeof( name ) );
+		if( strstr( sinfo->de->name, "CON" ) != NULL &&  strstr( name, "CON" ) != NULL )
+		{
+			printk( KERN_ALERT "222222222222222222222222222222222222=\n");		
+			printk( KERN_ALERT "sinfo->de->name : %s	%s\n", sinfo->de->name, name );
+//			printk( KERN_ALERT "fat_scan test \n");
+
+			sinfo->slot_off -= sizeof(*sinfo->de);
+			sinfo->nr_slots = 1;
+			sinfo->i_pos = fat_make_i_pos(sb, sinfo->bh, sinfo->de);
+			
+			return 0;	
+		}
+
+
+		if (!strncmp(sinfo->de->name, name, MSDOS_NAME)) {
+	//	if (!strcmp(sinfo->de->name, name)) {
+			printk( KERN_ALERT "============================\n");		
+			printk( KERN_ALERT "sinfo->de->name : %s	%s\n", sinfo->de->name, name );
+//			printk( KERN_ALERT "fat_scan test \n");
+
+			sinfo->slot_off -= sizeof(*sinfo->de);
+			sinfo->nr_slots = 1;
+			sinfo->i_pos = fat_make_i_pos(sb, sinfo->bh, sinfo->de);
+			return 0;
+		}
+	}
+//		printk( KERN_ALERT "sinfo->de->name : %s	%s\n", sinfo->de->name, name );
+	return -ENOENT;
+}
+EXPORT_SYMBOL_GPL(fat_scan_opel);
+
+
+
+
+
+
 
 /*
  * Scans a directory for a given logstart.

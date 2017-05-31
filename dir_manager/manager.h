@@ -31,11 +31,11 @@
 #define HANDWORK_SIZE 		( ( 512 * pow( 1024, 2) )  / UNIT_CON )
 #endif
 //#define ETC_SIZE 			( ( 512 * pow( 1024, 2 ) ) / UNIT_CON )
-#define NORMAL_SIZE 		( ( 3 * pow( 1024, 3 ) )   / UNIT_CON )
-#define NORMAL_EVENT_SIZE 	( ( 2 * pow( 1024, 3 ) )   / UNIT_CON )
-#define PARKING_SIZE 		( ( 1.4 * pow( 1024, 3) )  / UNIT_CON )
-#define PARKING_EVENT_SIZE  ( ( 1 * pow( 1024, 3) )  / UNIT_CON ) 
-#define HANDWORK_SIZE 		( ( 10 * pow( 1024, 2) )  / UNIT_CON )
+#define NORMAL_SIZE 		( ( 1.1 * pow( 1024, 3 ) )   / UNIT_CON )
+#define NORMAL_EVENT_SIZE 	( ( 820 * pow( 1024, 2 ) )   / UNIT_CON )
+#define PARKING_SIZE 		( ( 412 * pow( 1024, 2) )  / UNIT_CON )
+#define PARKING_EVENT_SIZE  ( ( 208 * pow( 1024, 2) )  / UNIT_CON ) 
+#define HANDWORK_SIZE 		( ( 192 * pow( 1024, 2) )  / UNIT_CON )
 #if 0
 typedef enum
 {
