@@ -581,6 +581,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	static int num_pre_alloc = 0;
 
 	static unsigned long inum = -1;
+	static int pre_count = 16384; // MAX
 
 	unsigned int next_start = 0,
 				 next = 0,
@@ -610,7 +611,12 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	num_pre_alloc = ( sbi->bx_pre_size[ area ] * 1024 ) / ( sbi->cluster_size / 1024 );
 //	printk("[cheon] num_pre_alloc : %d \n", num_pre_alloc );
 //	printk("[cheon] bx_pre_size : %u sbi->cluster_size : %u \n", sbi->bx_pre_size[ area ], sbi->cluster_size );
-
+	
+	 // Get File name & parent directory name    
+	if(inum==inode->i_ino && pre_count < num_pre_alloc-1 ){ //'-1' : pre_count start from 0
+		pre_count++;
+		return 0;
+	}
 
 //	printk( KERN_ALERT "[cheon] 1111111111111111111111111111111\n");
 	//Name Check
@@ -631,6 +637,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	}
 		
 	inum = inode->i_ino; //Stat data, not accessed from path walking
+	pre_count = 0;
 
 	/*
 	   Pre-Allocation Wrork ( In practice : Iteration of allocation work 
@@ -807,7 +814,7 @@ static int fat_add_cluster(struct inode *inode)
 
 //	do_gettimeofday( &old_ts );
 
-#if 0
+#if 1
 	if( inode->i_dentry.first == NULL )
 	{
 		printk("[cheon] i_dentry.next : NULL \n");	
