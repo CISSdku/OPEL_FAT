@@ -10,6 +10,8 @@
  *	Max Cohan: Fixed invalid FSINFO offset when info_sector is 0
  */
 
+//#define __DEBUG__
+
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/time.h>
@@ -129,7 +131,12 @@ void de_reupdate(struct super_block *sb, struct inode *inode){
 	bh[0] = sb_bread(sb, inpage_cur);
 	raw_entry = &((struct msdos_dir_entry *) (bh[0]->b_data))
 		[i_pos & (sbi->dir_per_block - 1)];
-	raw_entry->size = cpu_to_le32(inode->i_size);
+//	raw_entry->size = cpu_to_le32(inode->i_size);
+
+	//test
+	//raw_entry->size = cpu_to_le32(33554432);
+
+	//
 	printk("[cheon] Edit size \n");
 	mark_buffer_dirty(bh[0]);
 	sync_dirty_buffer(bh[0]);
@@ -265,7 +272,7 @@ void clusterchain_reupdate(struct super_block *sb, struct inode *inode){
 		block_num = eof_block_pos - eof_inpage_start_block_pos;
 		memcpy(data,bh[block_num]->b_data, 512 );
 		for(i=0; i< CLUSTER_IN_BLOCK; i ++){
-			//printk("%u ", data[i]);
+			printk("%u ", data[i]);
 			if(data[i] == 0x0FFFFFFF){
 				printk("\n[cheon] Search Offfffff, offset %d \n", i);
 
@@ -277,6 +284,9 @@ void clusterchain_reupdate(struct super_block *sb, struct inode *inode){
 				break;
 			}
 		}
+	
+		printk("\n");
+
 		if(i == CLUSTER_IN_BLOCK)
 			printk("[cheon] Error, can't find proper old eof \n");
 		memcpy(bh[block_num]->b_data ,data, 512 );
@@ -291,8 +301,9 @@ void clusterchain_reupdate(struct super_block *sb, struct inode *inode){
 			new_eof_cluster = new_eof_cluster - (sbi->bx_end_cluster[area_num] - sbi->bx_start_cluster[area_num]) -1 ;
 
 		printk("[cheon] new eof cluster num : %u \n", new_eof_cluster -1 );
+
 		for(i=0; i<CLUSTER_IN_BLOCK; i ++){
-			//printk("%u ", data[i]);
+		//	printk("%u ", data[i]);
 			if(data[i] == new_eof_cluster){
 				printk("\n[cheon] Search new eof position, cluster num %u \n", new_eof_cluster);
 				data[i] = 0x0FFFFFFF;
@@ -485,6 +496,7 @@ static void preAlloc(struct super_block *sb, unsigned int next, unsigned int pre
 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
 
 	int i, j;
+	int page_num = 0;
 	unsigned int *data[100];
 
 	unsigned int start = prev+1;
@@ -502,20 +514,40 @@ static void preAlloc(struct super_block *sb, unsigned int next, unsigned int pre
 	struct buffer_head *bh[100];
 	unsigned int fat_block_pos = fat_block + start / CLUSTER_IN_BLOCK ; //fat block : fat_start
 
+#ifdef __DEBUG__
 	printk("\n[cheon] ====== Preallocation start ============\n");
 	printk("[cheon] preAlloc - next : %u , prev : %d, allocated : %d, need_to : %d  \n", next, prev, allocated, need_to_alloc);
 	printk("[cheon] num_of_page : %d, page_offset : %d, CLUSTER_IN_PAGE : %d \n\n", num_of_page, page_offset, CLUSTER_IN_PAGE);
 	printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
-
+#endif
 	if( num_of_page > 8 ) //num_of_page 하나 당 4MB
 	{
 		printk("[cheon] ==================error, num_of_page is large!================== \n");
+	}
+
+	//-------------Check Area Limit -------------------//
+	if(start + need_to_alloc > sbi->bx_end_cluster[area])
+	{
+		two_frag = 0;
+
+		if(page_offset == 0)
+			count = num_of_page;
+		else
+			count = num_of_page+1;
+
+		for(i=1; i<=count; i++){
+			if((start - 1 + (i * CLUSTER_IN_PAGE)) <= sbi->bx_end_cluster[area])
+				two_frag++;
+		}
+
+		printk("[cheon] Case : Execeed border of area, two_frag :%d \n", two_frag);
 	}
 
 
 	for(i=0; i< num_of_page; i++)
 		data[i] = (int*)kmalloc((SD_PAGE_SIZE * 1024),GFP_KERNEL);
 
+#if 0
 	//-------------- Fill Page with cluster chain------// 
 	for(j=0 ; j < num_of_page ; j++) // num_of_page 7 
 	{
@@ -527,22 +559,109 @@ static void preAlloc(struct super_block *sb, unsigned int next, unsigned int pre
 			allocated++;
 		}
 	}
+#endif
+	//-------------- Fill Page with cluster chain------// 
+	for(j=0; j<num_of_page; j++){
+		if(j==two_frag){
+			printk("[cheon] First cluster update occur \n");
+			chain = sbi->bx_start_cluster[area];
 
+			if(page_num != 0)
+				data[page_num-1][CLUSTER_IN_PAGE -1] = chain;
+
+			chain++;
+
+			//two_frag = 0;
+		}//Update to first clustetr number
+
+		for(i=0; i<CLUSTER_IN_PAGE; i++){
+			data[page_num][i] = chain;
+			chain++;
+			need_to_alloc--;
+			allocated++;
+		}
+		page_num++;
+
+	}
+
+
+	data[7][1023] = FAT_ENT_EOF; //test
+
+#ifdef __DEBUG__
+	printk("[cheon] data[page_num-1][CLUSTER_IN_PAGE -1] : %d \n", data[page_num-1][CLUSTER_IN_PAGE -1] );
 	printk("[cheon] chain : %u need_to_alloc : %d allocated : %d \n", chain, need_to_alloc, allocated ); 
 
 	///////////////////////
-//	printk("[cheon]  Fill last Page \n");
-	//일단 4M단위로 끊어서 할꺼임 페스
+	printk("[cheon]  Fill last Page \n");
+#endif
 
+#if 0
+	//일단 4M단위로 끊어서 할꺼임 페스
 	*new_next = chain - 1;
 	*new_prev = chain - 2;
 
+#endif
+
+	if(page_offset != 0){
+		if(two_frag == 0 && num_of_page==0){
+			//Only 1 page update & Exceed area limit
+			chain = sbi->bx_start_cluster[area]+1;
+		}
+
+		for(i=0; i<page_offset; i++){
+			data[page_num][i] = chain;
+			chain++;
+			need_to_alloc--;
+			allocated++;
+		}
+		//data[page_num][page_offset-1] = 0x0FFFFFFF;
+		printk( KERN_ALERT "[cheon] FAT_ENT_EOF \n");
+		data[page_num][page_offset-1] = FAT_ENT_EOF;
+
+		*new_next = chain-1;
+
+		if(need_to_alloc != 0)
+			printk("[cheon] Allocation Failed, some Error! \n");
+
+		for(i=page_offset; i<CLUSTER_IN_PAGE; i++){
+			data[page_num][i] = chain;
+			chain++;
+		}
+
+
+		if(chain >= sbi->bx_end_cluster[area]){
+			data[page_num][CLUSTER_IN_PAGE-1] = sbi->bx_start_cluster[area];
+		}
+
+
+		page_num++;
+	}
+	else{
+		//*new_next = -2; //Fit case
+		*new_next = chain-1;
+
+#ifdef __DEBUG__
+		printk("[cheon] Fit page \n");
+#endif
+	}
+
+	//--------------------------------------------------------//
+	*new_prev = chain -2;
+
+
+#ifdef __DEBUG__
 	printk("[cheon] new prev  ; %d , new next : %d \n", *new_prev, *new_next);
 	printk("[cheon] Cretae %d pages, to alloc -- clusters  \n", num_of_page );
+#endif
 
 	//-------------------------------
-	for( i=0; i<num_of_page; i++ )
+	for( i=0; i<page_num; i++ )
 	{
+		if(i == two_frag)
+		{
+			    fat_block_pos = fat_block + sbi->bx_start_cluster[area]/ CLUSTER_IN_BLOCK ;
+		}
+
 		for( j=0 ; j < BLOCK_IN_PAGE ; j++ )
 		{ 
 			//BLOCK_IN_PAGE : 8
@@ -556,15 +675,21 @@ static void preAlloc(struct super_block *sb, unsigned int next, unsigned int pre
 			fat_block_pos++;
 		}
 	}
+
+#ifdef __DEBUG__
 	printk("[cheon] sync... \n");
+	printk("[cheon] Complete Write num of %d buffers on %d th block position\n", num_buf, fat_block_pos);
+#endif
+	
 	fat_sync_bhs(bh, num_buf);
 
-	printk("[cheon] Complete Write num of %d buffers on %d th block position\n", num_buf, fat_block_pos);
 
 	for( i = 0 ; i < num_of_page ; i++)
 		kfree(data[i]);
 
+#ifdef __DEBUG__
 	printk("[cheon] ====== Preallocation End  ============\n\n");
+#endif
 }
 
 #endif
@@ -602,7 +727,10 @@ int fat_handle_cluster( struct inode *inode, int mode )
 //	printk( KERN_ALERT "[cheon] 1111111111111111111111111111111\n");
 	if( area == BB_ETC )
 	{
+
+#ifdef __DEBUG__
 		printk("[cheon] ETC : Using normal allocation \n");
+#endif
 		goto NORMAL_ALLOC;			
 	}
 
@@ -613,10 +741,12 @@ int fat_handle_cluster( struct inode *inode, int mode )
 //	printk("[cheon] bx_pre_size : %u sbi->cluster_size : %u \n", sbi->bx_pre_size[ area ], sbi->cluster_size );
 	
 	 // Get File name & parent directory name    
+#if 1
 	if(inum==inode->i_ino && pre_count < num_pre_alloc-1 ){ //'-1' : pre_count start from 0
 		pre_count++;
 		return 0;
 	}
+#endif
 
 //	printk( KERN_ALERT "[cheon] 1111111111111111111111111111111\n");
 	//Name Check
@@ -632,7 +762,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	if( strstr( dentry->d_name.name, "avi" ) == NULL )
 	{
 		//영상 파일이 아니면	
-		printk("[cheon] Name Check \n");
+	//	printk("[cheon] Name Check \n");
 		goto NORMAL_ALLOC;
 	}
 		
@@ -650,26 +780,36 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	//Abnormal case : New alloc or Reboot alloc
 	if( next_start == -1 )
 	{
+		
+#ifdef __DEBUG__
 		printk("[cheon] Restart or First Start of Pre-allocation \n");	
+#endif
 
 		//First Allocation
 		if( (sbi->bx_free_clusters[ area ] + num_pre_alloc) > sbi->bx_end_cluster[ area ] - sbi->bx_start_cluster[ area ] )
 		{
+
+#ifdef __DEBUG__
 			printk("[cheon] Case 1 : Area : %d Current free : %u + Pre_Size : %d > Total Cluster : %u  \n", \
 					area, sbi->bx_free_clusters[ area ], num_pre_alloc, (sbi->bx_end_cluster[ area ] - sbi->bx_start_cluster[ area ] + 1 ) );
+#endif
 
 			next = sbi->bx_prev_free[ area ] + 1;
 			prev = sbi->bx_prev_free[ area ];
 
 			allocated = 0;
 			need_to_alloc = num_pre_alloc;
-
+#if 1
 			//Align check
 			if(next % CLUSTER_IN_PAGE  != 0){
+				
+#ifdef __DEBUG__
 				printk("[cheon] Align Check 1 \n");
+#endif
 				next = next + (CLUSTER_IN_PAGE  - (next % CLUSTER_IN_PAGE )); 
 				prev = next-1;
 			}
+#endif
 
 #if 1  //pass
 			if((sbi->fat_start % 8) != 0) //FAT strat point not match with align
@@ -688,7 +828,9 @@ int fat_handle_cluster( struct inode *inode, int mode )
 			}
 #endif
 			
+#ifdef __DEBUG__
 			printk("[cheon] next : %u prev : %u \n", next, prev );
+#endif
 		}
 		// There are exist old file, need to check, cluster number 
 		else
@@ -706,14 +848,18 @@ int fat_handle_cluster( struct inode *inode, int mode )
 
 
 		//First : Inode Update
+#ifdef __DEBUG__
 		printk("[cheon] inode edit - start %d \n", next);
+#endif
 		MSDOS_I(inode)->i_start = next;
 		MSDOS_I(inode)->i_logstart = next;
 		//140712 update '+=' -> '='
 		inode->i_blocks = num_pre_alloc << (sbi->cluster_bits - 9);
 		fat_sync_inode(inode);
 
+#ifdef __DEBUG__
 		printk("[cheon]sb update \n");
+#endif
 		//Second : SB update
 		sbi->bx_free_clusters[area] -= num_pre_alloc;
 		sbi->free_clusters -= num_pre_alloc;
@@ -733,9 +879,12 @@ int fat_handle_cluster( struct inode *inode, int mode )
 
 		if(need_to_alloc < 0){
 #if 1
+			
+#ifdef __DEBUG__
+			printk("[cheon] ---------------------------------------------\n");
 			printk("[cheon] need to alloc : %d , Skip preallcation.\n", need_to_alloc);
-
 			printk("[cheon] inode edit - start %d \n", next);
+#endif
 			MSDOS_I(inode)->i_start = next;
 			MSDOS_I(inode)->i_logstart = next;
 			inode->i_blocks += num_pre_alloc << (sbi->cluster_bits - 9);
@@ -748,8 +897,10 @@ int fat_handle_cluster( struct inode *inode, int mode )
 #endif
 		}
 		else{
+#ifdef __DEBUG__
+			printk("[cheon] ---------------------------------------------\n");
 			printk("[cheon] start with pre allocated fat, need to alloc : %d , [%d ~ %d] \n", need_to_alloc, prev, next);
-
+#endif
 #if 1
 			preAlloc(sb, next, prev, &new_next, &new_prev, allocated, need_to_alloc, area);
 
@@ -775,7 +926,9 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	}
 #endif
 
+#ifdef __DEBUG__
 	printk("[cheon] Complete alloc.... \n");
+#endif
 	return 0;
 
 #if 0
@@ -814,7 +967,7 @@ static int fat_add_cluster(struct inode *inode)
 
 //	do_gettimeofday( &old_ts );
 
-#if 1
+#if 0
 	if( inode->i_dentry.first == NULL )
 	{
 		printk("[cheon] i_dentry.next : NULL \n");	
@@ -1792,7 +1945,10 @@ static int fat_write_inode(struct inode *inode, struct writeback_control *wbc)
 
 int fat_sync_inode(struct inode *inode)
 {
+
+#ifdef __DEBUG__
 	printk( KERN_ALERT "[cheon] fat_sync_inode \n");
+#endif
 	return __fat_write_inode(inode, 1);
 }
 

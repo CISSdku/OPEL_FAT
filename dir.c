@@ -999,11 +999,11 @@ int fat_scan_opel(struct inode *dir, const unsigned char *name,
 	{
 		fat_get_short_entry(dir, &sinfo->slot_off, &sinfo->bh, &sinfo->de);
 
-		printk( KERN_ALERT "sinfo->de->name : %s	%s\n", sinfo->de->name, name );
+//		printk( KERN_ALERT "sinfo->de->name : %s	%s\n", sinfo->de->name, name );
 	//	printk( KERN_ALERT "sizeof : %d	%d\n", sizeof(sinfo->de->name), sizeof( name ) );
 		if( strstr( sinfo->de->name, "CON" ) != NULL &&  strstr( name, "CON" ) != NULL )
 		{
-			printk( KERN_ALERT "222222222222222222222222222222222222=\n");		
+//			printk( KERN_ALERT "222222222222222222222222222222222222=\n");		
 			printk( KERN_ALERT "sinfo->de->name : %s	%s\n", sinfo->de->name, name );
 //			printk( KERN_ALERT "fat_scan test \n");
 

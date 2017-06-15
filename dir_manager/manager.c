@@ -99,6 +99,7 @@ void detect_and_control( char **dirs, int dir_cnt )
 {
 	int num = 0;
 	unsigned long size = 0;
+
 #if 1
 
 	while(1)

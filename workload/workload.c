@@ -10,15 +10,15 @@ static void save_load_track_to_file( FILE **fpp, int sinario )
 {
 	switch( sinario )
 	{
-		case S_NORMAL_DRIVING : *fpp = fopen( SAVE_LOG_NORMAL,  "a+" ); 			break; 
-		case S_PARKING 		: *fpp = fopen( SAVE_LOG_PARKING, "a+" ); 			break;
-		case S_PARKING_SHOCK  : *fpp = fopen( SAVE_LOG_PARKING_SHOCK, "a+" ); 	break;
-		case S_SHOCK			: *fpp = fopen( SAVE_LOG_SHOCK,    "a+" ); 			break;
-		case S_SESSION_3 		: *fpp = fopen( SAVE_LOG_SESSION3, "a+" ); 			break;
-		case S_SESSION_4		: *fpp = fopen( SAVE_LOG_SESSION4, "a+" ); 			break;
-		case S_AUTOMATION 	: *fpp = fopen( SAVE_LOG_AUTOMATION, "a+" ); 		break;
+		case S_NORMAL_DRIVING 		: *fpp = fopen( SAVE_LOG_NORMAL,  		"a+" ); 			break; 
+		case S_NORMAL_DRIVING_SHOCK : *fpp = fopen( SAVE_LOG_NORMAL_SHOCK,  "a+" ); 			break; 
+		case S_PARKING 				: *fpp = fopen( SAVE_LOG_PARKING, 		"a+" ); 			break;
+		case S_PARKING_SHOCK  		: *fpp = fopen( SAVE_LOG_PARKING_SHOCK, "a+" ); 			break;
+		case S_HANDWORK				: *fpp = fopen( SAVE_LOG_HANDWORK,   	"a+" ); 			break;
+		
+		case S_AUTOMATION 			: *fpp = fopen( SAVE_LOG_AUTOMATION, "a+" ); 				break;
 
-		default : printf("save_track_to_file \n"); 								break;
+		default : printf("save_track_to_file \n"); 												break;
 	}
 }
 static unsigned long random_range( unsigned int n1, unsigned int n2 )
@@ -96,8 +96,9 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 		//	result = random_range( 98 * 1024 * 1024, 99 * 1024 * 1024 ); 
 		//	result = random_range( 7 * 1024 * 1024, 8 * 1024 * 1024 ); 
 		//	result = random_range( 512 * 1024, 1 * 1024 * 1024 ); 
-//			result = 1 * 1024 * 1024;
-			result = random_range( 40 * 1024 * 1024, 50 * 1024 * 1024 );
+//			result = 30 * 1024 * 1024;
+			result = random_range( 29 * 1024 * 1024, 31 * 1024 * 1024 );
+			
 
 		}
 		else  //AUTOMATION
@@ -105,30 +106,17 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 			switch( *selected_dir )
 			{
 				//  범위
+	
 #if 0
-				case NORMAL : result = random_range( 98 * 1024 * 1024, 99 * 1024 * 1024 ); 	break;//상시
-				case NORMAL_EVENT : result = random_range( 53 * 1024 * 1024, 73 * 1024 * 1024 );	break;//상시 이벤트
-				case PARKING : result = random_range( 52 * 1024 * 1024, 58 * 1024 * 1024 ); 	break;//주차
-				case PARKING_EVENT : result = random_range( 8 * 1024 * 1024, 87 * 1024 * 1024 ); 	break; //주차 이벤트
-#endif
-#if 0
-				case NORMAL : result = random_range( 390 * 1024, 400 * 1024 ); 	break;//상시
-				case NORMAL_EVENT : result = random_range( 200 * 1024, 300 * 1024 );	break;//상시 이벤트
-				case PARKING : result = random_range( 180 * 1024, 250 * 1024 ); 	break;//주차
-				case PARKING_EVENT : result = random_range( 100 * 1024, 200 * 1024 ); 	break; //주차 이벤트
-#endif
-#if 0
-				case NORMAL : result = random_range( 780 * 1024, 800 * 1024 ); 	break;//상시
-				case NORMAL_EVENT : result = random_range( 400 * 1024, 600 * 1024 );	break;//상시 이벤트
-				case PARKING : result = random_range( 360 * 1024, 500 * 1024 ); 	break;//주차
-				case PARKING_EVENT : result = random_range( 200 * 1024, 400 * 1024 ); 	break; //주차 이벤트
-#endif		
-#if 1
 				case NORMAL 		: result = random_range( 30 * 1024 * 1024, 32 * 1024 * 1024 );    break;//상시
 				case NORMAL_EVENT 	: result = random_range( 30 * 1024 * 1024, 32 * 1024 * 1024 );  break;//상시 이벤트
 				case PARKING 		: result = random_range( 30 * 1024 * 1024, 32 * 1024 * 1024 );   break;//주차
 				case PARKING_EVENT  : result = random_range( 30 * 1024 * 1024, 32 * 1024 * 1024 );     break; //주차 이벤트
 #endif
+				case NORMAL 		: result = 	30 * 1024 * 1024;   break;//상시
+				case NORMAL_EVENT 	: result =  30 * 1024 * 1024; break;//상시 이벤트
+				case PARKING 		: result =  30 * 1024 * 1024;  break;//주차
+				case PARKING_EVENT  : result =  30 * 1024 * 1024;    break; //주차 이벤트
 
 				default : break;
 			}
@@ -388,7 +376,7 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 	char fn[ NAME_SIZE ];//, in_name[10];
 	char temp_full_file[ NAME_SIZE ];
 	int k;
-	//int fd;
+//	int fd;
 	
 	static int file_creator[ DIR_NUM ] = { 0, };
 	unsigned long f_size = 0;
@@ -411,12 +399,16 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 	if( load_flag == ON )
 	{	
 		printf("File name : %d \t", file_creator[ *selected_dir ] );
-		sprintf(fn,"%s%d", dirs[ *selected_dir ], file_creator[ *selected_dir ] );
+		sprintf(fn,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".avi"  );
+//		sprintf(fn,"%s%d", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ] );
 
 		//printf("%s \n", fn );
 		//실제 타겟 파일에 설정된 크기 만큼, 파일을 생성하고 씀
 #if 1
 		if((fd = fopen(fn,"w")) == NULL) {
+
+			printf("g_total.file_counter : %llu \n", g_total.file_counter );	
+
 			printf("File create error\n");
 			exit(-1);
 		}
@@ -441,7 +433,7 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 #endif
 		g_total.file_counter++;
 		//printf("File create: %-20s \t %10luM \t dir_size(): %10luM \n",fn, f_size/1024/1024, dir_size( dirs[ *selected_dir ] )/1024/1024 );
-		printf("File create: %-20s \t %10luK \t dir_size(): %10luK \n",fn, f_size/1024, dir_size( dirs[ *selected_dir ] )/1024 );
+		printf("File create: %-20s \t %10luK \t dir_size(): %10luK \n",fn, f_size/1024, dir_size( dirs[ *selected_dir - 1 ] )/1024 );
 		
 		detect_file_counter( g_total.file_counter, load_flag );
 	}

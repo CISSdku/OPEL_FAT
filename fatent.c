@@ -937,6 +937,8 @@ int fat_free_clusters(struct inode *inode, int cluster)
 			err = -EIO;
 			goto error;
 		}
+//		else
+//			printk( KERN_ALERT "[cheon] fat_free_clusters : %d \n", cluster );
 
 		if (sbi->options.discard) {
 			/*
@@ -1062,9 +1064,11 @@ not_rm:
 				sbi->bb_space_full = 1; 				
 			}
 #endif
+	
 
 #ifdef __DEBUG__
-			printk( KERN_ALERT "[cheon] fat_free_clusters , sbi->free_clusters : %d, fatent.entry : %d, sbi->bx_free_clusters[1] : %d \n", \
+			printk( KERN_ALERT "[cheon] sbi->free_clusters : %d sbi->bx_free_clusters[2] : %d  \n", sbi->free_clusters, sbi->bx_free_clusters[2] );
+			//printk( KERN_ALERT "[cheon] fat_free_clusters , sbi->free_clusters : %d, fatent.entry : %d, sbi->bx_free_clusters[1] : %d \n", \
 					sbi->free_clusters, fatent.entry, sbi->bx_free_clusters[1]  );
 #endif
 			dirty_fsinfo = 1;

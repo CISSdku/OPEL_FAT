@@ -2,11 +2,11 @@
 #define __CONTROL_FUNCTION_H__
 
 #define SAVE_LOG_NORMAL 		"./written_log/normal_driving.txt"
+#define SAVE_LOG_NORMAL_SHOCK 	"./written_log/normal_driving_shock.txt"
 #define SAVE_LOG_PARKING 		"./written_log/parking.txt"
 #define SAVE_LOG_PARKING_SHOCK  "./written_log/parking_shock.txt"
-#define SAVE_LOG_SHOCK 			"./written_log/shock.txt"
-#define SAVE_LOG_SESSION3 		"./written_log/session3.txt"
-#define SAVE_LOG_SESSION4 		"./written_log/session4.txt"
+#define SAVE_LOG_HANDWORK  		"./written_log/handwork.txt"
+
 #define SAVE_LOG_AUTOMATION		"./written_log/automation.txt"
 
 #define ORIGINAL 0
@@ -58,22 +58,23 @@ typedef enum
 */
 typedef enum //selected_dir
 {
-//	ETC  = 0, 			//etc
-	NORMAL = 0,			//normal
+	ETC  = 0, 			//etc
+	NORMAL,				//normal
 	NORMAL_EVENT, 		//normal event
 	PARKING,			//parking
 	PARKING_EVENT,		//parking event
-	HANDWORK 			//handwork
+	HANDWORK,			//handwork
+	
+	AUTOMATION
 }dir_counter_e; 
 typedef enum 
 {
 	S_NONE = 0,
 	S_NORMAL_DRIVING,
+	S_NORMAL_DRIVING_SHOCK,
 	S_PARKING,
 	S_PARKING_SHOCK,
-	S_SHOCK,	
-	S_SESSION_3,
-	S_SESSION_4,
+	S_HANDWORK,
 
 	S_AUTOMATION
 }sinario_e;

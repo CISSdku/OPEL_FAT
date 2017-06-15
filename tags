@@ -56,7 +56,7 @@ FAT_MAX_UNI_SIZE	dir.c	36;"	d	file:
 FAT_NFS_NOSTALE_RO	fat.h	126;"	d
 FAT_NFS_STALE_RW	fat.h	125;"	d
 FAT_READA_SIZE	fatent.c	1109;"	d	file:
-FAT_VALID_MODE	file.c	437;"	d	file:
+FAT_VALID_MODE	file.c	439;"	d	file:
 HANDWORK_DIRECTORY	fat.h	51;"	d
 IMAGE_AREA_RATIO	fat.h	103;"	d
 INIT_SHORTNAME_INFO	namei_vfat.c	268;"	d	file:
@@ -129,7 +129,7 @@ SD_PAGE_SIZE	fat.h	63;"	d
 SECS_PER_DAY	misc.c	182;"	d	file:
 SECS_PER_HOUR	misc.c	181;"	d	file:
 SECS_PER_MIN	misc.c	180;"	d	file:
-TIMES_SET_FLAGS	file.c	435;"	d	file:
+TIMES_SET_FLAGS	file.c	437;"	d	file:
 VFAT_IOCTL_READDIR_BOTH32	dir.c	828;"	d	file:
 VFAT_IOCTL_READDIR_SHORT32	dir.c	829;"	d	file:
 VFAT_SFN_CREATE_WIN95	fat.h	118;"	d
@@ -512,6 +512,7 @@ nr_contig	cache.c	/^	int nr_contig;$/;"	m	struct:fat_cache_id	file:
 nr_slots	fat.h	/^	int nr_slots;		\/* number of slots + 1(de) in filename *\/$/;"	m	struct:fat_slot_info
 numtail	fat.h	/^		 numtail:1,        \/* Does first alias have a numeric '~1' type tail? *\/$/;"	m	struct:fat_mount_options
 opel_fat_kobj	namei_vfat.c	/^static struct kobject *opel_fat_kobj;$/;"	v	typeref:struct:kobject	file:
+opel_vfat_find_form	config.c	/^static int opel_vfat_find_form( struct msdos_sb_info *sbi, struct inode *dir, unsigned char *name, sector_t *blknr )$/;"	f	file:
 options	fat.h	/^	struct fat_mount_options options;$/;"	m	struct:msdos_sb_info	typeref:struct:msdos_sb_info::fat_mount_options
 parent_i_gen	nfs.c	/^	u32 parent_i_gen;$/;"	m	struct:fat_fid	file:
 parent_i_pos_hi	nfs.c	/^	u16 parent_i_pos_hi;$/;"	m	struct:fat_fid	file:
@@ -565,7 +566,6 @@ vfat_dentry_ops	namei_vfat.c	/^static const struct dentry_operations vfat_dentry
 vfat_dir_inode_operations	namei_vfat.c	/^static const struct inode_operations vfat_dir_inode_operations = {$/;"	v	typeref:struct:inode_operations	file:
 vfat_fill_super	namei_vfat.c	/^static int vfat_fill_super(struct super_block *sb, void *data, int silent)$/;"	f	file:
 vfat_find	namei_vfat.c	/^static int vfat_find(struct inode *dir, struct qstr *qname,$/;"	f	file:
-vfat_find_form	config.c	/^static int vfat_find_form( struct msdos_sb_info *sbi, struct inode *dir, unsigned char *name, sector_t *blknr )$/;"	f	file:
 vfat_find_form	namei_vfat.c	/^static int vfat_find_form(struct inode *dir, unsigned char *name)$/;"	f	file:
 vfat_fs_type	namei_vfat.c	/^static struct file_system_type vfat_fs_type = {$/;"	v	typeref:struct:file_system_type	file:
 vfat_hash	namei_vfat.c	/^static int vfat_hash(const struct dentry *dentry, const struct inode *inode,$/;"	f	file:

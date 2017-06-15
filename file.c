@@ -6,6 +6,8 @@
  *  regular file handling primitives for fat-based filesystems
  */
 
+//#define __DEBUG__
+
 #include <linux/capability.h>
 #include <linux/module.h>
 #include <linux/compat.h>
@@ -141,7 +143,9 @@ static long fat_generic_compat_ioctl(struct file *filp, unsigned int cmd,
 static int fat_file_release(struct inode *inode, struct file *filp)
 {
 
-	printk("[cheon] fat_file_release \n");
+#ifdef __DEBUG__
+	printk("[cheon] ====fat_file_release==== \n");
+#endif
 #if 1	
 	struct msdos_sb_info *sbi = MSDOS_SB( inode->i_sb );
 	int area_num;
@@ -163,13 +167,18 @@ static int fat_file_release(struct inode *inode, struct file *filp)
 	{
 		int differ = (pre_alloc_size - used_size) / ((pre_alloc_size) / 100 ) ;
 
+#ifdef __DEBUG__
 		printk("[cheon] area num %d, pre_alloc size %u \n",    area_num, pre_alloc_size);
 		printk("[cheon] File size Check, Pre : %u, Real : %u, differ %d \n", pre_alloc_size, (unsigned int)inode->i_size, differ);
-
+#endif
 		//if(differ >= BX_REUPDATE_META_DIFFER){
 		//if((pre_alloc_size - used_size) > 1048576){
 		if(1){
-	//		printk("[cheon] Occur De/FAT reupdate \n");
+
+#ifdef __DEBUG__
+			printk("[cheon] =============================================\n");
+			printk("[cheon] Occur De/FAT reupdate \n");
+#endif
 			//Not used space is exceed threshold, need to update meta data.
 
 			//First - Write journal
@@ -179,16 +188,20 @@ static int fat_file_release(struct inode *inode, struct file *filp)
 
 			//Second - Update DE
 			//--------------------------------------------//            
-			de_reupdate(inode->i_sb, inode);
+			//de_reupdate(inode->i_sb, inode);
 			//--------------------------------------------//
 
 			//Third - Update FAT
 			//--------------------------------------------//        
-			clusterchain_reupdate(inode->i_sb, inode);
+			//clusterchain_reupdate(inode->i_sb, inode);
 			//--------------------------------------------//
 		}
 		else{
+
+
+#ifdef __DEBUG__
 			printk("[cheon] Not occur De/FAT reupdate \n");
+#endif
 
 			//write_jdata_inode(inode->i_sb, inode, BX_JOUR_WITHOUT_REUPDATE);
 		}

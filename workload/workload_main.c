@@ -57,15 +57,15 @@ static void load_saved_log_file( FILE **fpp, int sinario )
 {
 	switch( sinario )
 	{
-		case S_NORMAL_DRIVING : *fpp = fopen( SAVE_LOG_NORMAL,  "a+" );           break;
-		case S_PARKING        : *fpp = fopen( SAVE_LOG_PARKING, "a+" );           break;
-		case S_PARKING_SHOCK  : *fpp = fopen( SAVE_LOG_PARKING_SHOCK, "a+" );     break;
-		case S_SHOCK          : *fpp = fopen( SAVE_LOG_SHOCK,    "a+" );          break;
-		case S_SESSION_3      : *fpp = fopen( SAVE_LOG_SESSION3, "a+" );          break;
-		case S_SESSION_4      : *fpp = fopen( SAVE_LOG_SESSION4, "a+" );          break;
-		case S_AUTOMATION     : *fpp = fopen( SAVE_LOG_AUTOMATION, "a+" );        break;
+		case S_NORMAL_DRIVING 		: *fpp = fopen( SAVE_LOG_NORMAL, 	    "a+" );     break;
+		case S_NORMAL_DRIVING_SHOCK : *fpp = fopen( SAVE_LOG_NORMAL_SHOCK,  "a+" );     break;
+		case S_PARKING        		: *fpp = fopen( SAVE_LOG_PARKING,       "a+" );     break;
+		case S_PARKING_SHOCK 		: *fpp = fopen( SAVE_LOG_PARKING_SHOCK, "a+" );     break;
+		case S_HANDWORK        	    : *fpp = fopen( SAVE_LOG_HANDWORK,      "a+" );     break;
 
-		default : printf("save_track_to_file \n");                              break;
+		case S_AUTOMATION    	    : *fpp = fopen( SAVE_LOG_AUTOMATION,    "a+" );     break;
+
+		default : printf("save_track_to_file \n");                         		        break;
 	}
 }
 
@@ -85,16 +85,15 @@ static void init( int sinario, int *selected_dir, char *argv3 , int *load_flag )
 	{
 		//AUTOMATION의 의미는 상시, 상시이벤트, 주차, 주차이벤트를 랜덤으로 섞어서 파일을 만들어 내는거임
 		//AUTOMATION을 제외한 나머지 실험은 아직 제대로 정의 안되어 있음 
-		case S_NORMAL_DRIVING : printf("sinario : NORMAL_DRIVING \n");    *selected_dir = S_NORMAL_DRIVING;      break;
-		case S_PARKING        : printf("sinario : PARKING \n");           *selected_dir = S_AUTOMATION;  	    break;
-		case S_PARKING_SHOCK  : printf("sinario : PARKING_SHOCK \n");     *selected_dir = S_AUTOMATION;      break;
-		case S_SHOCK          : printf("sinario : SHOCK \n");             *selected_dir = S_AUTOMATION;      break;
-		case S_SESSION_3      : printf("sinario : SESSION_3 \n");         *selected_dir = S_AUTOMATION;      break;
-		case S_SESSION_4      : printf("sinario : SESSION_4 \n");         *selected_dir = S_AUTOMATION;      break;
+		case S_NORMAL_DRIVING 		: printf("sinario : NORMAL_DRIVING \n");  		  *selected_dir = S_NORMAL_DRIVING; 	       break;
+		case S_NORMAL_DRIVING_SHOCK : printf("sinario : NORMAL_DRIVING_SHOCK \n");    *selected_dir = S_NORMAL_DRIVING_SHOCK;      break;
+		case S_PARKING     		    : printf("sinario : PARKING \n");           	  *selected_dir = S_PARKING;    	     	   break;
+		case S_PARKING_SHOCK  		: printf("sinario : PARKING_SHOCK \n");     	  *selected_dir = S_PARKING_SHOCK;     		   break;
+		case S_HANDWORK        	    : printf("sinario : SHOCK \n");             	  *selected_dir = S_HANDWORK;      	 		   break;
 
-		case S_AUTOMATION     : printf("sinario : AUTOMATION \n");        *selected_dir = S_AUTOMATION;		 break;
+		case S_AUTOMATION    	    : printf("sinario : AUTOMATION \n");        	  *selected_dir = S_AUTOMATION;		 	 	   break;
 
-		default           	  : printf("sinario is ?? \n");                              					 break;
+		default           	  	 	: printf("sinario is ?? \n");                          		 	    					 	 	   break;
 	}
 
 //	g_time.start_point = clock();
@@ -152,10 +151,6 @@ void run_workload( char **dirs, int sinario, int selected_dir, int load_flag )
 	{
 		file_create( dirs, &selected_dir, sinario, load_flag );
 	}		
-	/*
-	 	필요시 시나리오 추가
-	 
-	 */
 	else // AUTOMATION
 	{
 		auto_select( &selected_dir );
@@ -181,12 +176,11 @@ int main( int argc, char *argv[] )
 		printf("USAGE : ./a.out (sinario_num) (target_list dir) (load_flag) (line_to_read)  \n");
 
 		printf("sinario 1 : normal driving \n");
-		printf("sinario 2 : parking \n");
-		printf("sinario 3 : parking shock\n");
-		printf("sinario 4 : shock \n");
-		printf("sinario 5 : session 3 \n");
-		printf("sinario 6 : session 4 \n");
-		printf("sinario 7 : automation \n");
+		printf("sinario 2 : normal driving shock \n");
+		printf("sinario 3 : parking \n");
+		printf("sinario 4 : parking shock\n");
+		printf("sinario 5 : handwork\n");
+		printf("sinario 6 : automation \n");
 		//printf("Select sinario_num flag_mode( origina || opel ) :");
 
 		return 0;
@@ -200,7 +194,9 @@ int main( int argc, char *argv[] )
 //	printf("test\n");
 	while(1)
 	{
-//		sleep(1);
+		if( load_flag == ON )
+			sleep(1);
+
 //		usleep(10000);
 		
 		run_workload( dirs, sinario, selected_dir, load_flag );

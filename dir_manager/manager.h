@@ -30,7 +30,7 @@
 #define PARKING_EVENT_SIZE  ( ( 512 * pow( 1024, 2) )  / UNIT_CON ) 
 #define HANDWORK_SIZE 		( ( 512 * pow( 1024, 2) )  / UNIT_CON )
 #endif
-//#define ETC_SIZE 			( ( 512 * pow( 1024, 2 ) ) / UNIT_CON )
+#define ETC_SIZE 			( ( 512 * pow( 1024, 2 ) ) / UNIT_CON )
 #define NORMAL_SIZE 		( ( 1.1 * pow( 1024, 3 ) )   / UNIT_CON )
 #define NORMAL_EVENT_SIZE 	( ( 820 * pow( 1024, 2 ) )   / UNIT_CON )
 #define PARKING_SIZE 		( ( 412 * pow( 1024, 2) )  / UNIT_CON )
@@ -51,7 +51,7 @@ typedef enum
 typedef enum 
 {
 //	ETC  = 0,           //etc
-	NORMAL = 0,            //normal
+	NORMAL = 0 ,            //normal
 	NORMAL_EVENT,       //normal event
 	PARKING,            //parking
 	PARKING_EVENT,      //parking event
