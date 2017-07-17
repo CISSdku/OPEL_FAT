@@ -10,7 +10,7 @@
  *	Max Cohan: Fixed invalid FSINFO offset when info_sector is 0
  */
 
-//#define __DEBUG__
+#define __DEBUG__
 
 #include <linux/module.h>
 #include <linux/init.h>
@@ -109,6 +109,11 @@ unsigned long time_ordering( void )
 }
 EXPORT_SYMBOL_GPL( time_ordering ); 
 
+
+
+
+
+
 void de_reupdate(struct super_block *sb, struct inode *inode){
 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
 	unsigned int i_pos;
@@ -141,8 +146,8 @@ void de_reupdate(struct super_block *sb, struct inode *inode){
 	mark_buffer_dirty(bh[0]);
 	sync_dirty_buffer(bh[0]);
 	brelse(bh[0]);
-
-	/* //performs metadata update by page align.
+#if 1
+	//performs metadata update by page align.
 	   for(i=0; i< BLOCK_IN_PAGE ; i++)
 	   bh[i] = sb_bread(sb, inpage_start + i);
 
@@ -162,7 +167,7 @@ void de_reupdate(struct super_block *sb, struct inode *inode){
 	for(i=0; i<BLOCK_IN_PAGE; i++){
 	brelse(bh[i]);  
 	}
-	 */
+#endif
 
 	printk("[cheon] Update DE Complete, real file size %u\n", (unsigned int)inode->i_size);
 	//--------------------------------------------//
@@ -613,6 +618,9 @@ static void preAlloc(struct super_block *sb, unsigned int next, unsigned int pre
 			chain++;
 			need_to_alloc--;
 			allocated++;
+
+
+			printk("[cheon] chain : %u ", chain );
 		}
 		//data[page_num][page_offset-1] = 0x0FFFFFFF;
 		printk( KERN_ALERT "[cheon] FAT_ENT_EOF \n");
@@ -725,11 +733,11 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	get_area_number( &area, inode );
 
 //	printk( KERN_ALERT "[cheon] 1111111111111111111111111111111\n");
-	if( area == BB_ETC )
+	if( area == BB_ETC || sbi->bb_space_full == ON )
 	{
 
 #ifdef __DEBUG__
-		printk("[cheon] ETC : Using normal allocation \n");
+		printk("[cheon] ETC & FULL of any partitioning  : Using normal allocation \n");
 #endif
 		goto NORMAL_ALLOC;			
 	}
@@ -1128,8 +1136,8 @@ int fat_update_super(struct super_block *sb){
 	sbi->bx_next_start[ BB_NORMAL ]			= -1;
 	sbi->bx_next_start[ BB_NORMAL_EVENT ]	= -1;
 	sbi->bx_next_start[ BB_PARKING ]		= -1;
-	sbi->bx_next_start[ BB_MANUAL ]		= -1;
-	sbi->bx_next_start[ BB_IMAGE ] 		= -1;
+	sbi->bx_next_start[ BB_MANUAL ]			= -1;
+	sbi->bx_next_start[ BB_IMAGE ] 			= -1;
 
 	sbi->bx_free_clusters[ BB_ETC ]			 = 0;
 	sbi->bx_free_clusters[ BB_NORMAL ]		 = 0;
@@ -1143,11 +1151,7 @@ int fat_update_super(struct super_block *sb){
 	sbi->bb_space_full = 0;	
 	sbi->bb_no_alloc = 0;
 
-
-
-
 	fat_count_free_clusters_for_area( sb );
-
 
 	printk("[cheon] Complete cluster calculation \n");
 	printk("[cheon]    1. [%2d%%] ETC           [%6d ~%6d] / Free %6d(%3d%%) / MB : %d  \n", sbi->bx_area_ratio[BB_ETC],  sbi->bx_start_cluster[BB_ETC], sbi->bx_end_cluster[BB_ETC],sbi->bx_free_clusters[BB_ETC], \
@@ -1172,16 +1176,19 @@ int fat_update_super(struct super_block *sb){
 
 	printk("[cheon] sbi->free_clusters : %d \n", sbi->free_clusters );
 
+	printk("[cheon] sbi->free_clusters : %d \n", sbi->bx_free_clusters[ BB_ETC ] );
+	printk("[cheon] sbi->free_clusters : %d \n", sbi->bx_free_clusters[ BB_NORMAL ] );
+	printk("[cheon] sbi->free_clusters : %d \n", sbi->bx_free_clusters[ BB_NORMAL_EVENT ] );
+	printk("[cheon] sbi->free_clusters : %d \n", sbi->bx_free_clusters[ BB_PARKING ] );
+	printk("[cheon] sbi->free_clusters : %d \n", sbi->bx_free_clusters[ BB_MANUAL ] );
+	printk("[cheon] sbi->free_clusters : %d \n", sbi->bx_free_clusters[ BB_IMAGE ] );
 
-
-
-
-
-
-
-
-
-
+	if( sbi->bx_free_clusters[ BB_ETC ] == 0 || sbi->bx_free_clusters[ BB_NORMAL ] == 0 || sbi->bx_free_clusters[ BB_NORMAL_EVENT ] == 0 || 
+			sbi->bx_free_clusters[ BB_PARKING ] == 0 || sbi->bx_free_clusters[ BB_MANUAL ] == 0 || sbi->bx_free_clusters[ BB_IMAGE ] == 0 )
+	{
+		printk("[cheon] Any part is full, Our policy turn into a original FAT \n");
+		sbi->bb_space_full = ON;		
+	}
 
 
 	return 0;

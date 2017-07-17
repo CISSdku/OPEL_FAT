@@ -372,11 +372,11 @@ static int detect_file_counter( int file_counter, int load_flag )
 }
 void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 {
-	FILE *fd;
+	//FILE *fd;
 	char fn[ NAME_SIZE ];//, in_name[10];
 	char temp_full_file[ NAME_SIZE ];
 	int k;
-//	int fd;
+	int fd;
 	
 	static int file_creator[ DIR_NUM ] = { 0, };
 	unsigned long f_size = 0;
@@ -404,7 +404,7 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 
 		//printf("%s \n", fn );
 		//실제 타겟 파일에 설정된 크기 만큼, 파일을 생성하고 씀
-#if 1
+#if 0
 		if((fd = fopen(fn,"w")) == NULL) {
 
 			printf("g_total.file_counter : %llu \n", g_total.file_counter );	
@@ -419,7 +419,7 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 		fclose( fd );
 	//	fflush(stdout);
 #endif
-#if 0
+#if 1
 		fd = open( fn, O_WRONLY | O_CREAT, 0644);
 		if( !fd )
 		{

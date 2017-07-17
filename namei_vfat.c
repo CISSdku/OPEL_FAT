@@ -17,8 +17,6 @@
 
 #include<linux/kernel.h>
 
-
-//
 #include <linux/module.h>
 #include <linux/jiffies.h>
 #include <linux/ctype.h>
@@ -27,6 +25,7 @@
 #include <linux/namei.h>
 #include "fat.h"
 
+char manager_control_buff[10]; 
 
 /*
  * If new entry was created in the parent, it could create the 8.3
@@ -984,7 +983,7 @@ static int vfat_rename(struct inode *old_dir, struct dentry *old_dentry,
 	int err, is_dir, update_dotdot, corrupt = 0;
 	struct super_block *sb = old_dir->i_sb;
 
-	printk( KERN_ALERT "[cheon] vfat_rename \n");
+//	printk( KERN_ALERT "[cheon] vfat_rename \n");
 
 	old_sinfo.bh = sinfo.bh = dotdot_bh = NULL;
 	old_inode = old_dentry->d_inode;
@@ -1127,12 +1126,27 @@ static void setup(struct super_block *sb)
 static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 {
 	int res;	
+	//struct msdos_sb_info *sbi = MSDOS_SB(sb); 
 
 	res = fat_fill_super(sb, data, silent, 1, setup);
 
-	
 	fat_config_init( sb );
 	fat_update_super( sb );
+
+	struct msdos_sb_info *sbi = MSDOS_SB(sb); //여기에 있어야 함
+	
+	if( sbi->bb_space_full == ON )
+	{
+		printk("1111\n");
+		strcpy( manager_control_buff, "START_ORIGINAL" );
+	}
+	else
+	{	
+		printk("222\n");
+		strcpy( manager_control_buff, "START_OPEL" );
+	}
+
+	printk( KERN_ALERT "vfat_fill_super : %s \n", manager_control_buff );
 
 	return res;
 }
@@ -1141,17 +1155,21 @@ static struct dentry *vfat_mount(struct file_system_type *fs_type,
 		       int flags, const char *dev_name,
 		       void *data)
 {
-	printk( KERN_ALERT "[cheon] 0221 1859\n");
+	printk( KERN_ALERT "[cheon] 0712 1627\n");
 	printk( KERN_ALERT "[cheon] vfat_mount !! \n");
 	return mount_bdev(fs_type, flags, dev_name, data, vfat_fill_super);
 }
+////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
 #if 1
 static struct kobject *opel_fat_kobj;
 
 static ssize_t control_show( struct kobject *kobj, struct kobj_attribute *attr, char *buff )
 {
-	return snprintf( buff, PAGE_SIZE, "%d \n", 1234 );
+	printk( KERN_ALERT "[cheon] sysfs control_show() : %s\n", manager_control_buff );
+	
+	return snprintf( buff, PAGE_SIZE, "%s \n", manager_control_buff );
+//	return sizeof( buff );
 }
 
 static ssize_t control_store( struct kobject *kobj, struct kobj_attribute *attr, const char *buff, size_t count )
@@ -1166,8 +1184,10 @@ static ssize_t control_store( struct kobject *kobj, struct kobj_attribute *attr,
 	return count;
 }
 
-//static struct kobj_attribute version_attr = __ATTR_RO( version);
 static struct kobj_attribute control_attr = __ATTR( control, 0644, control_show, control_store );
+
+
+//static struct kobj_attribute version_attr = __ATTR_RO( version);
 
 static struct attribute *attributes[ ] = {
 	    &control_attr.attr,
@@ -1223,7 +1243,7 @@ MODULE_ALIAS_FS("vfat");
 
 static int __init init_vfat_fs(void)
 {
-#if 0
+#if 1
 	int rc;
 	printk( KERN_ALERT "[cheon] FAT sysfs Test!! \n");
   
@@ -1239,7 +1259,7 @@ static int __init init_vfat_fs(void)
 
 static void __exit exit_vfat_fs(void)
 {
-//	do_fs_sysfs_unregistration();
+	do_fs_sysfs_unregistration();
 	unregister_filesystem(&vfat_fs_type);
 }
 

@@ -9,7 +9,7 @@
 #include <linux/blkdev.h>
 #include "fat.h"
 
-//#define __DEBUG__
+#define __DEBUG__
 //#define __ORIGINAL_FAT_TEST__
 
 
@@ -754,10 +754,6 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 		area = BB_NORMAL;
 #endif
 
-
-	//g_area = area;
-///////
-//	printk( KERN_ALERT "[cheon] area : %d \n", area ); 
 #endif
 	lock_fat(sbi);
 	if (sbi->free_clusters != -1 && sbi->free_clus_valid &&
@@ -767,16 +763,19 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 		return -ENOSPC;
 	}
 #ifndef __ORIGINAL_FAT_TEST__
-	//Free space check for each area
-	else if( sbi->bx_free_clusters[ area ] < nr_cluster )
+
+	if( sbi->bb_space_full == OFF )
 	{
-		printk( KERN_ALERT "[cheon] No space storage / bx current free %u / nr_cluster %d / area : %d  \n", sbi->bx_free_clusters[ area ], nr_cluster, area );
-	
-//		sbi->bb_space_full = 1;
-//		sbi->bb_no_alloc = 1;		
-		unlock_fat(sbi);
-		return -ENOSPC;
+		//Free space check for each area
+		if( sbi->bx_free_clusters[ area ] < nr_cluster )
+		{
+			printk( KERN_ALERT "[cheon] No space storage / bx current free %u / nr_cluster %d / area : %d  \n", sbi->bx_free_clusters[ area ], nr_cluster, area );
+
+			unlock_fat(sbi);
+			return -ENOSPC;
+		}
 	}
+
 #endif
 //	sbi->bb_no_alloc = 0;		
 
@@ -800,75 +799,79 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 
 		/* Find the free entries in a block */
 		do {
-			if (ops->ent_get(&fatent) == FAT_ENT_FREE && sbi->bx_start_cluster[ area ] <= fatent.entry && sbi->bx_end_cluster[ area ] >= fatent.entry ) 
+
+			if( sbi->bb_space_full == ON ) 
 			{
-				int entry = fatent.entry;
-			
-#if 1
-				//cheon 
-//				fatent.entry++;
-//				if( ops->ent_get( &fatent ) != FAT_ENT_FREE )
-//				{
-//					printk( KERN_ALERT "[cheon] Not sequence / entry : %d \n", entry );	
-//					break;
-//				}
-//				fatent.entry--;
-
-//				if( entry == sbi->bx_end_cluster[ area ] )
-//				{
-//					printk( KERN_ALERT "[cheon] No space / entry : %d  \n", entry );	
-//					break;	
-//				}
-#endif
-
-				/* make the cluster chain */
-				ops->ent_put(&fatent, FAT_ENT_EOF);
-				if (prev_ent.nr_bhs)
-					ops->ent_put(&prev_ent, entry);
-
-		//		if( ops->ent_get(&fatent) == FAT_ENT_EOF )
-		//			{
-				sbi->bb_file_start = fatent.entry + 1;			
-				
-		//			}
-
-
-
-				fat_collect_bhs(bhs, &nr_bhs, &fatent);
-
-				sbi->prev_free = entry;
-				sbi->bx_prev_free[ area ] = entry;
-
-				//update for each area data
-				if (sbi->free_clusters != -1)
+				if (ops->ent_get(&fatent) == FAT_ENT_FREE )
 				{
-					sbi->free_clusters--;
-					sbi->bx_free_clusters[ area ]--;
-#if 0
-					if( sbi->bx_free_clusters[ area ] == 0 )
-					{
-						printk( KERN_ALERT "[cheon[ area is full \n");
-						sbi->bb_space_full = 1;
-						unlock_fat(sbi);
-						mark_fsinfo_dirty(sb);
-						fatent_brelse(&fatent);
-						
-						return -ENOSPC;
+					int entry = fatent.entry;
 
+					/* make the cluster chain */
+					ops->ent_put(&fatent, FAT_ENT_EOF);
+					if (prev_ent.nr_bhs)
+						ops->ent_put(&prev_ent, entry);
+
+
+					fat_collect_bhs(bhs, &nr_bhs, &fatent);
+
+					sbi->prev_free = entry;
+					sbi->bx_prev_free[ area ] = entry;
+
+					//update for each area data
+					if (sbi->free_clusters != -1)
+					{
+						sbi->free_clusters--;
+						sbi->bx_free_clusters[ area ]--;
 					}
-#endif
+
+					cluster[idx_clus] = entry;
+					idx_clus++;
+					if (idx_clus == nr_cluster)
+						goto out;
+
+					/*
+					 * fat_collect_bhs() gets ref-count of bhs,
+					 * so we can still use the prev_ent.
+					 */
+					prev_ent = fatent;
 				}
 
-				cluster[idx_clus] = entry;
-				idx_clus++;
-				if (idx_clus == nr_cluster)
-					goto out;
+			}
+			else
+			{
+				if (ops->ent_get(&fatent) == FAT_ENT_FREE && sbi->bx_start_cluster[ area ] <= fatent.entry && sbi->bx_end_cluster[ area ] >= fatent.entry ) 
+				{
+					int entry = fatent.entry;
 
-				/*
-				 * fat_collect_bhs() gets ref-count of bhs,
-				 * so we can still use the prev_ent.
-				 */
-				prev_ent = fatent;
+					/* make the cluster chain */
+					ops->ent_put(&fatent, FAT_ENT_EOF);
+					if (prev_ent.nr_bhs)
+						ops->ent_put(&prev_ent, entry);
+
+
+					fat_collect_bhs(bhs, &nr_bhs, &fatent);
+
+					sbi->prev_free = entry;
+					sbi->bx_prev_free[ area ] = entry;
+
+					//update for each area data
+					if (sbi->free_clusters != -1)
+					{
+						sbi->free_clusters--;
+						sbi->bx_free_clusters[ area ]--;
+					}
+
+					cluster[idx_clus] = entry;
+					idx_clus++;
+					if (idx_clus == nr_cluster)
+						goto out;
+
+					/*
+					 * fat_collect_bhs() gets ref-count of bhs,
+					 * so we can still use the prev_ent.
+					 */
+					prev_ent = fatent;
+				}
 			}
 			count++;
 			if (count == sbi->max_cluster)
@@ -905,7 +908,7 @@ out:
 	}
 
 #ifdef __DEBUG__
-	printk( KERN_ALERT "[cheon] fatent.entry : %d, sbi->free_clusters : %d, sbi->bx_free_clusters[ %d ] : %d  \n", fatent.entry, sbi->free_clusters, area, sbi->bx_free_clusters[area]  );
+//	printk( KERN_ALERT "[cheon] fatent.entry : %d, sbi->free_clusters : %d, sbi->bx_free_clusters[ %d ] : %d  \n", fatent.entry, sbi->free_clusters, area, sbi->bx_free_clusters[area]  );
 #endif
 	return err;
 }
@@ -926,6 +929,9 @@ int fat_free_clusters(struct inode *inode, int cluster)
 	nr_bhs = 0;
 	fatent_init(&fatent);
 	lock_fat(sbi);
+
+	//printk( KERN_ALERT "[cheon] fat_free_clusters\n" );
+
 	do {
 		cluster = fat_ent_read(inode, &fatent, cluster);
 		if (cluster < 0) {
@@ -937,8 +943,9 @@ int fat_free_clusters(struct inode *inode, int cluster)
 			err = -EIO;
 			goto error;
 		}
-//		else
-//			printk( KERN_ALERT "[cheon] fat_free_clusters : %d \n", cluster );
+		//else
+		//	printk( KERN_ALERT "%d ", cluster );
+		//	printk( KERN_ALERT "[cheon] fat_free_clusters : %d ", cluster );
 
 		if (sbi->options.discard) {
 			/*
@@ -957,15 +964,6 @@ int fat_free_clusters(struct inode *inode, int cluster)
 				first_cl = cluster;
 			}
 		}
-
-#if 0 //중간 스왑 파일도 EOF임
-		if( ops->ent_get(&fatent) == FAT_ENT_EOF )
-		{
-			//		sbi->bb_file_start = fatent.entry + 1;			
-			printk( KERN_ALERT "[cheon] FAT_ENT_EOF \n");
-
-		}
-#endif
 
 //		printk( KERN_ALERT "[cheon] fat_free_clusters \n");
 #if 1 //origin
@@ -1000,76 +998,14 @@ int fat_free_clusters(struct inode *inode, int cluster)
 			else if( sbi->bx_start_cluster[ BB_IMAGE ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_IMAGE ] )
 				(sbi->bx_free_clusters[ BB_IMAGE ])++;
 #endif
-
-#if 0
-			if( sbi->bb_space_full == 1  )
-			{
-				if( sbi->bb_file_start >=  fatent.entry && sbi->bb_no_alloc == 0 )
-					goto not_rm;
-
-				//뒤쪽 남은 공간 프리시켜줘야함
-
-
-				sbi->bx_free_clusters[ BB_NORMAL ] += ( fatent.entry - sbi->bb_file_start ) + 1; 
-				
-
-				if( fatent.entry == sbi->bx_end_cluster[ 1 ] )
-					sbi->bb_file_start = sbi->bx_start_cluster[ BB_NORMAL ];
-				else	
-					sbi->bb_file_start = fatent.entry + 1;
-		
-				//bb_file_start : 그 다음 파일의 스타트
-
-				sbi->bb_space_full = 0;
-				
-				printk( KERN_ALERT "[cheon] fat_free_clusters 1, sbi->free_clusters++ : %d, fatent.entry : %d, sbi->bx_free_clusters[1] : %d, sbi->bb_file_start : %d  \n", sbi->free_clusters, fatent.entry, sbi->bx_free_clusters[1], sbi->bb_file_start  );
-			}
-			else
-			{
-not_rm:
-				if( fatent.entry > sbi->bx_end_cluster[ 1 ] )
-					sbi->bb_file_start = sbi->bx_start_cluster[ BB_NORMAL ];
-				else if( fatent.entry == sbi->bb_file_start )
-					sbi->bb_file_start++;
-				else	
-				{
-					//	sbi->bb_file_start = fatent.entry + 2;
-#if 0
-					if( ops->ent_get(&fatent) == FAT_ENT_EOF )
-					{
-				//		sbi->bb_file_start = fatent.entry + 1;			
-						printk( KERN_ALERT "[cheon] FAT_ENT_EOF \n");
-
-					}
-#endif
-					if( sbi->bb_file_start > sbi->bx_end_cluster[ 1 ]  )
-						sbi->bb_file_start = sbi->bx_start_cluster[ BB_NORMAL ];
-				}
-				
-				sbi->bb_no_alloc = 0;
-				printk( KERN_ALERT "[cheon] fat_free_clusters 2, sbi->free_clusters++ : %d, fatent.entry : %d, sbi->bx_free_clusters[1] : %d, sbi->bb_file_start : %d  \n", sbi->free_clusters, fatent.entry, sbi->bx_free_clusters[1], sbi->bb_file_start  );
-				
-				if( sbi->bx_free_clusters[ BB_NORMAL ] == 0 && ( fatent.entry < sbi->bb_file_start ) )
-				{
-					sbi->bx_free_clusters[ BB_NORMAL ]= ( (int)sbi->bx_end_cluster[ 1 ] - sbi->bb_file_start ) + 1 ; 
-					printk( KERN_ALERT "[cheon] sbi->bx_free_clusters : %d \n", sbi->bx_free_clusters[ BB_NORMAL]  );		
-				}
-				
-			}
-
-			if( sbi->bx_free_clusters[ 1 ] == 0 && sbi->bb_no_alloc == 1 )
-			{
-				//여러개 free시킬 때. 첫번째 free에서 bx_free_clusters : 0이 되어, 여기로 오면 안댐, 그럼 두번째 free에서 1로 가버림
-		//		printk( KERN_ALERT "[cheon] bx_free_clusters : 0 \n");
-				sbi->bb_space_full = 1; 				
-			}
-#endif
 	
 
 #ifdef __DEBUG__
-			printk( KERN_ALERT "[cheon] sbi->free_clusters : %d sbi->bx_free_clusters[2] : %d  \n", sbi->free_clusters, sbi->bx_free_clusters[2] );
-			//printk( KERN_ALERT "[cheon] fat_free_clusters , sbi->free_clusters : %d, fatent.entry : %d, sbi->bx_free_clusters[1] : %d \n", \
+//			printk( KERN_ALERT "[cheon] sbi->free_clusters : %d sbi->bx_free_clusters[2] : %d  \n", sbi->free_clusters, sbi->bx_free_clusters[2] );
+//			printk( KERN_ALERT "[cheon] fat_free_clusters , sbi->free_clusters : %d, fatent.entry : %d, sbi->bx_free_clusters[1] : %d \n", \
 					sbi->free_clusters, fatent.entry, sbi->bx_free_clusters[1]  );
+//			printk( KERN_ALERT "[cheon] fatent.entry : %d ", fatent.entry );
+
 #endif
 			dirty_fsinfo = 1;
 		}

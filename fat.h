@@ -10,6 +10,8 @@
 #include <linux/ratelimit.h>
 #include <linux/msdos_fs.h>
 
+#define OFF 0
+#define ON 1
 
 
 #define NUM_1	1  //normal

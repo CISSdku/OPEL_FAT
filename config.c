@@ -318,6 +318,7 @@ int fat_config_init(struct super_block *sb)
 		goto exist;
 	}
 #endif
+
 	//First - Create file
 	printk("[cheon] Create config File \n");
 	err = build_config_file( root, root_de, 0 );

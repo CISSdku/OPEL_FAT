@@ -2,8 +2,12 @@
 #define __MANAGER_H__
 
 #define NAME_SIZE 100
+#define CONFIG_LINE 30
+#define SYSFS_RESULT 30
 #define STRING_SIZE 100
 #define DIR_COUNT 20
+#define ON 1
+#define OFF 0
 
 #include <sys/types.h>
 #include <sys/stat.h>

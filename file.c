@@ -157,7 +157,7 @@ static int fat_file_release(struct inode *inode, struct file *filp)
 	get_area_number( &area_num, inode );
 	pre_alloc_size = sbi->bx_pre_size[ area_num ] * 1024 * 1024; //MB
 
-	if( area_num == BB_ETC );
+	if( area_num == BB_ETC || sbi->bb_space_full == ON );
 
 	else if( pre_alloc_size < inode->i_size )
 	{

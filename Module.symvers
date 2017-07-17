@@ -1,4 +1,5 @@
 0x3bf18c78	__fat_fs_error	/home/cheon/다운로드/OPEL/filesystem/fat_test/OPEL_FAT/fat	EXPORT_SYMBOL_GPL
+0x15274591	call_sysfs_control_show	/home/cheon/다운로드/OPEL/filesystem/fat_test/OPEL_FAT/vfat	EXPORT_SYMBOL_GPL
 0xa973be29	fat_sync_inode	/home/cheon/다운로드/OPEL/filesystem/fat_test/OPEL_FAT/fat	EXPORT_SYMBOL_GPL
 0xc60e0af5	fat_dir_empty	/home/cheon/다운로드/OPEL/filesystem/fat_test/OPEL_FAT/fat	EXPORT_SYMBOL_GPL
 0x8b2c28c2	view_fatent_entry	/home/cheon/다운로드/OPEL/filesystem/fat_test/OPEL_FAT/fat	EXPORT_SYMBOL_GPL
