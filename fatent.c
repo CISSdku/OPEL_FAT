@@ -821,7 +821,7 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 					if (sbi->free_clusters != -1)
 					{
 						sbi->free_clusters--;
-						sbi->bx_free_clusters[ area ]--;
+		//				sbi->bx_free_clusters[ area ]--;
 					}
 
 					cluster[idx_clus] = entry;
@@ -971,42 +971,44 @@ int fat_free_clusters(struct inode *inode, int cluster)
 		if (sbi->free_clusters != -1) {
 			sbi->free_clusters++;
 
-#ifdef __ORIGINAL_FAT_TEST__ 
-				
-			if( sbi->bx_start_cluster[ BB_ETC ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_ETC ] )
-				(sbi->bx_free_clusters[ BB_ETC ])++;
-			else
-				sbi->bx_free_clusters[ BB_NORMAL ]++;
-#endif
+			if( sbi->bb_space_full != ON ) 
+			{
+				#ifdef __ORIGINAL_FAT_TEST__ 
 
-#ifndef __ORIGINAL_FAT_TEST__
-			if( sbi->bx_start_cluster[ BB_ETC ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_ETC ] )
-				(sbi->bx_free_clusters[ BB_ETC ])++;
+				if( sbi->bx_start_cluster[ BB_ETC ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_ETC ] )
+					(sbi->bx_free_clusters[ BB_ETC ])++;
+				else
+					sbi->bx_free_clusters[ BB_NORMAL ]++;
+				#endif
 
-			else if( sbi->bx_start_cluster[ BB_NORMAL ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_NORMAL ] )
-				(sbi->bx_free_clusters[ BB_NORMAL ])++;
+				#ifndef __ORIGINAL_FAT_TEST__
+				if( sbi->bx_start_cluster[ BB_ETC ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_ETC ] )
+					(sbi->bx_free_clusters[ BB_ETC ])++;
 
-			else if( sbi->bx_start_cluster[ BB_NORMAL_EVENT ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_NORMAL_EVENT ] )
-				(sbi->bx_free_clusters[ BB_NORMAL_EVENT ])++;
+				else if( sbi->bx_start_cluster[ BB_NORMAL ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_NORMAL ] )
+					(sbi->bx_free_clusters[ BB_NORMAL ])++;
 
-			else if( sbi->bx_start_cluster[ BB_PARKING ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_PARKING ] )
-				(sbi->bx_free_clusters[ BB_PARKING ])++;
+				else if( sbi->bx_start_cluster[ BB_NORMAL_EVENT ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_NORMAL_EVENT ] )
+					(sbi->bx_free_clusters[ BB_NORMAL_EVENT ])++;
 
-			else if( sbi->bx_start_cluster[ BB_MANUAL ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_MANUAL ] )
-				(sbi->bx_free_clusters[ BB_MANUAL ])++;
+				else if( sbi->bx_start_cluster[ BB_PARKING ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_PARKING ] )
+					(sbi->bx_free_clusters[ BB_PARKING ])++;
 
-			else if( sbi->bx_start_cluster[ BB_IMAGE ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_IMAGE ] )
-				(sbi->bx_free_clusters[ BB_IMAGE ])++;
-#endif
-	
+				else if( sbi->bx_start_cluster[ BB_MANUAL ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_MANUAL ] )
+					(sbi->bx_free_clusters[ BB_MANUAL ])++;
 
-#ifdef __DEBUG__
-//			printk( KERN_ALERT "[cheon] sbi->free_clusters : %d sbi->bx_free_clusters[2] : %d  \n", sbi->free_clusters, sbi->bx_free_clusters[2] );
-//			printk( KERN_ALERT "[cheon] fat_free_clusters , sbi->free_clusters : %d, fatent.entry : %d, sbi->bx_free_clusters[1] : %d \n", \
-					sbi->free_clusters, fatent.entry, sbi->bx_free_clusters[1]  );
-//			printk( KERN_ALERT "[cheon] fatent.entry : %d ", fatent.entry );
+				else if( sbi->bx_start_cluster[ BB_IMAGE ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_IMAGE ] )
+					(sbi->bx_free_clusters[ BB_IMAGE ])++;
+				#endif
 
-#endif
+
+				#ifdef __DEBUG__
+				//			printk( KERN_ALERT "[cheon] sbi->free_clusters : %d sbi->bx_free_clusters[2] : %d  \n", sbi->free_clusters, sbi->bx_free_clusters[2] );
+				//			printk( KERN_ALERT "[cheon] fat_free_clusters , sbi->free_clusters : %d, fatent.entry : %d, sbi->bx_free_clusters[1] : %d \n", \
+				sbi->free_clusters, fatent.entry, sbi->bx_free_clusters[1]  );
+				//			printk( KERN_ALERT "[cheon] fatent.entry : %d ", fatent.entry );
+				#endif
+			}
 			dirty_fsinfo = 1;
 		}
 #endif

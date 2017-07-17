@@ -1,5 +1,5 @@
-/home/cheon/fat_test/experiment/sd_Card/normal/
-/home/cheon/fat_test/experiment/sd_Card/normal_event/
-/home/cheon/fat_test/experiment/sd_Card/parking/
-/home/cheon/fat_test/experiment/sd_Card/parking_event/
-/home/cheon/fat_test/experiment/sd_Card/handwork/
+/home/odroid/mount/normal/
+/home/odroid/mount/normal_event/
+/home/odroid/mount/parking/
+/home/odroid/mount/parking_event/
+/home/odroid/mount/handwork/

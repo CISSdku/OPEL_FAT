@@ -108,20 +108,24 @@ static void total_size_SD_card( unsigned long *total_size )
 	char buf[50];
 	char *size = NULL;
 
-	fp = popen( "df -h | grep /dev/sbd" ,"r" ); // 수정
+	fp = popen( "df -h | grep /dev/mmcblk1" ,"r" ); // 수정
 
 	if( fp == NULL )
 		printf("Error opening : %s\n", strerror( errno ) );	
 
 	fgets( buf, sizeof( buf ), fp );
 	size = strtok( buf, " " );
-	//printf("SDcard Size : %s \n", size );
+//	printf("SDcard Size : %s \n", size );
 	size = strtok( NULL, " " );
 	size = strtok( size, "G" );
 
-//	printf("total sd size :%s \n", size );
+//	printf("SDcard total sd size :%s \n", size );
 
-	*total_size = strtoul( size, NULL, 10 ) * pow( 1024, 3 );
+	//*total_size = strtoul( size, NULL, 10 ) * pow( 1024, 3 );
+
+//	printf("test : %lf \n", atof( size ) * pow( 1024, 2 ) ); //GB단위인데 기본이 MB로 처리해서
+
+	*total_size = atof( size ) * pow( 1024, 2 );
 
 	pclose( fp );
 }
@@ -135,7 +139,7 @@ static void current_size_SD_card( unsigned long *current_size )
 	char *size = NULL;
 	int tmp_len;
 
-	fp = popen( "du -sh /mnt" ,"r" ); // 수정
+	fp = popen( "du -sh /home/odroid/mount/" ,"r" ); // 수정
 
 	if( fp == NULL )
 		printf("Error opening : %s\n", strerror( errno ) );	
@@ -147,26 +151,26 @@ static void current_size_SD_card( unsigned long *current_size )
 	tmp_len = strlen( buf );
 
 	size = strtok( buf, "G" );
-//	printf("current_size_SD_card size : %s	 %ld \n", size, strlen( size ) );
+//	printf("[G] current_size_SD_card size : %s	 %u \n", size, strlen( size ) );
 	if( tmp_len != strlen( size ) )
 	{
-		*current_size == atoi( size ) * pow( 1024, 3 );
+		*current_size = (unsigned long )( (double)(atof( size ) * pow( 1024, 2 )) ); //GB단위인데 기본이 MB로 처리해서
 		pclose( fp );
 		return;	
 	}
 	size = strtok( buf, "M" );
-//	printf("current_size_SD_card size : %s	 %ld \n", size, strlen( size ) );
+//	printf("[M] current_size_SD_card size : %s	 %u \n", size, strlen( size ) );
 	if( tmp_len != strlen( size ) )
 	{
-		*current_size == atoi( size ) * pow( 1024, 2 );
+		*current_size = (unsigned long )((double)atof( size ) * pow( 1024, 1 ));
 		pclose( fp );
 		return;	
 	}
 	size = strtok( buf, "K" );
-//	printf("current_size_SD_card size : %s \n", size );
+//	printf("[K] current_size_SD_card size : %s \n", size );
 	if( tmp_len != strlen( size ) )
 	{
-		*current_size = atoi( size ) * 1024;
+		*current_size = (unsigned long)atof( size );
 		//printf("[K] current_size : %lu \n", *current_size );
 
 		pclose( fp );
@@ -195,7 +199,10 @@ void init( int dir_cnt, char **dirs, char **config_line, char *sysfs_line )
 	current_size_SD_card( &SDcard_current_size );
 	printf("SD Total Size : %lu, Current SD Size : %lu \n", SDcard_total_size, SDcard_current_size );
 
-	if( !strcmp( "START_ORIGINAL", sysfs_line ) )
+//	printf("test : %s \n", sysfs_line );
+
+	//if( !strcmp( "START_ORIGINAL", sysfs_line ) )
+	if( strstr( sysfs_line, "ORIGINAL" ) )
 	{
 		//OPEL FAT의 특정 파티션이 사용자에 의해 FULL 상태로 되어 기존 Default FAT으로 동작하고 
 		//그에 따라 메니저가 관리하는 디렉터리의 크기도 수정되어야 한다.
@@ -208,23 +215,23 @@ void init( int dir_cnt, char **dirs, char **config_line, char *sysfs_line )
 		printf("START_OPEL\n");
 		control_size = SDcard_total_size;
 	}
-	printf("control_size : %lu \n", control_size );
+	printf("control_size : %lu \n\n", control_size );
 
 	for( i = 0 ; i < config_cnt ; i++ )
 		printf("config_ratio : %d \n", config_ratio[ i ] );
 
 #if 1
-//	g_dir[ ETC ].dir_size 			= control_size * ( (double)config_ratio[0] / 100 ); 				 //etc는 그냥 dummy
-	g_dir[ NORMAL ].dir_size 		= ( control_size * ( (double)config_ratio[1] / 100 ) ) * 0.95;
-	g_dir[ NORMAL_EVENT ].dir_size  = ( control_size * ( (double)config_ratio[2] / 100 ) ) * 0.95;
-	g_dir[ PARKING ].dir_size 		= ( control_size * ( (double)config_ratio[3] / 100 ) ) * 0.95;
-	g_dir[ PARKING_EVENT ].dir_size = ( control_size * ( (double)config_ratio[4] / 100 ) ) * 0.95;
-	g_dir[ HANDWORK ].dir_size 		= ( control_size * ( (double)config_ratio[5] / 100 ) ) * 0.95;
+	g_dir[ NORMAL ].dir_size 		= ( control_size * ( (double)config_ratio[0] / 100 ) ) * 0.95;
+	g_dir[ NORMAL_EVENT ].dir_size  = ( control_size * ( (double)config_ratio[1] / 100 ) ) * 0.95;
+	g_dir[ PARKING ].dir_size 		= ( control_size * ( (double)config_ratio[2] / 100 ) ) * 0.95;
+	g_dir[ PARKING_EVENT ].dir_size = ( control_size * ( (double)config_ratio[3] / 100 ) ) * 0.95;
+	g_dir[ HANDWORK ].dir_size 		= ( control_size * ( (double)config_ratio[4] / 100 ) ) * 0.95;
+//	g_dir[ ETC ].dir_size 			= control_size * ( (double)config_ratio[5] / 100 ); 				 //etc는 그냥 dummy
 
 	printf("%lu %lu %lu %lu %lu\n", g_dir[ NORMAL ].dir_size, g_dir[ NORMAL_EVENT ].dir_size, g_dir[ PARKING ].dir_size, g_dir[ PARKING_EVENT ].dir_size, g_dir[ HANDWORK ].dir_size );
 #endif
 
-
+	//while(1);
 #if 0
 
 	//전체 크기에서 1% 뺀 크기를 기준으로 디렉터리가 꽉 찼는지 판단
@@ -276,12 +283,13 @@ int main( int argc, char *argv[] )
 		printf("USAGE : ./a.out target_direcotry.txt \n");
 		return 0;
 	}
+		
 	dir_cnt = open_files( argv[1], dirs, &buf ); //target_direcotry
 	//view_dirs( dirs, dir_cnt );
-	cnt = open_files( "/mnt/BXFS_CON", config_line, &config_buf ); //read config file  //mnt/ 위치는 수정되어야 함
+	cnt = open_files( "/home/odroid/mount/BXFS_CON", config_line, &config_buf ); //read config file  //mnt/ 위치는 수정되어야 함
 	//view_dirs( config_line, cnt );
 	cnt = open_files( "/sys/fs/OPEL_FAT/control", &sysfs_line, &sysfs_buf ); //FAT Policy
-//	view_dirs( &sysfs_line, cnt );
+	view_dirs( &sysfs_line, cnt );
 
 	init( dir_cnt, dirs, config_line, sysfs_line );
 	printf("dir_cnt : %d \n", dir_cnt );

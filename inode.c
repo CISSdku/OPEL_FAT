@@ -737,7 +737,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	{
 
 #ifdef __DEBUG__
-		printk("[cheon] ETC & FULL of any partitioning  : Using normal allocation \n");
+//		printk("[cheon] ETC & FULL of any partitioning  : Using normal allocation \n");
 #endif
 		goto NORMAL_ALLOC;			
 	}

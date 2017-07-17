@@ -31,7 +31,8 @@ static unsigned long dir_size( char *dn)
 	FILE *fp = NULL;
 //	char *stn = "du -scb /mnt/normal/* | grep 합계";
 	char stn[ STN_SIZE ];
-	char *ch[2]  = {  "du -scb ", "* | grep 합계" };
+	//char *ch[2]  = {  "du -scb ", "* | grep 합계" };
+	char *ch[2]  = {  "du -scb ", "* | grep total" };
 
 	char buf[50];
 	char *size = NULL;
