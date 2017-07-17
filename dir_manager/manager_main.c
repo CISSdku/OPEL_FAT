@@ -276,14 +276,12 @@ int main( int argc, char *argv[] )
 		printf("USAGE : ./a.out target_direcotry.txt \n");
 		return 0;
 	}
-	
 	dir_cnt = open_files( argv[1], dirs, &buf ); //target_direcotry
 	//view_dirs( dirs, dir_cnt );
 	cnt = open_files( "/mnt/BXFS_CON", config_line, &config_buf ); //read config file  //mnt/ 위치는 수정되어야 함
 	//view_dirs( config_line, cnt );
 	cnt = open_files( "/sys/fs/OPEL_FAT/control", &sysfs_line, &sysfs_buf ); //FAT Policy
 //	view_dirs( &sysfs_line, cnt );
-
 
 	init( dir_cnt, dirs, config_line, sysfs_line );
 	printf("dir_cnt : %d \n", dir_cnt );
