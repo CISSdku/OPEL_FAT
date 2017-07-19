@@ -9,7 +9,7 @@
 #include <linux/blkdev.h>
 #include "fat.h"
 
-#define __DEBUG__
+//#define __DEBUG__
 //#define __ORIGINAL_FAT_TEST__
 
 

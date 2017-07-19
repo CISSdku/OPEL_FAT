@@ -10,7 +10,7 @@
  *	Max Cohan: Fixed invalid FSINFO offset when info_sector is 0
  */
 
-#define __DEBUG__
+//#define __DEBUG__
 
 #include <linux/module.h>
 #include <linux/init.h>

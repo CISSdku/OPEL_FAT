@@ -92,7 +92,8 @@ static void file_old_remove( char *dn, int selected_dir )
 	remove(old_name);
 	closedir( dir );
 	//printf("Old file remove : %s \t  %lu \t  %lu \t %lu M \t %d\n",old_name, temp_st.st_size /1024, dir_size( dn ) /1024, g_dir[ selected_dir ].check_portion/1024, g_dir[ selected_dir ].full_count );
-	printf("Old file remove %15s\tmtime %12lu\tnsec %12lu\tdir_size %8lu\tcheck_portion %lu full_count %5d \n",old_name, temp_st.st_mtime, temp_st.st_mtim.tv_nsec, dir_size( dn ) /1024, g_dir[ selected_dir ].check_portion/1024, g_dir[ selected_dir ].full_count );
+//	printf("Old file remove %15s\tmtime %12lu\tnsec %12lu\tdir_size %8lu\tcheck_portion %lu full_count %5d \n",old_name, temp_st.st_mtime, temp_st.st_mtim.tv_nsec, dir_size( dn ) /1024, g_dir[ selected_dir ].check_portion/1024, g_dir[ selected_dir ].full_count );
+	printf("Old file remove %15s\tdir_size %8lu\tcheck_portion %lu full_count %5d \n",old_name, dir_size( dn ) /1024, g_dir[ selected_dir ].check_portion/1024, g_dir[ selected_dir ].full_count );
 }
 
 void detect_and_control( char **dirs, int dir_cnt )

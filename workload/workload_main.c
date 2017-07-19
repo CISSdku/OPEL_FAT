@@ -194,8 +194,12 @@ int main( int argc, char *argv[] )
 //	printf("test\n");
 	while(1)
 	{
-//		if( load_flag == ON )
-//			sleep(1);
+		if( load_flag == ON )
+		{
+			sleep(20);
+			sync();
+			
+		}
 
 //		usleep(10000);
 		
