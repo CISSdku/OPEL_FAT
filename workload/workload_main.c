@@ -194,8 +194,8 @@ int main( int argc, char *argv[] )
 //	printf("test\n");
 	while(1)
 	{
-//		if( load_flag == ON )
-//			sleep(1);
+		if( load_flag == ON )
+			sleep(10);
 
 //		usleep(10000);
 		

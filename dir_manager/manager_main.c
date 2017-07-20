@@ -108,7 +108,8 @@ static void total_size_SD_card( unsigned long *total_size )
 	char buf[50];
 	char *size = NULL;
 
-	fp = popen( "df -h | grep /dev/mmcblk1" ,"r" ); // 수정
+	fp = popen( "df -h | grep /dev/sbd" ,"r" ); // 수정
+	//fp = popen( "df -h | grep /dev/mmcblk1" ,"r" ); // 수정
 
 	if( fp == NULL )
 		printf("Error opening : %s\n", strerror( errno ) );	
@@ -139,7 +140,8 @@ static void current_size_SD_card( unsigned long *current_size )
 	char *size = NULL;
 	int tmp_len;
 
-	fp = popen( "du -sh /home/odroid/mount/" ,"r" ); // 수정
+	fp = popen( "du -sh /mnt/" ,"r" ); // 수정
+	//fp = popen( "du -sh /home/odroid/mount/" ,"r" ); // 수정
 
 	if( fp == NULL )
 		printf("Error opening : %s\n", strerror( errno ) );	
@@ -286,7 +288,8 @@ int main( int argc, char *argv[] )
 		
 	dir_cnt = open_files( argv[1], dirs, &buf ); //target_direcotry
 	//view_dirs( dirs, dir_cnt );
-	cnt = open_files( "/home/odroid/mount/BXFS_CON", config_line, &config_buf ); //read config file  //mnt/ 위치는 수정되어야 함
+	//cnt = open_files( "/home/odroid/mount/BXFS_CON", config_line, &config_buf ); //read config file  //mnt/ 위치는 수정되어야 함
+	cnt = open_files( "/mnt/BXFS_CON", config_line, &config_buf ); //read config file  //mnt/ 위치는 수정되어야 함
 	//view_dirs( config_line, cnt );
 	cnt = open_files( "/sys/fs/OPEL_FAT/control", &sysfs_line, &sysfs_buf ); //FAT Policy
 	view_dirs( &sysfs_line, cnt );
