@@ -1,4 +1,4 @@
-SD_DEV =/dev/mmcblk1
-FS_MNT_PWD =/home/odroid/mount/
-FS_CONFIG_FILE =/home/odroid/mount/BXFS_CON
+SD_DEV =/dev/sbd
+FS_MNT_PWD =/mnt/
+FS_CONFIG_FILE =/mnt/BXFS_CON
 

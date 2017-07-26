@@ -247,6 +247,9 @@ int fat_get_cluster(struct inode *inode, int cluster, int *fclus, int *dclus)
 	}
 
 	fatent_init(&fatent);
+
+	//printk("fat_get_cluster\n");
+
 	while (*fclus < cluster) {
 		/* prevent the infinite loop of cluster chain */
 		if (*fclus > limit) {
@@ -259,6 +262,7 @@ int fat_get_cluster(struct inode *inode, int cluster, int *fclus, int *dclus)
 		}
 
 		nr = fat_ent_read(inode, &fatent, *dclus);
+	//	printk("%d ", nr );
 		if (nr < 0)
 			goto out;
 		else if (nr == FAT_ENT_FREE) {

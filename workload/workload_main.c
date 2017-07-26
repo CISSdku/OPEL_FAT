@@ -166,7 +166,9 @@ int main( int argc, char *argv[] )
 		sinario,
 		selected_dir,
 		load_flag, // load  flag on 되면 
-		line_to_read;
+		line_to_read,
+		line_cnt = 0;
+	
 
 	srand( time( NULL ) );
 	if( argc < 4 )
@@ -190,15 +192,24 @@ int main( int argc, char *argv[] )
 	view_dirs( dirs, dir_cnt );
 	init( sinario, &selected_dir, argv[3], &load_flag );
 
+	line_to_read = atoi( argv[4] );
+
 
 //	printf("test\n");
 	while(1)
 	{
 		if( load_flag == ON )
 		{
-			sleep(20);
-			sync();
+			sleep(1);
+//			sync();
 			
+		}
+		
+		line_cnt++;
+		if( line_cnt >= line_to_read )
+		{
+			printf("I have reached the goal line\n");
+			break;
 		}
 
 //		usleep(10000);

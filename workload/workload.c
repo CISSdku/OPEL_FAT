@@ -31,8 +31,8 @@ static unsigned long dir_size( char *dn)
 	FILE *fp = NULL;
 //	char *stn = "du -scb /mnt/normal/* | grep 합계";
 	char stn[ STN_SIZE ];
-	//char *ch[2]  = {  "du -scb ", "* | grep 합계" };
-	char *ch[2]  = {  "du -scb ", "* | grep total" };
+	char *ch[2]  = {  "du -scb ", "* | grep 합계" };
+//	char *ch[2]  = {  "du -scb ", "* | grep total" };
 
 	char buf[50];
 	char *size = NULL;
@@ -98,8 +98,8 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 		//	result = random_range( 7 * 1024 * 1024, 8 * 1024 * 1024 ); 
 		//	result = random_range( 512 * 1024, 1 * 1024 * 1024 ); 
 //			result = 30 * 1024 * 1024;
-			result = random_range( 29 * 1024 * 1024, 31 * 1024 * 1024 );
-			
+		//	result = random_range( 29 * 1024 * 1024, 31 * 1024 * 1024 );
+			result = 	32 * 1024 * 1024; 
 
 		}
 		else  //AUTOMATION
@@ -114,10 +114,10 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 				case PARKING 		: result = random_range( 30 * 1024 * 1024, 32 * 1024 * 1024 );   break;//주차
 				case PARKING_EVENT  : result = random_range( 30 * 1024 * 1024, 32 * 1024 * 1024 );     break; //주차 이벤트
 #endif
-				case NORMAL 		: result = 	30 * 1024 * 1024;   break;//상시
-				case NORMAL_EVENT 	: result =  30 * 1024 * 1024; break;//상시 이벤트
-				case PARKING 		: result =  30 * 1024 * 1024;  break;//주차
-				case PARKING_EVENT  : result =  30 * 1024 * 1024;    break; //주차 이벤트
+				case NORMAL 		: result = 	20 * 1024 * 1024;   break;//상시
+				case NORMAL_EVENT 	: result =  20 * 1024 * 1024; break;//상시 이벤트
+				case PARKING 		: result =  20 * 1024 * 1024;  break;//주차
+				case PARKING_EVENT  : result =  20 * 1024 * 1024;    break; //주차 이벤트
 
 				default : break;
 			}
@@ -374,7 +374,7 @@ static int detect_file_counter( int file_counter, int load_flag )
 void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 {
 	FILE *fd;
-	//int fd;
+//	int fd;
 	char fn[ NAME_SIZE ];//, in_name[10];
 	char temp_full_file[ NAME_SIZE ];
 	int k;

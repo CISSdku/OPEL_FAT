@@ -287,6 +287,10 @@ static int fat_free(struct inode *inode, int skip)
 	struct super_block *sb = inode->i_sb;
 	int err, wait, free_start, i_start, i_logstart;
 
+	//////test
+	struct msdos_sb_info *sbi = MSDOS_SB( sb );
+
+
 	if (MSDOS_I(inode)->i_start == 0)
 		return 0;
 
@@ -321,7 +325,7 @@ static int fat_free(struct inode *inode, int skip)
 		struct fat_entry fatent;
 		int ret, fclus, dclus;
 
-		printk( KERN_ALERT "[cheon] fat_free skip test2 \n");
+		//printk( KERN_ALERT "[cheon] fat_free skip test2 : %u \n", sbi->bx_free_clusters[ BB_NORMAL ]);
 		ret = fat_get_cluster(inode, skip - 1, &fclus, &dclus);
 		if (ret < 0)
 			return ret;
@@ -334,9 +338,10 @@ static int fat_free(struct inode *inode, int skip)
 			fatent_brelse(&fatent);
 			return 0;
 		} else if (ret == FAT_ENT_FREE) {
-			fat_fs_error(sb,
-				     "%s: invalid cluster chain (i_pos %lld)",
-				     __func__, MSDOS_I(inode)->i_pos);
+			//7/27
+	//		fat_fs_error(sb,
+	//			     "%s: invalid cluster chain (i_pos %lld)",
+	//			     __func__, MSDOS_I(inode)->i_pos);
 			ret = -EIO;
 		} else if (ret > 0) {
 			err = fat_ent_write(inode, &fatent, FAT_ENT_EOF, wait);

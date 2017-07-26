@@ -843,6 +843,8 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 				{
 					int entry = fatent.entry;
 
+//					printk("%d ", entry );
+
 					/* make the cluster chain */
 					ops->ent_put(&fatent, FAT_ENT_EOF);
 					if (prev_ent.nr_bhs)
@@ -983,22 +985,44 @@ int fat_free_clusters(struct inode *inode, int cluster)
 
 				#ifndef __ORIGINAL_FAT_TEST__
 				if( sbi->bx_start_cluster[ BB_ETC ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_ETC ] )
+				{
 					(sbi->bx_free_clusters[ BB_ETC ])++;
+				//	printk( KERN_ALERT "[cheon] sbi->free_clusters : %d sbi->bx_free_clusters[BB_ETC] : %d \n", sbi->free_clusters, sbi->bx_free_clusters[ BB_ETC ] ); 
+				}
 
 				else if( sbi->bx_start_cluster[ BB_NORMAL ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_NORMAL ] )
+				{
 					(sbi->bx_free_clusters[ BB_NORMAL ])++;
+					//printk( KERN_ALERT "[cheon] sbi->free_clusters : %d sbi->bx_free_clusters[BB_NORMAL] : %d \n", sbi->free_clusters, sbi->bx_free_clusters[ BB_NORMAL ] ); 
+					//printk( KERN_ALERT "%d ", sbi->bx_free_clusters[ BB_NORMAL ] ); 
+				//	printk( KERN_ALERT "%d ", fatent.entry ); 
+				}
 
 				else if( sbi->bx_start_cluster[ BB_NORMAL_EVENT ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_NORMAL_EVENT ] )
+				{
 					(sbi->bx_free_clusters[ BB_NORMAL_EVENT ])++;
+				//	printk( KERN_ALERT "[cheon] sbi->free_clusters : %d sbi->bx_free_clusters[BB_NORMAL_EVENT] : %d \n", sbi->free_clusters, sbi->bx_free_clusters[ BB_NORMAL_EVENT ] ); 
+				}
 
 				else if( sbi->bx_start_cluster[ BB_PARKING ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_PARKING ] )
+				{
 					(sbi->bx_free_clusters[ BB_PARKING ])++;
+				//	printk( KERN_ALERT "[cheon] sbi->free_clusters : %d sbi->bx_free_clusters[BB_PARKING] : %d \n", sbi->free_clusters, sbi->bx_free_clusters[ BB_PARKING ] ); 
+				}
 
 				else if( sbi->bx_start_cluster[ BB_MANUAL ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_MANUAL ] )
+				{
 					(sbi->bx_free_clusters[ BB_MANUAL ])++;
+				//	printk( KERN_ALERT "[cheon] sbi->free_clusters : %d sbi->bx_free_clusters[BB_MANUAL] : %d \n", sbi->free_clusters, sbi->bx_free_clusters[ BB_MANUAL ] ); 
+				}
 
 				else if( sbi->bx_start_cluster[ BB_IMAGE ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_IMAGE ] )
+				{
 					(sbi->bx_free_clusters[ BB_IMAGE ])++;
+				//	printk( KERN_ALERT "[cheon] sbi->free_clusters : %d sbi->bx_free_clusters[BB_IMAGE] : %d \n", sbi->free_clusters, sbi->bx_free_clusters[ BB_IMAGE ] ); 
+				}
+				else
+					printk( KERN_ALERT "[cheon] ?????? \n" );
 				#endif
 
 
@@ -1011,6 +1035,9 @@ int fat_free_clusters(struct inode *inode, int cluster)
 			}
 			dirty_fsinfo = 1;
 		}
+
+
+
 #endif
 		
 		if (nr_bhs + fatent.nr_bhs > MAX_BUF_PER_PAGE) {
