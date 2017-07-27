@@ -18,7 +18,7 @@
 #include "fat.h"
 
 //const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =30\r\n\tBX_NORMAL_EVENT    =20\r\n\tBX_PARKING_EVENT   =10\r\n\tBX_MANUAL       =5\r\n\tBX_IMAGE        =5\r\n\tBX_ETC          =30\r\n\r\nPreallocation Setting[MB]\r\n\tBX_NORMAL      =20\r\n\tBX_NORMAL_EVENT    =20\r\n\tBX_PARKING_EVENT   =20\r\n\tBX_MANUAL      =20\r\n\t\0";
-const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =5\r\n\tBX_NORMAL_EVENT    =45\r\n\tBX_PARKING_EVENT   =10\r\n\tBX_MANUAL       =5\r\n\tBX_IMAGE        =5\r\n\tBX_ETC          =30\r\n\r\nPreallocation Setting[MB]\r\n\tBX_NORMAL      =32\r\n\tBX_NORMAL_EVENT    =32\r\n\tBX_PARKING_EVENT   =32\r\n\tBX_MANUAL      =32\r\n\t\0";
+const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =40\r\n\tBX_NORMAL_EVENT    =20\r\n\tBX_PARKING_EVENT   =10\r\n\tBX_MANUAL       =5\r\n\tBX_IMAGE        =5\r\n\tBX_ETC          =20\r\n\r\nPreallocation Setting[MB]\r\n\tBX_NORMAL      =32\r\n\tBX_NORMAL_EVENT    =32\r\n\tBX_PARKING_EVENT   =32\r\n\tBX_MANUAL      =32\r\n\t\0";
 //const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =70\r\n\tBX_NORMAL_EVENT    =20\r\n\tBX_PARKING_EVENT   =7\r\n\tBX_MANUAL       =2\r\n\tBX_IMAGE        =2\r\n\tBX_ETC          =7\r\n\r\nPreallocation Setting[MB]\r\n\tBX_NORMAL      =28\r\n\tBX_NORMAL_EVENT    =28\r\n\tBX_PARKING_EVENT   =28\r\n\tBX_MANUAL      =28\r\n\t\0";
 //const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =70\r\n\tBX_NORMAL_EVENT    =20\r\n\tBX_PARKING_EVENT   =7\r\n\tBX_MANUAL       =2\r\n\tBX_IMAGE        =2\r\n\tBX_ETC          =7\r\n\r\n";
 
@@ -330,7 +330,7 @@ int fat_config_init(struct super_block *sb)
 		printk("[cheon] opel_vfat_find_form error \n");
 
 
-	printk("[cheon] blknr : %u \n", blknr );
+//	printk("[cheon] blknr : %u \n", blknr );
 
 //	blknr = 16402;
 
@@ -387,7 +387,7 @@ int fat_config_init(struct super_block *sb)
 exist:	
 	//Data read and Set sb info	
 
-	printk("[cheon] Data Read \n");
+	//printk("[cheon] Data Read \n");
 
 //	block_pos = ((sinfo.de->start - 2) * sbi->sec_per_clus ) + sbi->data_start ;
 
@@ -395,7 +395,7 @@ exist:
 	if( opel_vfat_find_form( sbi, root, msdos_name, &blknr ) == -ENOENT )
 		printk("[cheon] opel_vfat_find_form error \n");
 
-	printk("[cheon] blknr : %u \n", blknr );
+//	printk("[cheon] blknr : %u \n", blknr );
 	bh = sb_bread( sb, blknr );	
 	read_config_data( sb, bh->b_data );
 	brelse( bh );

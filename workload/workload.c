@@ -114,10 +114,10 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 				case PARKING 		: result = random_range( 30 * 1024 * 1024, 32 * 1024 * 1024 );   break;//주차
 				case PARKING_EVENT  : result = random_range( 30 * 1024 * 1024, 32 * 1024 * 1024 );     break; //주차 이벤트
 #endif
-				case NORMAL 		: result = 	20 * 1024 * 1024;   break;//상시
-				case NORMAL_EVENT 	: result =  20 * 1024 * 1024; break;//상시 이벤트
-				case PARKING 		: result =  20 * 1024 * 1024;  break;//주차
-				case PARKING_EVENT  : result =  20 * 1024 * 1024;    break; //주차 이벤트
+				case NORMAL 		: result = 	28 * 1024 * 1024;   break;//상시
+				case NORMAL_EVENT 	: result =  28 * 1024 * 1024; break;//상시 이벤트
+				case PARKING 		: result =  28 * 1024 * 1024;  break;//주차
+				case PARKING_EVENT  : result =  28 * 1024 * 1024;    break; //주차 이벤트
 
 				default : break;
 			}

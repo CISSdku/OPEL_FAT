@@ -726,10 +726,15 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	static int test_key = 0;
 
 	////////////////////////////////////////////////////////////////
-//	printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
+	//printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
+	if( sbi->fat_original_flag == ON )
+		goto NORMAL_ALLOC;
+
+	printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
+
 #if 1
 	get_area_number( &area, inode );
-	if( area == BB_ETC || sbi->bb_space_full == ON )
+	if( area == BB_ETC || sbi->fat_original_flag == ON )
 	{
 #ifdef __DEBUG__
 //		printk("[cheon] ETC & FULL of any partitioning  : Using normal allocation \n");
@@ -738,7 +743,6 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	}
 
 //	printk("[cheon] fat_handle_cluster, get_area_number : %d  \n", area );
-	
 	num_pre_alloc = ( sbi->bx_pre_size[ area ] * 1024 ) / ( sbi->cluster_size / 1024 );
 //	printk("[cheon] num_pre_alloc : %d \n", num_pre_alloc );
 //	printk("[cheon] bx_pre_size : %u sbi->cluster_size : %u \n", sbi->bx_pre_size[ area ], sbi->cluster_size );
@@ -752,25 +756,17 @@ int fat_handle_cluster( struct inode *inode, int mode )
 #endif
 	//Name Check
 	dentry = list_entry( inode->i_dentry.first, struct dentry, d_u.d_alias );
-	if( dentry == NULL )
+	if( dentry == NULL || strstr( dentry->d_name.name, "avi" ) == NULL )
 	{
-		printk("[cheon] dentry pointer is NULL \n");
+	//	printk("[cheon] dentry pointer is NULL || not avi \n");
 		goto NORMAL_ALLOC;
 	} 
-
 	//printk("[cheon] File Name : %s \n", dentry->d_name.name );
-	if( strstr( dentry->d_name.name, "avi" ) == NULL )
-	{
-		//영상 파일이 아니면	
-		goto NORMAL_ALLOC;
-	}
-		
+	
 	inum = inode->i_ino; //Stat data, not accessed from path walking
 	pre_count = 0;
-
 	
 	//Pre-Allocation Wrork ( In practice : Iteration of allocation work 
-
 	next_start = sbi->bx_next_start[ area ]; //초기화 확인
 	//printk("[cheon] inode->i_ino : %lu, next_start : %u \n", inum, next_start );	
 	
@@ -1058,6 +1054,66 @@ void check_page_align( unsigned int *cluster, unsigned int max_cluster, unsigned
 		    *cluster = *cluster - CLUSTER_IN_PAGE;
 	//*cluster = &cluster - CLUSTER_IN_PAGE;
 }
+int fat_just_init_super(struct super_block *sb)
+{
+	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+
+	sbi->bx_free_valid = -1;
+
+	sbi->bx_area_ratio[ BB_NORMAL		 ]    = 10;
+	sbi->bx_area_ratio[ BB_NORMAL_EVENT  ]    = 10;
+	sbi->bx_area_ratio[ BB_PARKING 		 ]    = 10;
+	sbi->bx_area_ratio[ BB_MANUAL 		 ]    = 10;
+	sbi->bx_area_ratio[ BB_IMAGE         ]    = 10;
+	sbi->bx_area_ratio[ BB_ETC 			 ] 	  = 10;
+
+	sbi->bx_pre_size[ BB_NORMAL ]    	  = 20;
+	sbi->bx_pre_size[ BB_NORMAL_EVENT ]   = 20;
+	sbi->bx_pre_size[ BB_PARKING ]		  = 20;
+	sbi->bx_pre_size[ BB_MANUAL ]  		  = 20;
+
+	sbi->bx_start_cluster[ BB_ETC          ] = FAT_START_ENT + 2;
+	sbi->bx_start_cluster[ BB_NORMAL       ] = FAT_START_ENT + 2 + COUNT_AREA_0;
+	sbi->bx_start_cluster[ BB_NORMAL_EVENT ] = FAT_START_ENT + 2 + COUNT_AREA_0 + ( COUNT_AREA_1 );  //10M + 400k : 400k는 여유 공간
+	sbi->bx_start_cluster[ BB_PARKING      ] = FAT_START_ENT + 2 + COUNT_AREA_0 + ( COUNT_AREA_1 ) + COUNT_AREA_2;
+	sbi->bx_start_cluster[ BB_MANUAL       ] = FAT_START_ENT + 2 + COUNT_AREA_0 + ( COUNT_AREA_1 ) + COUNT_AREA_2 + COUNT_AREA_3;
+	sbi->bx_start_cluster[ BB_IMAGE        ] = FAT_START_ENT + 2 + COUNT_AREA_0 + ( COUNT_AREA_1 ) + COUNT_AREA_2 + COUNT_AREA_3 + COUNT_AREA_4;
+
+	sbi->bx_end_cluster[  BB_ETC         ] = sbi->bx_start_cluster[ BB_NORMAL       ] - 1;
+	sbi->bx_end_cluster[  BB_NORMAL      ] = sbi->bx_start_cluster[ BB_NORMAL_EVENT ] - 1;
+	sbi->bx_end_cluster[  BB_NORMAL_EVENT] = sbi->bx_start_cluster[ BB_PARKING      ] - 1;
+	sbi->bx_end_cluster[  BB_PARKING     ] = sbi->bx_start_cluster[ BB_MANUAL       ] - 1;
+	sbi->bx_end_cluster[  BB_MANUAL      ] = sbi->bx_start_cluster[ BB_IMAGE        ] - 1;
+	sbi->bx_end_cluster[  BB_IMAGE       ] = sbi->bx_start_cluster[ BB_IMAGE ] + COUNT_AREA_5 - 1;
+
+	sbi->bx_prev_free[ BB_ETC ]			 = sbi->bx_start_cluster[ BB_ETC ];
+	sbi->bx_prev_free[ BB_NORMAL ]		 = sbi->bx_start_cluster[ BB_NORMAL ];
+	sbi->bx_prev_free[ BB_NORMAL_EVENT ] = sbi->bx_start_cluster[ BB_NORMAL_EVENT ];
+	sbi->bx_prev_free[ BB_PARKING ]		 = sbi->bx_start_cluster[ BB_PARKING ];
+	sbi->bx_prev_free[ BB_MANUAL ]		 = sbi->bx_start_cluster[ BB_MANUAL ];
+	sbi->bx_prev_free[ BB_IMAGE ] 		 = sbi->bx_start_cluster[ BB_IMAGE ];
+
+	sbi->bx_next_start[ BB_ETC ]			= -1;
+	sbi->bx_next_start[ BB_NORMAL ]			= -1;
+	sbi->bx_next_start[ BB_NORMAL_EVENT ]	= -1;
+	sbi->bx_next_start[ BB_PARKING ]		= -1;
+	sbi->bx_next_start[ BB_MANUAL ]			= -1;
+	sbi->bx_next_start[ BB_IMAGE ] 			= -1;
+
+	sbi->bx_free_clusters[ BB_ETC ]			 = 0;
+	sbi->bx_free_clusters[ BB_NORMAL ]		 = 0;
+	sbi->bx_free_clusters[ BB_NORMAL_EVENT ] = 0;
+	sbi->bx_free_clusters[ BB_PARKING ]		 = 0;
+	sbi->bx_free_clusters[ BB_MANUAL ]		 = 0;
+	sbi->bx_free_clusters[ BB_IMAGE ] 		 = 0;
+	
+	sbi->fat_original_flag = OFF;	
+	fat_count_free_clusters_for_area( sb );
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL( fat_just_init_super );
+
 
 int fat_update_super(struct super_block *sb){
 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
@@ -1099,7 +1155,7 @@ int fat_update_super(struct super_block *sb){
 	sbi->bx_end_cluster[ BB_MANUAL       ] = sbi->bx_start_cluster[ BB_IMAGE ] - 1;
 	sbi->bx_end_cluster[ BB_IMAGE        ] = sbi->max_cluster - 1;
 #endif
-
+	
 #if 0
 	sbi->bx_start_cluster[ BB_ETC          ] = FAT_START_ENT + 2;
 	sbi->bx_start_cluster[ BB_NORMAL       ] = FAT_START_ENT + 2 + COUNT_AREA_0;
@@ -1137,10 +1193,8 @@ int fat_update_super(struct super_block *sb){
 	sbi->bx_free_clusters[ BB_MANUAL ]		 = 0;
 	sbi->bx_free_clusters[ BB_IMAGE ] 		 = 0;
 	
-	sbi->bb_file_start = sbi->bx_start_cluster[ BB_NORMAL ]; 
 	//초기화
-	sbi->bb_space_full = 0;	
-	sbi->bb_no_alloc = 0;
+	sbi->fat_original_flag = OFF;	
 
 	fat_count_free_clusters_for_area( sb );
 
@@ -1178,7 +1232,7 @@ int fat_update_super(struct super_block *sb){
 			sbi->bx_free_clusters[ BB_PARKING ] == 0 || sbi->bx_free_clusters[ BB_MANUAL ] == 0 || sbi->bx_free_clusters[ BB_IMAGE ] == 0 )
 	{
 		printk("[cheon] Any part is full, Our policy turn into a original FAT \n");
-		sbi->bb_space_full = ON;		
+		sbi->fat_original_flag = ON;		
 	}
 
 

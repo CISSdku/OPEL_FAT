@@ -10,9 +10,11 @@
 #include <linux/ratelimit.h>
 #include <linux/msdos_fs.h>
 
+#define SD1_S_ID "test"
+#define SD2_S_ID "sbd"
+
 #define OFF 0
 #define ON 1
-
 
 #define NUM_1	1  //normal
 #define NUM_2	2  //normal_event
@@ -22,17 +24,12 @@
 
 #define NUM_6	0  //etc
 
-
 //각각의 이벤트들이 확실히 정의되어 있지 않아서 그냥 DIR이라고 칭함
 #define DIR_1 		 "normal"
 #define DIR_2 		 "normal_event"
 #define DIR_3 		 "parking"
 #define DIR_4		 "parking_event"
 #define DIR_5		 "handwork"
-
-
-
-
 
 //////////////////////////////////////////////////////////////////////////
 //이것도 수정해야하는데..
@@ -54,10 +51,6 @@
 
 #define ETC_DIRECTORY 				 "etc"
 //#define IMAGE_DIRECTORY "image"
-
-
-
-
 
 //-----------------------------------------// 
 //          Physical Page information
@@ -216,15 +209,13 @@ struct msdos_sb_info {
 
 	// for test, time value
 	unsigned int i_ino;
-	const char* file_name;
 	unsigned int time;
 	unsigned int count;
 	
-	//new test cheon
-	unsigned int bb_file_start;
-	unsigned int bb_space_full;
-	unsigned int bb_no_alloc;
+//	unsigned int bb_space_full;
 
+	int fat_original_flag;
+	const char* file_name;
 };
 
 #define FAT_CACHE_VALID	0	/* special case for valid cache */
@@ -483,6 +474,7 @@ extern int view_fatent_entry( void );
 extern void get_area_number( int *area, struct inode *inode );
 
 
+extern int fat_just_init_super(struct super_block *sb);
 extern int fat_update_super(struct super_block *sb);
 extern int fat_config_init(struct super_block *sb);
 

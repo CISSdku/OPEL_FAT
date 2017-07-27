@@ -154,10 +154,10 @@ static int fat_file_release(struct inode *inode, struct file *filp)
 
 	//Edir for free to pre allocated clusters and reupdate DE 
 
-	get_area_number( &area_num, inode );
-	pre_alloc_size = sbi->bx_pre_size[ area_num ] * 1024 * 1024; //MB
+//	get_area_number( &area_num, inode );
+//	pre_alloc_size = sbi->bx_pre_size[ area_num ] * 1024 * 1024; //MB
 
-	if( area_num == BB_ETC || sbi->bb_space_full == ON );
+	if( area_num == BB_ETC || sbi->fat_original_flag == ON );
 
 	else if( pre_alloc_size < inode->i_size )
 	{
@@ -165,19 +165,19 @@ static int fat_file_release(struct inode *inode, struct file *filp)
 	}
 	else 
 	{
-		int differ = (pre_alloc_size - used_size) / ((pre_alloc_size) / 100 ) ;
+//		int differ = (pre_alloc_size - used_size) / ((pre_alloc_size) / 100 ) ;
 
 #ifdef __DEBUG__
-		printk("[cheon] area num %d, pre_alloc size %u \n",    area_num, pre_alloc_size);
-		printk("[cheon] File size Check, Pre : %u, Real : %u, differ %d \n", pre_alloc_size, (unsigned int)inode->i_size, differ);
+//		printk("[cheon] area num %d, pre_alloc size %u \n",    area_num, pre_alloc_size);
+//		printk("[cheon] File size Check, Pre : %u, Real : %u, differ %d \n", pre_alloc_size, (unsigned int)inode->i_size, differ);
 #endif
 		//if(differ >= BX_REUPDATE_META_DIFFER){
 		//if((pre_alloc_size - used_size) > 1048576){
 		if(1){
 
 #ifdef __DEBUG__
-			printk("[cheon] =============================================\n");
-			printk("[cheon] Occur De/FAT reupdate \n");
+	//		printk("[cheon] =============================================\n");
+	//		printk("[cheon] Occur De/FAT reupdate \n");
 #endif
 			//Not used space is exceed threshold, need to update meta data.
 
@@ -200,7 +200,7 @@ static int fat_file_release(struct inode *inode, struct file *filp)
 
 
 #ifdef __DEBUG__
-			printk("[cheon] Not occur De/FAT reupdate \n");
+	//		printk("[cheon] Not occur De/FAT reupdate \n");
 #endif
 
 			//write_jdata_inode(inode->i_sb, inode, BX_JOUR_WITHOUT_REUPDATE);
@@ -339,9 +339,9 @@ static int fat_free(struct inode *inode, int skip)
 			return 0;
 		} else if (ret == FAT_ENT_FREE) {
 			//7/27
-	//		fat_fs_error(sb,
-	//			     "%s: invalid cluster chain (i_pos %lld)",
-	//			     __func__, MSDOS_I(inode)->i_pos);
+			fat_fs_error(sb,
+				     "%s: invalid cluster chain (i_pos %lld)",
+				     __func__, MSDOS_I(inode)->i_pos);
 			ret = -EIO;
 		} else if (ret > 0) {
 			err = fat_ent_write(inode, &fatent, FAT_ENT_EOF, wait);

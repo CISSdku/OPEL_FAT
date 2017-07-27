@@ -25,7 +25,8 @@
 #include <linux/namei.h>
 #include "fat.h"
 
-char manager_control_buff[10]; 
+char manager_control_sd1[20]; 
+char manager_control_sd2[20]; 
 
 /*
  * If new entry was created in the parent, it could create the 8.3
@@ -1126,27 +1127,43 @@ static void setup(struct super_block *sb)
 static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 {
 	int res;	
-	//struct msdos_sb_info *sbi = MSDOS_SB(sb); 
+//	struct msdos_sb_info *sbi = MSDOS_SB(sb); 
+	printk( "[cheon] vfat_fill_super  S_ID : %s\n", sb->s_id  );
 
 	res = fat_fill_super(sb, data, silent, 1, setup);
-
-	fat_config_init( sb );
-	fat_update_super( sb );
-
 	struct msdos_sb_info *sbi = MSDOS_SB(sb); //여기에 있어야 함
-	
-	if( sbi->bb_space_full == ON )
+
+	if( !strcmp( sb->s_id, SD1_S_ID ) || !strcmp( sb->s_id, SD2_S_ID ) ) //if this device is SD card 
 	{
-		printk("1111\n");
-		strcpy( manager_control_buff, "START_ORIGINAL" );
+		printk("SD_card\n");
+		fat_config_init( sb );
+		fat_update_super( sb );
+
+		if( sbi->fat_original_flag == ON )
+		{
+			if( !strcmp( sb->s_id, SD1_S_ID ) )
+				strcpy( manager_control_sd1, "START_ORIGINAL" );
+			else
+				strcpy( manager_control_sd2, "START_ORIGINAL" );
+		}
+		else  //OPEL
+		{
+			if( !strcmp( sb->s_id, SD1_S_ID ) )
+				strcpy( manager_control_sd1, "START_OPEL" );
+			else
+				strcpy( manager_control_sd2, "START_OPEL" );
+		}
+
+		printk( KERN_ALERT "manager_control_sd1 : %s \n", manager_control_sd1 );
+		printk( KERN_ALERT "manager_control_sd2 : %s \n", manager_control_sd2 );
 	}
 	else
-	{	
-		printk("222\n");
-		strcpy( manager_control_buff, "START_OPEL" );
+	{
+		printk("For Android\n");
+	
+		fat_just_init_super( sb ); //단지 그냥 초기화
+		sbi->fat_original_flag = ON;
 	}
-
-	printk( KERN_ALERT "vfat_fill_super : %s \n", manager_control_buff );
 
 	return res;
 }
@@ -1164,12 +1181,18 @@ static struct dentry *vfat_mount(struct file_system_type *fs_type,
 #if 1
 static struct kobject *opel_fat_kobj;
 
-static ssize_t control_show( struct kobject *kobj, struct kobj_attribute *attr, char *buff )
+static ssize_t control_show_s1( struct kobject *kobj, struct kobj_attribute *attr, char *buff )
 {
-	printk( KERN_ALERT "[cheon] sysfs control_show() : %s\n", manager_control_buff );
+	printk( KERN_ALERT "[cheon] sysfs control_show_s1() : %s\n", manager_control_sd1 );
 	
-	return snprintf( buff, PAGE_SIZE, "%s \n", manager_control_buff );
-//	return sizeof( buff );
+	return snprintf( buff, PAGE_SIZE, "%s \n", manager_control_sd1 );
+}
+
+static ssize_t control_show_s2( struct kobject *kobj, struct kobj_attribute *attr, char *buff )
+{
+	printk( KERN_ALERT "[cheon] sysfs control_show_s2() : %s\n", manager_control_sd2 );
+	
+	return snprintf( buff, PAGE_SIZE, "%s \n", manager_control_sd2 );
 }
 
 static ssize_t control_store( struct kobject *kobj, struct kobj_attribute *attr, const char *buff, size_t count )
@@ -1184,13 +1207,13 @@ static ssize_t control_store( struct kobject *kobj, struct kobj_attribute *attr,
 	return count;
 }
 
-static struct kobj_attribute control_attr = __ATTR( control, 0644, control_show, control_store );
-
+static struct kobj_attribute control_attr1 = __ATTR( SD1_control, 0644, control_show_s1, control_store );
+static struct kobj_attribute control_attr2 = __ATTR( SD2_control, 0644, control_show_s2, control_store );
 
 //static struct kobj_attribute version_attr = __ATTR_RO( version);
-
 static struct attribute *attributes[ ] = {
-	    &control_attr.attr,
+	    &control_attr1.attr,
+	    &control_attr2.attr,
 		NULL,
 };
 

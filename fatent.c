@@ -721,8 +721,6 @@ out:
 int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 {
 	struct super_block *sb = inode->i_sb;
-	
-//	test_sb = sb;
 	temp_sb = sb;
 
 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
@@ -733,27 +731,26 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 	
 	struct dentry *dentry = NULL;
 	struct dentry *p_dentry = NULL;
-	int area; //proper work area number for inode
+	int area = 0; //proper work area number for inode
 
 	BUG_ON(nr_cluster > (MAX_BUF_PER_PAGE / 2));	/* fixed limit */
 
 	//printk( KERN_ALERT "[cheon] =================fat_alloc_clusters=============== \n");
-#if 1
 	//[cheon]
 	//Get File name & parent directory name
-	dentry = list_entry( inode->i_dentry.first, struct dentry, d_u.d_alias );
-	p_dentry = dentry->d_parent;
+//	dentry = list_entry( inode->i_dentry.first, struct dentry, d_u.d_alias );
+//	p_dentry = dentry->d_parent;
 
 	//check area number from d_parent
-	get_area_number( &area, inode );
+//	get_area_number( &area, inode );
 
+#if 0
 #ifdef __ORIGINAL_FAT_TEST__
 	if( area == BB_ETC )
 		area = BB_ETC;
 	else
 		area = BB_NORMAL;
 #endif
-
 #endif
 	lock_fat(sbi);
 	if (sbi->free_clusters != -1 && sbi->free_clus_valid &&
@@ -762,10 +759,11 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 		unlock_fat(sbi);
 		return -ENOSPC;
 	}
-#ifndef __ORIGINAL_FAT_TEST__
+//#ifndef __ORIGINAL_FAT_TEST__
 
-	if( sbi->bb_space_full == OFF )
+	if( sbi->fat_original_flag == OFF )
 	{
+		get_area_number( &area, inode );
 		//Free space check for each area
 		if( sbi->bx_free_clusters[ area ] < nr_cluster )
 		{
@@ -776,9 +774,7 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 		}
 	}
 
-#endif
-//	sbi->bb_no_alloc = 0;		
-
+//#endif
 
 //	full_sw = 0;
 	err = nr_bhs = idx_clus = 0;
@@ -786,8 +782,10 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 	fatent_init(&prev_ent);
 	fatent_init(&fatent);
 	
-//	fatent_set_entry(&fatent, sbi->prev_free + 1);
-	fatent_set_entry(&fatent, sbi->bx_prev_free[area] + 0 );
+	if( sbi->fat_original_flag == ON )
+		fatent_set_entry(&fatent, sbi->prev_free + 1);
+	else
+		fatent_set_entry(&fatent, sbi->bx_prev_free[area] + 0 );
 
 	while (count < sbi->max_cluster) {
 		if (fatent.entry >= sbi->max_cluster)
@@ -800,7 +798,7 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 		/* Find the free entries in a block */
 		do {
 
-			if( sbi->bb_space_full == ON ) 
+			if( sbi->fat_original_flag == ON ) 
 			{
 				if (ops->ent_get(&fatent) == FAT_ENT_FREE )
 				{
@@ -815,7 +813,7 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 					fat_collect_bhs(bhs, &nr_bhs, &fatent);
 
 					sbi->prev_free = entry;
-					sbi->bx_prev_free[ area ] = entry;
+//					sbi->bx_prev_free[ area ] = entry;
 
 					//update for each area data
 					if (sbi->free_clusters != -1)
@@ -973,7 +971,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 		if (sbi->free_clusters != -1) {
 			sbi->free_clusters++;
 
-			if( sbi->bb_space_full != ON ) 
+			if( sbi->fat_original_flag == OFF ) 
 			{
 				#ifdef __ORIGINAL_FAT_TEST__ 
 
@@ -1095,7 +1093,13 @@ void get_area_number( int *area, struct inode *inode )
 	struct dentry *dentry = NULL;
 	struct dentry *upper_dentry = NULL;
 	int temp_area = -1;
+	////////////////////
+	//FOR SD Card 7/26
+	//struct super_block *sb = inode->i_sb;
 
+	//printk( "[cheon] S_ID : %s\n", sb->s_id  );
+
+	
 	dentry = list_entry( inode->i_dentry.first, struct dentry, d_u.d_alias ); 
 
 	if( S_ISDIR( inode->i_mode) || dentry->d_parent == NULL)
@@ -1132,6 +1136,8 @@ void get_area_number( int *area, struct inode *inode )
 
 			else if(strcmp(upper_dentry->d_name.name, DIR_5 ) == 0 )
 				temp_area = NUM_5;
+			else //test
+				temp_area = BB_ETC;
 
 
 			if( temp_area != -1 )
