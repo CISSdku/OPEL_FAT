@@ -10,26 +10,26 @@
 #include <linux/ratelimit.h>
 #include <linux/msdos_fs.h>
 
-#define SD1_S_ID "test"
-#define SD2_S_ID "sbd"
+#define SD1_S_ID "sbd"
+#define SD2_S_ID "sdc1"
 
 #define OFF 0
 #define ON 1
 
-#define NUM_1	1  //normal
-#define NUM_2	2  //normal_event
-#define NUM_3	3  //parking
-#define NUM_4	4  //parking_event
-#define NUM_5	5  //handwork
+#define NUM_1	1  //normal 		//normal
+#define NUM_2	2  //normal_event 	//event
+#define NUM_3	3  //parking 		//parking
+#define NUM_4	4  //parking_event  //manual
+#define NUM_5	5  //handwork 		//config
 
 #define NUM_6	0  //etc
 
 //각각의 이벤트들이 확실히 정의되어 있지 않아서 그냥 DIR이라고 칭함
 #define DIR_1 		 "normal"
-#define DIR_2 		 "normal_event"
+#define DIR_2 		 "event"
 #define DIR_3 		 "parking"
-#define DIR_4		 "parking_event"
-#define DIR_5		 "handwork"
+#define DIR_4		 "manual"
+#define DIR_5		 "config"
 
 //////////////////////////////////////////////////////////////////////////
 //이것도 수정해야하는데..
@@ -44,10 +44,10 @@
 
 ///////////////
 #define NORMAL_DIRECTORY 			 "normal"
-#define NORMAL_EVENT_DIRECTORY 		 "normal_event"
+#define NORMAL_EVENT_DIRECTORY 		 "event"
 #define PARKING_DIRECTORY 			 "parking"
-#define MANUAL_DIRECTORY 			 "parking_event"
-#define HANDWORK_DIRECTORY 			 "handwork"
+#define MANUAL_DIRECTORY 			 "manual"
+#define HANDWORK_DIRECTORY 			 "config"
 
 #define ETC_DIRECTORY 				 "etc"
 //#define IMAGE_DIRECTORY "image"

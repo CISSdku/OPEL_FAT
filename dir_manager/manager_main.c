@@ -293,7 +293,7 @@ void init( int dir_cnt, char **dirs, char **config_line, char *sysfs_line )
 	{
 		g_dir[ i ].check_portion = g_dir[ i ].dir_size - ( g_dir[ i ].dir_size  / 4 );
 
-		printf("%-35s Check Full Status [-5%] %luM\t After Remove Size %luM\n",dirs[ i ], g_dir[ i ].dir_size/1024 , g_dir[ i ].check_portion/1024 );
+		printf("%-35s Check Full Status [-10%] %luM\t After Remove Size %luM\n",dirs[ i ], g_dir[ i ].dir_size/1024 , g_dir[ i ].check_portion/1024 );
 	}
 
 
@@ -325,7 +325,7 @@ int main( int argc, char *argv[] )
 //	view_dirs( config_line, cnt );
 
 
-	cnt = open_files( "/sys/fs/OPEL_FAT/control", &sysfs_line, &sysfs_buf ); //FAT Policy
+	cnt = open_files( "/sys/fs/OPEL_FAT/SD1_control", &sysfs_line, &sysfs_buf ); //FAT Policy
 //	view_dirs( &sysfs_line, cnt );
 
 	init( dir_cnt, dirs, config_line, sysfs_line );

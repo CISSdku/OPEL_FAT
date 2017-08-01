@@ -764,6 +764,9 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 	if( sbi->fat_original_flag == OFF )
 	{
 		get_area_number( &area, inode );
+
+		//printk("[cheon] get_area_number area : %d \n", area );
+
 		//Free space check for each area
 		if( sbi->bx_free_clusters[ area ] < nr_cluster )
 		{
@@ -1106,7 +1109,7 @@ void get_area_number( int *area, struct inode *inode )
 	{
 		temp_area = BB_ETC;
 
-		printk( "[cheon] DE, alloc ETC \n");
+//		printk( "[cheon] DE, alloc ETC \n");
 	}	
 	else
 	{
@@ -1146,20 +1149,25 @@ void get_area_number( int *area, struct inode *inode )
 				break;
 			else
 				upper_dentry =upper_dentry->d_parent;
-
 		}
 	}
 
+	if( 1 <= temp_area && temp_area <= 4 ) //normal, evnet, parking, manual인데 avi가 아니먄 etc에서 할당
+	{
+		if( strstr( dentry->d_name.name, "avi" ) == NULL )
+		{
+			*area = BB_ETC;			
+			//printk("[cheon] get_area_number(nut avi) :%d \n",*area);
+			return;
+		}		
+	}
+
 	if( temp_area == -1 )
-	{
 		*area = BB_ETC;
-	}
 	else
-	{
 		*area =temp_area;
-	}
-
-
+	
+//	printk("[cheon] get_area_number : %d\n", *area );
 }
 
 int fat_count_free_clusters_for_area(struct super_block *sb)

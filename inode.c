@@ -521,7 +521,7 @@ static void preAlloc(struct super_block *sb, unsigned int *next, unsigned int pr
 		}
 
 		two_frag_flag = 1; //7/25
-		printk("[cheon] Case : Execeed border of area, two_frag :%d \n", two_frag);
+		//printk("[cheon] Case : Execeed border of area, two_frag :%d \n", two_frag);
 	}
 
 	for(i=0; i< num_of_page; i++)
@@ -532,14 +532,14 @@ static void preAlloc(struct super_block *sb, unsigned int *next, unsigned int pr
 	{
 		if(j==two_frag)
 		{
-			printk("[cheon] First cluster update occur \n");
+		//	printk("[cheon] First cluster update occur \n");
 			chain = sbi->bx_start_cluster[area];
 			
 
 			//7/25
 			temp_start = chain = chain + ( CLUSTER_IN_PAGE - ( chain % CLUSTER_IN_PAGE ) );
 
-			printk("temp_start : %u",temp_start);
+//			printk("temp_start : %u",temp_start);
 
 			//printk("%u ", chain );
 			if(page_num != 0)
@@ -572,11 +572,11 @@ static void preAlloc(struct super_block *sb, unsigned int *next, unsigned int pr
 	}
 #endif
 
-	printk("\n[cheon] data[page_num-1][CLUSTER_IN_PAGE -1] : %d \n", data[page_num-1][CLUSTER_IN_PAGE -1] ); 
-	printk("[cheon] chain : %u need_to_alloc : %d allocated : %d \n", chain, need_to_alloc, allocated );  //7/25
+	//printk("\n[cheon] data[page_num-1][CLUSTER_IN_PAGE -1] : %d \n", data[page_num-1][CLUSTER_IN_PAGE -1] ); 
+//	printk("[cheon] chain : %u need_to_alloc : %d allocated : %d \n", chain, need_to_alloc, allocated );  //7/25
 
 	///////////////////////
-	printk("[cheon]  Fill last Page \n");
+//	printk("[cheon]  Fill last Page \n");
 #endif
 
 #if 0
@@ -588,7 +588,7 @@ static void preAlloc(struct super_block *sb, unsigned int *next, unsigned int pr
 
 	if(page_offset != 0){
 		if(two_frag == 0 && num_of_page==0){
-			printk("111111111111111\n");
+	//		printk("111111111111111\n");
 			//Only 1 page update & Exceed area limit
 			chain = sbi->bx_start_cluster[area]+1;
 		}
@@ -603,7 +603,7 @@ static void preAlloc(struct super_block *sb, unsigned int *next, unsigned int pr
 			//printk("[cheon] chain : %u ", chain );
 		}
 		//data[page_num][page_offset-1] = 0x0FFFFFFF;
-		printk( KERN_ALERT "[cheon] FAT_ENT_EOF \n");
+	//	printk( KERN_ALERT "[cheon] FAT_ENT_EOF \n");
 		data[page_num][page_offset-1] = FAT_ENT_EOF;
 
 		*new_next = chain-1;
@@ -618,7 +618,7 @@ static void preAlloc(struct super_block *sb, unsigned int *next, unsigned int pr
 		}
 
 		if(chain >= sbi->bx_end_cluster[area]){
-			printk("2222222222222\n");
+	//		printk("2222222222222\n");
 			data[page_num][CLUSTER_IN_PAGE-1] = sbi->bx_start_cluster[area];
 		}
 		page_num++;
@@ -637,7 +637,7 @@ static void preAlloc(struct super_block *sb, unsigned int *next, unsigned int pr
 
 	*next = data[0][0] - 1;	 //7/26
 
-	printk("[cheon] Data First %u, Data Last : %u\n", data[0][0], data[ num_of_page -1 ][1023]  );
+//	printk("[cheon] Data First %u, Data Last : %u\n", data[0][0], data[ num_of_page -1 ][1023]  );
 
 	data[num_of_page-1][1023] = FAT_ENT_EOF; //test
 #if 0
@@ -660,7 +660,7 @@ static void preAlloc(struct super_block *sb, unsigned int *next, unsigned int pr
 	{
 		if(i == two_frag)
 		{
-				printk("33333333\n");
+//				printk("33333333\n");
 		//	    fat_block_pos = fat_block + sbi->bx_start_cluster[area]/ CLUSTER_IN_BLOCK ;
 				//7/25
 			    fat_block_pos = fat_block + temp_start / CLUSTER_IN_BLOCK ;
@@ -719,19 +719,12 @@ int fat_handle_cluster( struct inode *inode, int mode )
 				 prev = 0,
 	 		     new_next = 0,
 	 			 new_prev = 0;
-
 	int allocated = 0,
 	 	need_to_alloc = 0;
-
 	static int test_key = 0;
-
-	////////////////////////////////////////////////////////////////
 	//printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
 	if( sbi->fat_original_flag == ON )
 		goto NORMAL_ALLOC;
-
-	printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
-
 #if 1
 	get_area_number( &area, inode );
 	if( area == BB_ETC || sbi->fat_original_flag == ON )
@@ -741,7 +734,6 @@ int fat_handle_cluster( struct inode *inode, int mode )
 #endif
 		goto NORMAL_ALLOC;			
 	}
-
 //	printk("[cheon] fat_handle_cluster, get_area_number : %d  \n", area );
 	num_pre_alloc = ( sbi->bx_pre_size[ area ] * 1024 ) / ( sbi->cluster_size / 1024 );
 //	printk("[cheon] num_pre_alloc : %d \n", num_pre_alloc );
@@ -773,15 +765,12 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	//Abnormal case : New alloc or Reboot alloc
 	if( next_start == -1 )
 	{
-		
-		printk("[cheon] Restart or First Start of Pre-allocation \n");	
 #ifdef __DEBUG__
 		printk("[cheon] Restart or First Start of Pre-allocation \n");	
 #endif
 		//First Allocation
 		if( (sbi->bx_free_clusters[ area ] + num_pre_alloc) > (sbi->bx_end_cluster[ area ] - sbi->bx_start_cluster[ area ] + 1 ) ) //7/25
 		{
-			printk("[cheon] Case 1\n");
 #ifdef __DEBUG__
 			printk("[cheon] Case 1 : Area : %d Current free : %u + Pre_Size : %d > Total Cluster : %u  \n", \
 					area, sbi->bx_free_clusters[ area ], num_pre_alloc, (sbi->bx_end_cluster[ area ] - sbi->bx_start_cluster[ area ] + 1 ) );
@@ -807,7 +796,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 #if 1  //pass
 			if((sbi->fat_start % 8) != 0) //FAT strat point not match with align
 			{  
-				printk("[cheon] sbi->fat_start %8 != 0 \n");
+	//			printk("[cheon] sbi->fat_start %8 != 0 \n");
 
 				int adjust = sbi->fat_start % BLOCK_IN_PAGE ;
 				next = next - (adjust * CLUSTER_IN_BLOCK );
@@ -828,7 +817,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 		// There are exist old file, need to check, cluster number 
 		else
 		{
-			printk("[cheon] case 2 : exist old file \n");	
+	//		printk("[cheon] case 2 : exist old file \n");	
 			find_valid_new_next( inode, area, &next, &prev );
 			
 			allocated = prev - next + 1;
@@ -841,7 +830,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 
 
 		//First : Inode Update
-		printk("[cheon] inode edit - start %d \n", next);
+//		printk("[cheon] inode edit - start %d \n", next);
 		
 		MSDOS_I(inode)->i_start = next;
 		MSDOS_I(inode)->i_logstart = next;
@@ -871,7 +860,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 		need_to_alloc = num_pre_alloc - allocated;
 
 		if(need_to_alloc < 0){
-		printk("[cheon] Case 3\n");
+	//	printk("[cheon] Case 3\n");
 #if 1
 			
 #ifdef __DEBUG__
@@ -891,15 +880,15 @@ int fat_handle_cluster( struct inode *inode, int mode )
 #endif
 		}
 		else{
-		printk("[cheon] Case 4\n");
 #ifdef __DEBUG__
+			printk("[cheon] Case 4\n");
 			printk("[cheon] ---------------------------------------------\n");
 			printk("[cheon] start with pre allocated fat, need to alloc : %d , [%d ~ %d] \n", need_to_alloc, prev, next);
 #endif
 #if 1
 			preAlloc(sb, &next, prev, &new_next, &new_prev, allocated, need_to_alloc, area);
 
-			printk("[cheon] inode edit - start %d \n", next);
+	//		printk("[cheon] inode edit - start %d \n", next);
 			MSDOS_I(inode)->i_start = next;
 			MSDOS_I(inode)->i_logstart = next;
 			inode->i_blocks += num_pre_alloc << (sbi->cluster_bits - 9);
@@ -1199,22 +1188,22 @@ int fat_update_super(struct super_block *sb){
 	fat_count_free_clusters_for_area( sb );
 
 	printk("[cheon] Complete cluster calculation \n");
-	printk("[cheon]    1. [%2d%%] ETC           [%6d ~%6d] / Free %6d(%3d%%) / MB : %d  \n", sbi->bx_area_ratio[BB_ETC],  sbi->bx_start_cluster[BB_ETC], sbi->bx_end_cluster[BB_ETC],sbi->bx_free_clusters[BB_ETC], \
+	printk("[cheon]    1. [%2d%%] ETC		[%6d ~%6d] / Free %6d(%3d%%) / MB : %d  \n", sbi->bx_area_ratio[BB_ETC],  sbi->bx_start_cluster[BB_ETC], sbi->bx_end_cluster[BB_ETC],sbi->bx_free_clusters[BB_ETC], \
 			(sbi->bx_free_clusters[BB_ETC] * 100) / (sbi->bx_end_cluster[BB_ETC] - sbi->bx_start_cluster[BB_ETC] + 1 ), sbi->bx_free_clusters[ BB_ETC ] * 4 / 1024 );
 
-	printk("[cheon]    2. [%2d%%] Normal        [%6d ~%6d] / Free %6d(%3d%%) / MB : %d\n", sbi->bx_area_ratio[BB_NORMAL],   sbi->bx_start_cluster[BB_NORMAL], sbi->bx_end_cluster[BB_NORMAL],sbi->bx_free_clusters[BB_NORMAL], \
+	printk("[cheon]    2. [%2d%%] Normal	[%6d ~%6d] / Free %6d(%3d%%) / MB : %d\n", sbi->bx_area_ratio[BB_NORMAL],   sbi->bx_start_cluster[BB_NORMAL], sbi->bx_end_cluster[BB_NORMAL],sbi->bx_free_clusters[BB_NORMAL], \
 			(sbi->bx_free_clusters[BB_NORMAL] * 100) / (sbi->bx_end_cluster[BB_NORMAL]-sbi->bx_start_cluster[BB_NORMAL] + 1 ) , sbi->bx_free_clusters[ BB_NORMAL ] * 4 / 1024 );
 
-	printk("[cheon]    3. [%2d%%] Normal Event  [%6d ~%6d] / Free %6d(%3d%%) / MB : %d \n", sbi->bx_area_ratio[BB_NORMAL_EVENT],   sbi->bx_start_cluster[BB_NORMAL_EVENT], sbi->bx_end_cluster[BB_NORMAL_EVENT],sbi->bx_free_clusters[BB_NORMAL_EVENT], \
+	printk("[cheon]    3. [%2d%%] Event	[%6d ~%6d] / Free %6d(%3d%%) / MB : %d \n", sbi->bx_area_ratio[BB_NORMAL_EVENT],   sbi->bx_start_cluster[BB_NORMAL_EVENT], sbi->bx_end_cluster[BB_NORMAL_EVENT],sbi->bx_free_clusters[BB_NORMAL_EVENT], \
 			(sbi->bx_free_clusters[BB_NORMAL_EVENT] * 100) / (sbi->bx_end_cluster[BB_NORMAL_EVENT]-sbi->bx_start_cluster[BB_NORMAL_EVENT] + 1 ) , sbi->bx_free_clusters[ BB_NORMAL_EVENT ] * 4 / 1024 );
 
-	printk("[cheon]    4. [%2d%%] Parking       [%6d ~%6d] / Free %6d(%3d%%) / MB : %d \n", sbi->bx_area_ratio[BB_PARKING],   sbi->bx_start_cluster[BB_PARKING], sbi->bx_end_cluster[BB_PARKING],sbi->bx_free_clusters[BB_PARKING], \
+	printk("[cheon]    4. [%2d%%] Parking	[%6d ~%6d] / Free %6d(%3d%%) / MB : %d \n", sbi->bx_area_ratio[BB_PARKING],   sbi->bx_start_cluster[BB_PARKING], sbi->bx_end_cluster[BB_PARKING],sbi->bx_free_clusters[BB_PARKING], \
 			(sbi->bx_free_clusters[BB_PARKING] * 100) / (sbi->bx_end_cluster[BB_PARKING]-sbi->bx_start_cluster[ BB_PARKING ] + 1)  , sbi->bx_free_clusters[ BB_PARKING ] * 4 / 1024 );
 
-	printk("[cheon]    5. [%2d%%] Parking Event [%6d ~%6d] / Free %6d(%3d%%) / MB : %d \n", sbi->bx_area_ratio[BB_MANUAL],   sbi->bx_start_cluster[BB_MANUAL], sbi->bx_end_cluster[BB_MANUAL],sbi->bx_free_clusters[BB_MANUAL], \
+	printk("[cheon]    5. [%2d%%] Manual	[%6d ~%6d] / Free %6d(%3d%%) / MB : %d \n", sbi->bx_area_ratio[BB_MANUAL],   sbi->bx_start_cluster[BB_MANUAL], sbi->bx_end_cluster[BB_MANUAL],sbi->bx_free_clusters[BB_MANUAL], \
 			(sbi->bx_free_clusters[BB_MANUAL] * 100) / (sbi->bx_end_cluster[BB_MANUAL]-sbi->bx_start_cluster[BB_MANUAL] + 1)  , sbi->bx_free_clusters[ BB_MANUAL ] * 4 / 1024 );
 
-	printk("[cheon]    6. [%2d%%] HandWork      [%6d ~%6d] / Free %6d(%3d%%) / MB : %d \n", sbi->bx_area_ratio[BB_IMAGE],   sbi->bx_start_cluster[BB_IMAGE], sbi->bx_end_cluster[BB_IMAGE],sbi->bx_free_clusters[BB_IMAGE], \
+	printk("[cheon]    6. [%2d%%] Config	[%6d ~%6d] / Free %6d(%3d%%) / MB : %d \n", sbi->bx_area_ratio[BB_IMAGE],   sbi->bx_start_cluster[BB_IMAGE], sbi->bx_end_cluster[BB_IMAGE],sbi->bx_free_clusters[BB_IMAGE], \
 			(sbi->bx_free_clusters[BB_IMAGE] * 100) / (sbi->bx_end_cluster[BB_IMAGE]-sbi->bx_start_cluster[BB_IMAGE] + 1)  , sbi->bx_free_clusters[ BB_IMAGE ] * 4 / 1024 );
 
 	//  printk("[cheon] Total Reserved Sectors : %d ( %d KB) \n", sbi->fat_start, sbi->fat_start/2);
