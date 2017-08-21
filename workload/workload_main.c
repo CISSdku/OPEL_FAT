@@ -76,7 +76,7 @@ static void init( int sinario, int *selected_dir, char *argv3 , int *load_flag )
 		*load_flag = ON;
 		load_saved_log_file( &g_fp, sinario );
 
-		printf("Loading saved log file");
+		printf("Loading saved log file \n");
 	}
 	else 
 		*load_flag = OFF;

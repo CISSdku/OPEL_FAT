@@ -174,7 +174,7 @@ static void current_size_SD_card( unsigned long *current_size )
 	tmp_len = strlen( buf );
 
 	size = strtok( buf, "G" );
-	//	printf("[G] current_size_SD_card size : %s	 %u \n", size, strlen( size ) );
+//		printf("[G] current_size_SD_card size : %s	 %u \n", size, strlen( size ) );
 	if( tmp_len != strlen( size ) )
 	{
 		*current_size = (unsigned long )( (double)(atof( size ) * pow( 1024, 2 )) ); //GB단위인데 기본이 MB로 처리해서
@@ -182,7 +182,7 @@ static void current_size_SD_card( unsigned long *current_size )
 		return;	
 	}
 	size = strtok( buf, "M" );
-	//	printf("[M] current_size_SD_card size : %s	 %u \n", size, strlen( size ) );
+//	printf("[M] current_size_SD_card size : %s	 %u \n", size, strlen( size ) );
 	if( tmp_len != strlen( size ) )
 	{
 		*current_size = (unsigned long )((double)atof( size ) * pow( 1024, 1 ));
@@ -190,7 +190,7 @@ static void current_size_SD_card( unsigned long *current_size )
 		return;	
 	}
 	size = strtok( buf, "K" );
-	//	printf("[K] current_size_SD_card size : %s \n", size );
+//	printf("[K] current_size_SD_card size : %s \n", size );
 	if( tmp_len != strlen( size ) )
 	{
 		*current_size = (unsigned long)atof( size );

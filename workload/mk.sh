@@ -7,10 +7,10 @@ gcc -o workload workload_main.c workload.c -lcurses
 #rm test/handwork/*
 
 rm /mnt/normal/*
-rm /mnt/normal_event/*
+rm /mnt/event/*
 rm /mnt/parking/*
-rm /mnt/parking_event//*
-rm /mnt/handwork/*
+rm /mnt/manual/*
+rm /mnt/config/*
 
 #rm /home/cheon/fat_test/experiment/sd_Card/normal/*
 #rm /home/cheon/fat_test/experiment/sd_Card/normal_event/*

@@ -197,15 +197,17 @@ struct msdos_sb_info {
 	unsigned int dirty;           /* fs state before mount */
 	//////////////////////////////////////
 
-	unsigned int bx_start_cluster[10]; /* number of start cluster for each area */
-	unsigned int bx_end_cluster[10]; /* number of end cluster for each area */
-	unsigned int bx_free_clusters[10] ; /* number of free cluster for each area */
-	unsigned int bx_prev_free[10];  /* Previously allocated cluster number for each area */
-	unsigned int bx_next_start[10];
+	unsigned int bx_start_cluster[8]; /* number of start cluster for each area */
+	unsigned int bx_end_cluster[8]; /* number of end cluster for each area */
+	unsigned int bx_free_clusters[8] ; /* number of free cluster for each area */
+	unsigned int bx_prev_free[8];  /* Previously allocated cluster number for each area */
+	unsigned int bx_next_start[8];
+	spinlock_t bx_lock[8];
+
 	int bx_free_valid; //valid check for bx
 
-	unsigned int bx_area_ratio[10]; //영역 크기 비율
-	unsigned int bx_pre_size[10];   //미리할당 크기
+	unsigned int bx_area_ratio[8]; //영역 크기 비율
+	unsigned int bx_pre_size[8];   //미리할당 크기
 
 	// for test, time value
 	unsigned int i_ino;
@@ -237,7 +239,7 @@ struct msdos_inode_info {
 	int i_logstart;		/* logical first cluster */
 	int i_attrs;		/* unused attribute bits */
 
-	int pre_alloc_running; //pre_alloc_check
+	int pre_alloced; //pre_alloc_check
 
 	loff_t i_pos;		/* on-disk position of directory entry or 0 */
 	struct hlist_node i_fat_hash;	/* hash by i_location */
