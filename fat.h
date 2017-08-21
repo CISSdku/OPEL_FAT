@@ -204,8 +204,8 @@ struct msdos_sb_info {
 	unsigned int bx_next_start[10];
 	int bx_free_valid; //valid check for bx
 
-	unsigned int bx_area_ratio[10];
-	unsigned int bx_pre_size[10];
+	unsigned int bx_area_ratio[10]; //영역 크기 비율
+	unsigned int bx_pre_size[10];   //미리할당 크기
 
 	// for test, time value
 	unsigned int i_ino;
@@ -236,6 +236,9 @@ struct msdos_inode_info {
 	int i_start;		/* first cluster or 0 */
 	int i_logstart;		/* logical first cluster */
 	int i_attrs;		/* unused attribute bits */
+
+	int pre_alloc_running; //pre_alloc_check
+
 	loff_t i_pos;		/* on-disk position of directory entry or 0 */
 	struct hlist_node i_fat_hash;	/* hash by i_location */
 	struct hlist_node i_dir_hash;	/* hash by i_logstart */
@@ -337,8 +340,12 @@ static inline sector_t fat_clus_to_blknr(struct msdos_sb_info *sbi, int clus)
 static inline void fat_get_blknr_offset(struct msdos_sb_info *sbi,
 				loff_t i_pos, sector_t *blknr, int *offset)
 {
+//	printk("[cheon] i_pos : %lu *blknr : %lu *offset : %d sbi->dir_per_block_bits : %d sbi->dir_per_block : %d \n", i_pos, *blknr, *offset, sbi->dir_per_block_bits, sbi->dir_per_block );
+
 	*blknr = i_pos >> sbi->dir_per_block_bits;
 	*offset = i_pos & (sbi->dir_per_block - 1);
+	
+//	printk("[cheon] i_pos : %lu *blknr : %lu *offset : %d \n", i_pos, *blknr, *offset );
 }
 
 static inline loff_t fat_i_pos_read(struct msdos_sb_info *sbi,

@@ -6,7 +6,7 @@
  *  regular file handling primitives for fat-based filesystems
  */
 
-#define __DEBUG__
+//#define __DEBUG__
 
 #include <linux/capability.h>
 #include <linux/module.h>
