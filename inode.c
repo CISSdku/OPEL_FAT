@@ -10,7 +10,7 @@
  *	Max Cohan: Fixed invalid FSINFO offset when info_sector is 0
  */
 
-#define __DEBUG__
+//#define __DEBUG__
 
 #include <linux/module.h>
 #include <linux/init.h>
@@ -483,7 +483,6 @@ static void preAlloc(struct super_block *sb, unsigned int *next, unsigned int pr
 	int count = 0;
 	unsigned int temp_start = 0;
 	//struct timeval  new_ts;
-
 	int num_buf = 0;
 	struct buffer_head *bh[300];
 	unsigned int fat_block_pos = fat_block + start / CLUSTER_IN_BLOCK ; //fat block : fat_start
@@ -504,7 +503,6 @@ static void preAlloc(struct super_block *sb, unsigned int *next, unsigned int pr
 		printk("[cheon] ==================error, num_of_page is large!================== \n");
 	}
 #endif
-
 	//-------------Check Area Limit -------------------//
 	if(start + need_to_alloc > sbi->bx_end_cluster[area])
 	{
@@ -678,8 +676,250 @@ static void preAlloc(struct super_block *sb, unsigned int *next, unsigned int pr
 
 #endif
 
-
 #if 1
+int fat_handle_cluster( struct inode *inode, int mode )
+{
+	int err = 0, cluster = 0, area = 0;
+
+	struct super_block *sb = inode->i_sb;
+	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+	struct dentry *dentry = NULL;
+
+	static unsigned int num_pre_alloc = 0;
+
+	static unsigned long inum = -1;
+	static int pre_count = 16384; // MAX
+
+	unsigned int next_start = 0,
+				 next = 0,
+				 prev = 0,
+	 		     new_next = 0,
+	 			 new_prev = 0;
+	unsigned int allocated = 0,
+	 			 need_to_alloc = 0;
+	unsigned long flags;
+	//printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
+	if( sbi->fat_original_flag == ON )
+		goto NORMAL_ALLOC;
+#if 1
+	get_area_number( &area, inode );
+	if( area == BB_ETC || sbi->fat_original_flag == ON )
+	{
+#ifdef __DEBUG__
+//		printk("[cheon] ETC & FULL of any partitioning  : Using normal allocation \n");
+#endif
+		goto NORMAL_ALLOC;			
+	}
+	
+	//mutex_lock( &MSDOS_SB( sb )->s_lock );
+	//Name Check
+	dentry = list_entry( inode->i_dentry.first, struct dentry, d_u.d_alias );
+	if( dentry == NULL || strstr( dentry->d_name.name, "avi" ) == NULL )
+	{
+	//	printk("[cheon] dentry pointer is NULL || not avi \n");
+		goto NORMAL_ALLOC;
+	} 
+
+	if( MSDOS_I(inode)->pre_alloced == ON ) //preAlloc함수 한번 타고 나오면 안들어간다.
+		return 0;
+
+	printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
+
+	MSDOS_I(inode)->pre_alloced = ON; //기존에는 inode->i_ino로 구별했었는데 변경함
+
+	//Pre-Allocation Wrork ( In practice : Iteration of allocation work 
+	num_pre_alloc = ( sbi->bx_pre_size[ area ] * 1024 ) / ( sbi->cluster_size / 1024 );
+	spin_lock_irqsave( &MSDOS_SB( sb )->bx_lock[ area ], flags ); //cheon_lock
+
+	//Abnormal case : New alloc or Reboot alloc
+	if( sbi->bx_next_start[area] == -1 ) //굳이next_start변수를 쓰지 않아도 됨
+	{
+#ifdef __DEBUG__
+		printk("[cheon] Restart or First Start of Pre-allocation \n");	
+#endif
+		//First Allocation
+		if( (sbi->bx_free_clusters[ area ] + num_pre_alloc) > (sbi->bx_end_cluster[ area ] - sbi->bx_start_cluster[ area ] + 1 ) ) //7/25
+		{
+#ifdef __DEBUG__
+			printk("[cheon] Case 1 : Area : %d Current free : %u + Pre_Size : %d > Total Cluster : %u  \n", \
+					area, sbi->bx_free_clusters[ area ], num_pre_alloc, (sbi->bx_end_cluster[ area ] - sbi->bx_start_cluster[ area ] + 1 ) );
+#endif
+			next = sbi->bx_prev_free[ area ] + 1;
+			prev = sbi->bx_prev_free[ area ];
+
+			allocated = 0;
+			need_to_alloc = num_pre_alloc;
+#if 1
+			//Align check
+			if(next % CLUSTER_IN_PAGE  != 0){
+				
+#ifdef __DEBUG__
+				printk("[cheon] Align Check 1 \n");
+#endif
+				next = next + (CLUSTER_IN_PAGE  - (next % CLUSTER_IN_PAGE )); 
+				prev = next-1;
+			}
+#endif
+			if((sbi->fat_start % 8) != 0) //FAT strat point not match with align
+			{  
+				int adjust = sbi->fat_start % BLOCK_IN_PAGE ;
+				next = next - (adjust * CLUSTER_IN_BLOCK );
+				prev = next - 1;
+
+				if(next < sbi->bx_start_cluster[area])
+				{
+					next = next + CLUSTER_IN_PAGE ;
+					prev = next -1;
+				}
+			}
+			
+#ifdef __DEBUG__
+			printk("[cheon] next : %u prev : %u \n", next, prev );
+#endif
+		}
+		// There are exist old file, need to check, cluster number 
+		else
+		{
+#ifdef __DEBUG__
+			printk("[cheon] case 2 : exist old file \n");	
+#endif
+			find_valid_new_next( inode, area, &next, &prev );
+			
+			allocated = prev - next + 1;
+			need_to_alloc = num_pre_alloc - allocated;
+		}
+		//Call function
+		preAlloc(sb, &next, prev, &new_next, &new_prev, allocated, need_to_alloc, area);
+	 	spin_unlock_irqrestore( &MSDOS_SB( sb )->bx_lock[ area ], flags ); //cheon_lock	
+
+		//First : Inode Update
+#ifdef __DEBUG__
+		printk("[cheon] inode edit - start %u \n", next );
+		printk("[cheon] next:%u prev:%u new_next:%u new_prev:%u allocated:%u num_pre_alloc:%u need_to_alloc:%u area:%d\n", next, prev, new_next, new_prev, allocated, num_pre_alloc, need_to_alloc, area );
+#endif
+		
+		MSDOS_I(inode)->i_start = next;
+		MSDOS_I(inode)->i_logstart = next;
+
+		//update '+=' -> '='
+		inode->i_blocks = num_pre_alloc << (sbi->cluster_bits - 9);
+		
+
+		fat_sync_inode(inode);
+
+#ifdef __DEBUG__
+		printk("[cheon]sb update \n");
+#endif
+		//Second : SB update
+	
+		spin_lock_irqsave( &MSDOS_SB( sb )->bx_lock[ area ], flags );    //cheon_lock
+		sbi->bx_free_clusters[area] -= num_pre_alloc;
+		sbi->free_clusters -= num_pre_alloc;
+		sbi->bx_next_start[area]  = new_next;
+		sbi->bx_prev_free[area] = new_prev;
+		spin_unlock_irqrestore( &MSDOS_SB( sb )->bx_lock[ area ], flags );     //cheon_lock
+	}
+	//Continuous Allocation
+#if 1
+	else
+	{
+		spin_lock_irqsave( &MSDOS_SB( sb )->bx_lock[ area ], flags );    //cheon_lock
+		next = sbi->bx_next_start[area];
+		prev = sbi->bx_prev_free[area];
+		spin_unlock_irqrestore( &MSDOS_SB( sb )->bx_lock[ area ], flags );     //cheon_lock
+
+
+		allocated = prev - next + 1;
+		need_to_alloc = num_pre_alloc - allocated;
+
+		if(need_to_alloc < 0){
+	//	printk("[cheon] Case 3\n");
+#if 1
+			
+#ifdef __DEBUG__
+			printk("[cheon] ---------------------------------------------\n");
+			printk("[cheon] need to alloc : %d , Skip preallcation.\n", need_to_alloc);
+			printk("[cheon] inode edit - start %d \n", next);
+#endif
+			MSDOS_I(inode)->i_start = next;
+			MSDOS_I(inode)->i_logstart = next;
+			inode->i_blocks += num_pre_alloc << (sbi->cluster_bits - 9);
+
+			spin_lock_irqsave( &MSDOS_SB( sb )->bx_lock[ area ], flags );    //cheon_lock
+			sbi->bx_free_clusters[area] -= num_pre_alloc;
+			sbi->free_clusters -= num_pre_alloc;
+
+			sbi->bx_next_start[area]  = sbi->bx_next_start[area] + num_pre_alloc -1;
+			//sbi->bx_prev_free[area] = sbi->bx_prev_free[area] + num_pre_alloc -1; 
+			spin_unlock_irqrestore( &MSDOS_SB( sb )->bx_lock[ area ], flags );     //cheon_lock
+#endif
+		}
+		else{
+#ifdef __DEBUG__
+			printk("[cheon] Case 4\n");
+			printk("[cheon] ---------------------------------------------\n");
+			printk("[cheon] start with pre allocated fat, need to alloc : %d , [%d ~ %d] \n", need_to_alloc, prev, next);
+#endif
+#if 1
+			preAlloc(sb, &next, prev, &new_next, &new_prev, allocated, need_to_alloc, area);
+
+	//		printk("[cheon] inode edit - start %d \n", next);
+			MSDOS_I(inode)->i_start = next;
+			MSDOS_I(inode)->i_logstart = next;
+			inode->i_blocks += num_pre_alloc << (sbi->cluster_bits - 9);
+
+			spin_lock_irqsave( &MSDOS_SB( sb )->bx_lock[ area ], flags );    //cheon_lock
+			sbi->bx_free_clusters[area] -= num_pre_alloc;
+			sbi->free_clusters -= num_pre_alloc;
+			sbi->bx_next_start[area]  = new_next;
+			sbi->bx_prev_free[area] = new_prev;
+			spin_unlock_irqrestore( &MSDOS_SB( sb )->bx_lock[ area ], flags );     //cheon_lock
+#endif
+		} 
+		//do_gettimeofday(&old_ts);
+		//fat_async_inode(inode);
+		//do_gettimeofday(&new_ts);
+		//printk("[cheon]      Measure - inode write : %u \n", new_ts.tv_usec - old_ts.tv_usec); 
+
+		//
+		//Call function
+
+	}
+#endif
+
+#ifdef __DEBUG__
+	printk("[cheon] Complete alloc.... \n");
+#endif
+	
+//	mutex_unlock( &MSDOS_SB( sb )->s_lock );
+
+	return 0;
+
+
+#if 0
+#endif
+NORMAL_ALLOC:
+#endif
+	//origin
+	err = fat_alloc_clusters( inode, &cluster, 1 );
+	if (err)
+		return err;
+	/* FIXME: this cluster should be added after data of this
+	 * cluster is writed */
+
+	err = fat_chain_add(inode, cluster, 1);
+	if (err)
+	{
+		printk( KERN_ALERT "[cheon] fat_chain_add error !!!, fat_free_clusters\n");
+		fat_free_clusters(inode, cluster);
+	}
+	return err;
+}
+#endif
+
+
+
+#if 0
 int fat_handle_cluster( struct inode *inode, int mode )
 {
 	int err = 0, cluster = 0, area = 0;
@@ -1784,7 +2024,7 @@ static struct inode *fat_alloc_inode(struct super_block *sb)
 	ei = kmem_cache_alloc(fat_inode_cachep, GFP_NOFS);
 	if (!ei)
 		return NULL;
-
+	ei->pre_alloced = 0; //cheon 
 	init_rwsem(&ei->truncate_lock);
 	return &ei->vfs_inode;
 }

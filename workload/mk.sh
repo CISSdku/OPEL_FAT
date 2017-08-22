@@ -1,4 +1,4 @@
-gcc -o workload workload_main.c workload.c -lcurses
+gcc -o workload workload_main.c workload.c -lcurses -lpthread
 
 #rm test/normal/*
 #rm test/normal_event/*

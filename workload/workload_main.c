@@ -1,5 +1,5 @@
 #include"workload.h"
-
+#include <pthread.h>
 static int open_files( char *target_direcotry, char **dirs, char ***pbuf )
 {
 	FILE *fp = fopen( target_direcotry, "r" );	
@@ -92,6 +92,7 @@ static void init( int sinario, int *selected_dir, char *argv3 , int *load_flag )
 		case S_HANDWORK        	    : printf("sinario : SHOCK \n");             	  *selected_dir = S_HANDWORK;      	 		   break;
 
 		case S_AUTOMATION    	    : printf("sinario : AUTOMATION \n");        	  *selected_dir = S_AUTOMATION;		 	 	   break;
+		case 7: printf("sinario : multi thread\n");        	  *selected_dir = 7;		 	 	   break;
 
 		default           	  	 	: printf("sinario is ?? \n");                          		 	    					 	 	   break;
 	}
@@ -145,16 +146,47 @@ static void auto_select( int *selected_dir )
 	before_num = invoked;
 }   
 
+struct thread_arg{
+	char** dirs;
+	int load_flag;
+};
+void* thread_func( void* arg)
+{
+	int selected_dir;
+	struct thread_arg targ = *(struct thread_arg*)arg;
+	auto_select( &selected_dir );
+	printf("%s\n", targ.dirs[selected_dir]);
+	thread_file_create( targ.dirs, selected_dir, targ.load_flag );
+}
+#define MAX_THREAD 2
+void run_thread( char** dirs, int sinario, int load_flag)
+{
+	pthread_t tid[4];
+	struct thread_arg targ[4];
+	int i;
+	for( i = 0; i < MAX_THREAD; i++){
+		targ[i].dirs = dirs;
+		targ[i].load_flag = load_flag;
+		pthread_create( &tid[i], NULL, thread_func, (void *)&targ[i]);
+	}
+
+
+	for( i = 0; i < MAX_THREAD; i++){
+		pthread_join( tid[i] , NULL);
+	}
+}
 void run_workload( char **dirs, int sinario, int selected_dir, int load_flag )
 {
-	if( sinario != S_AUTOMATION )
+	if( sinario < S_AUTOMATION )
 	{
 		file_create( dirs, &selected_dir, sinario, load_flag );
 	}		
-	else // AUTOMATION
+	else if (sinario == S_AUTOMATION)// AUTOMATION
 	{
 		auto_select( &selected_dir );
 		file_create( dirs, &selected_dir, sinario, load_flag );
+	}else{
+		run_thread( dirs, sinario, load_flag);
 	}
 }
 
@@ -183,6 +215,9 @@ int main( int argc, char *argv[] )
 		printf("sinario 4 : parking shock\n");
 		printf("sinario 5 : handwork\n");
 		printf("sinario 6 : automation \n");
+
+		printf("sinario 7 : muti_thread : 4ea\n");
+
 		//printf("Select sinario_num flag_mode( origina || opel ) :");
 
 		return 0;
@@ -194,7 +229,7 @@ int main( int argc, char *argv[] )
 
 	line_to_read = atoi( argv[4] );
 
-
+	int run_count = 0;
 //	printf("test\n");
 	while(1)
 	{
@@ -212,9 +247,10 @@ int main( int argc, char *argv[] )
 			break;
 		}
 
-//		usleep(10000);
 		
 		run_workload( dirs, sinario, selected_dir, load_flag );
+		usleep(10000);
+		printf("%d run\n",run_count++);
 	}
 
 	return 0;

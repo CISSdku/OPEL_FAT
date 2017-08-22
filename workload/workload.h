@@ -75,8 +75,8 @@ typedef enum
 	S_PARKING,
 	S_PARKING_SHOCK,
 	S_HANDWORK,
-
-	S_AUTOMATION
+	S_AUTOMATION,
+	S_MULTITHREAD
 }sinario_e;
 
 typedef struct each_data_t

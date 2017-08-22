@@ -769,14 +769,14 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 		//printk("[cheon] get_area_number area : %d \n", area );
 
 		//Free space check for each area
-	//	spin_lock_irqsave( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
+		spin_lock_irqsave( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
 		if( sbi->bx_free_clusters[ area ] < nr_cluster )
 		{
 			printk( KERN_ALERT "[cheon] No space storage / bx current free %u / nr_cluster %d / area : %d  \n", sbi->bx_free_clusters[ area ], nr_cluster, area );
 			unlock_fat(sbi);
 			return -ENOSPC;
 		}
-	//	spin_unlock_irqrestore( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
+		spin_unlock_irqrestore( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
 	}
 
 //#endif
@@ -862,10 +862,10 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 					//update for each area data
 					if (sbi->free_clusters != -1)
 					{
-					//	spin_lock_irqsave( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
+						spin_lock_irqsave( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
 						sbi->free_clusters--;
 						sbi->bx_free_clusters[ area ]--;
-						//spin_unlock_irqrestore( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
+						spin_unlock_irqrestore( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
 					}
 
 					cluster[idx_clus] = entry;
@@ -1013,7 +1013,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 			{
 					
 			//	spin_lock_irqsave( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
-#if 1
+#if 0
 				#ifdef __ORIGINAL_FAT_TEST__ 
 				if( sbi->bx_start_cluster[ BB_ETC ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_ETC ] )
 					(sbi->bx_free_clusters[ BB_ETC ])++;
@@ -1021,7 +1021,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 					sbi->bx_free_clusters[ BB_NORMAL ]++;
 				#endif
 #endif
-#if 0
+#if 1
 				area = get_area_number_for_free_func( inode, fatent.entry );
 
 				spin_lock_irqsave( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
@@ -1029,7 +1029,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 				spin_unlock_irqrestore( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
 #endif
 
-#if 1
+#if 0
 		//		#ifndef __ORIGINAL_FAT_TEST__
 				if( sbi->bx_start_cluster[ BB_ETC ] <= fatent.entry && fatent.entry <= sbi->bx_end_cluster[ BB_ETC ] )
 				{

@@ -372,6 +372,149 @@ static int detect_file_counter( int file_counter, int load_flag )
 
 	return 0;
 }
+
+
+void thread_file_create(char **dirs, int selected_dir, int load_flag )
+{
+	FILE *fd1;
+	char fn1[ NAME_SIZE ] = {0,};//, in_name[10];
+	char temp_full_file[ NAME_SIZE ];
+	int k;
+	
+	static int file_creator[ DIR_NUM ] = { 0, };
+	unsigned long f_size = 0;
+	//f_size = f_rand_size( &selected_dir, S_AUTOMATION, load_flag );
+	f_size = 16500000 + rand()%10000000;
+
+	printf("f_size : %luM \t", f_size/1024/1024 );
+	switch( selected_dir )
+	{
+		//	case ETC 			: file_creator[ ETC ]++; break;
+		case NORMAL 		: file_creator[ NORMAL ]++; 		break;
+		case NORMAL_EVENT 	: file_creator[ NORMAL_EVENT ]++; 	break;
+		case PARKING		: file_creator[ PARKING ]++; 		break;
+		case PARKING_EVENT 	: file_creator[ PARKING_EVENT ]++; 	break;
+		case HANDWORK		: file_creator[ HANDWORK ]++; 		break;
+
+		default : printf("*selected_dir error \n"); 			break;
+	}
+
+	if( load_flag == ON )
+	{	
+		printf("File name : %d \t", file_creator[ selected_dir ] );
+		sprintf(fn1,"%s%d_%d%s", dirs[ selected_dir -1 ], file_creator[ selected_dir ], pthread_self(),".avi"  );
+		printf("%s\n", fn1);
+#if 0	
+		printf("File name : %d \t\n", ++file_creator[ *selected_dir ]   );
+		sprintf(fn2,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".avi"  );
+#endif
+
+		//sprintf(fn,"%s%d", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ] );
+		//printf("%s \n", fn );
+		//실제 타겟 파일에 설정된 크기 만큼, 파일을 생성하고 씀
+#if 1
+		//if( (fd1 = fopen(fn1,"w")) ){
+		if( (fd1 = fopen(fn1,"w"))<0 ){
+			printf("File create error\n");
+			exit(-1);
+		}
+
+		for( k=0 ; k < f_size ; k++)
+		{
+			fputs("k",fd1);
+		}
+
+		fclose( fd1 );
+		//	fflush(stdout);
+#endif
+	}
+}
+
+#if 1
+void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
+{
+	FILE *fd1;
+	FILE *fd2;
+//	int fd;
+	char fn1[ NAME_SIZE ];//, in_name[10];
+	char fn2[ NAME_SIZE ];//, in_name[10];
+	char temp_full_file[ NAME_SIZE ];
+	int k;
+	
+	static int file_creator[ DIR_NUM ] = { 0, };
+	unsigned long f_size = 0;
+
+	f_size = f_rand_size( selected_dir, sinario, load_flag );
+
+	//printf("f_size : %luM \t", f_size/1024/1024 );
+	switch( *selected_dir )
+	{
+	//	case ETC 			: file_creator[ ETC ]++; break;
+		case NORMAL 		: file_creator[ NORMAL ]++; 		break;
+		case NORMAL_EVENT 	: file_creator[ NORMAL_EVENT ]++; 	break;
+		case PARKING		: file_creator[ PARKING ]++; 		break;
+		case PARKING_EVENT 	: file_creator[ PARKING_EVENT ]++; 	break;
+		case HANDWORK		: file_creator[ HANDWORK ]++; 		break;
+
+		default : printf("*selected_dir error \n"); 			break;
+	}
+
+	if( load_flag == ON )
+	{	
+		printf("File name : %d \t", file_creator[ *selected_dir ] );
+		sprintf(fn1,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".avi"  );
+
+		printf("File name : %d \t\n", ++file_creator[ *selected_dir ]   );
+		sprintf(fn2,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".avi"  );
+
+		//sprintf(fn,"%s%d", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ] );
+		//printf("%s \n", fn );
+		//실제 타겟 파일에 설정된 크기 만큼, 파일을 생성하고 씀
+#if 1
+		if( (fd1 = fopen(fn1,"w")) == NULL || (fd2 = fopen(fn2,"w")) == NULL ) {
+
+			printf("g_total.file_counter : %lu \n", g_total.file_counter );	
+			printf("File create error\n");
+			exit(-1);
+		}
+
+		for( k=0 ; k < f_size ; k++)
+		{
+			fputs("k",fd1);
+			fputs("k",fd2);
+		}
+
+		fclose( fd1 );
+		fclose( fd2 );
+		//	fflush(stdout);
+#endif
+#if 0
+		fd = open( fn, O_WRONLY | O_CREAT, 0644);
+		if( !fd )
+		{
+			printf("Fail workload file creatation\n");			
+			exit(-1);
+		}
+		for( k = 0 ; k < f_size ; k++ )
+			write( fd, "k", strlen( "k" ) );		
+
+		close( fd );
+#endif
+		g_total.file_counter++;
+		//printf("File create: %-20s \t %10luM \t dir_size(): %10luM \n",fn, f_size/1024/1024, dir_size( dirs[ *selected_dir ] )/1024/1024 );
+		printf("File create: %-20s %-20s\t %10luK \t dir_size(): %10luK \n", fn1, fn2, f_size/1024, dir_size( dirs[ *selected_dir - 1 ] )/1024 );
+
+		//		detect_file_counter( g_total.file_counter, load_flag );
+	}
+	else //if load_flag is off, this program make logs
+	{
+		g_total.file_counter++;
+		//		detect_file_counter( g_total.file_counter, load_flag );
+	}
+}
+#endif
+
+#if 0
 void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 {
 	FILE *fd;
@@ -402,15 +545,12 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 	{	
 		printf("File name : %d \t", file_creator[ *selected_dir ] );
 		sprintf(fn,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".avi"  );
-//		sprintf(fn,"%s%d", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ] );
-
+		//sprintf(fn,"%s%d", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ] );
 		//printf("%s \n", fn );
 		//실제 타겟 파일에 설정된 크기 만큼, 파일을 생성하고 씀
 #if 1
 		if((fd = fopen(fn,"w")) == NULL) {
-
 			printf("g_total.file_counter : %lu \n", g_total.file_counter );	
-
 			printf("File create error\n");
 			exit(-1);
 		}
@@ -446,3 +586,4 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 	}
 }
 
+#endif

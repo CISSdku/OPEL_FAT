@@ -51,6 +51,7 @@ static void file_old_remove( char *dn, int selected_dir )
 	char fn[ 100 ], old_name[ 100 ];
 	int fs_err=0;
 	unsigned long old_time = ULONG_MAX;
+	unsigned long old_inum = ULONG_MAX;
 	long decimal_point = LONG_MAX;
 
 	dir = opendir(dn);
@@ -71,6 +72,7 @@ static void file_old_remove( char *dn, int selected_dir )
 			if( old_time > st.st_mtime )
 			{
 				old_time = st.st_mtime;
+				old_inum = st.st_ino;
 				decimal_point = st.st_mtim.tv_nsec;
 				strcpy(old_name,fn);
 
@@ -78,12 +80,18 @@ static void file_old_remove( char *dn, int selected_dir )
 			}
 			else if( old_time == st.st_mtime )
 			{
+				if( old_inum > st.st_ino )
+				{
+					strcpy( old_name, fn );	
+				}
+#if 0
 				if( decimal_point >=  st.st_mtim.tv_nsec )
 				{
 					decimal_point = st.st_mtim.tv_nsec;
 					strcpy(old_name,fn);
 					temp_st = st;
 				}
+#endif
 			}
 			else;
 		} 
@@ -118,6 +126,8 @@ void detect_and_control( char **dirs, int dir_cnt )
 			//꽉 차면 전체에서 일정 비율을 삭제할 거임
 			while( dir_size( dirs[ num ] )  > g_dir[ num ].check_portion ) 
 			{
+				printf("DELETE\n");	
+				
 				file_old_remove( dirs[ num ], num );
 			}
 
