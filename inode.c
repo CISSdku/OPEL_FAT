@@ -518,21 +518,13 @@ static void preAlloc(struct super_block *sb, unsigned int *next, unsigned int pr
 			if( ( (start  ) + (i * CLUSTER_IN_PAGE)) <= sbi->bx_end_cluster[area]) //7/26
 				two_frag++;
 		}
-
 		two_frag_flag = 1; //7/25
 		printk("[cheon] Case : Execeed border of area, two_frag :%d \n", two_frag);
 		printk("[cheon] start : %u \n", start ); 
 	}
 
 	for(i=0; i< num_of_page; i++)
-	{
 		data[i] = ( unsigned int*)kmalloc((SD_PAGE_SIZE * 1024),GFP_KERNEL);
-		
-//		printk("[cheon] data[i] : %u, %#010x \n", data[i], data[i] );
-	}
-	//data[30] = ( unsigned int*)kmalloc((SD_PAGE_SIZE * 1024),GFP_KERNEL); //test
-	//for(i = 0 ; i < 1024 ; i++ )
-	//	data[30][i] = i;
 
 	//-------------- Fill Page with cluster chain------// 
 	for(j=0; j<num_of_page; j++)
@@ -541,27 +533,19 @@ static void preAlloc(struct super_block *sb, unsigned int *next, unsigned int pr
 		{
 			printk("[cheon] First cluster update occur \n");
 			chain = sbi->bx_start_cluster[area];
-
-			//7/25
-			temp_start = chain = chain + ( CLUSTER_IN_PAGE - ( chain % CLUSTER_IN_PAGE ) );
-//			printk("temp_start : %u",temp_start);
-			//printk("%u ", chain );
+			temp_start = chain = chain + ( CLUSTER_IN_PAGE - ( chain % CLUSTER_IN_PAGE ) ); //updated
+			
 			if(page_num != 0)
 				data[page_num-1][CLUSTER_IN_PAGE -1] = chain;
-
 			chain++;
 			//two_frag = 0;
 		}//Update to first clustetr number
-
 		for(i=0; i<CLUSTER_IN_PAGE; i++)
 		{
-			//////////////////////////////
-		//	printk("%u ", chain );
 			data[page_num][i] = chain;
 			chain++;
 			need_to_alloc--;
 			allocated++;
-			/////////////////////////////////
 		}
 		page_num++;
 	}
@@ -619,30 +603,12 @@ static void preAlloc(struct super_block *sb, unsigned int *next, unsigned int pr
 	*next = data[0][0] - 1;	 //7/26
 	data[num_of_page-1][1023] = FAT_ENT_EOF; //test
 
-#if 0
-	printk("================\n");
-	for( i = 0 ; i < page_num ; i ++ )
-	{
-		for( j = 0 ; j < 1024 ; j++ )
-			printk("%u ", data[i][j] );
-	}
-#endif
-
-
-#ifdef __DEBUG__
-//	printk("\n[cheon] new prev  ; %u , new next : %u \n", *new_prev, *new_next);
-//	printk("[cheon] Cretae %d pages, to alloc -- clusters  \n", num_of_page );
-//	printk("[cheon] chain : %u need_to_alloc : %u allocated : %u \n", chain, need_to_alloc, allocated );  //7/25
-//	printk("[cheon] Data First %u, Data Last : %u\n", data[0][0], data[ num_of_page -1 ][1023]  );
-#endif
 	for( i=0; i<page_num; i++ )
 	{
-		if(i == two_frag)
-		{
+		if(i == two_frag){
 				printk("33333333\n");
 		//	    fat_block_pos = fat_block + sbi->bx_start_cluster[area]/ CLUSTER_IN_BLOCK ;
 			    fat_block_pos = fat_block + temp_start / CLUSTER_IN_BLOCK ;
-
 		}
 
 		for( j=0 ; j < BLOCK_IN_PAGE ; j++ )
@@ -686,7 +652,6 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	struct dentry *dentry = NULL;
 
 	static unsigned int num_pre_alloc = 0;
-
 	static unsigned long inum = -1;
 	static int pre_count = 16384; // MAX
 
@@ -724,12 +689,14 @@ int fat_handle_cluster( struct inode *inode, int mode )
 		return 0;
 
 	printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
-
 	MSDOS_I(inode)->pre_alloced = ON; //기존에는 inode->i_ino로 구별했었는데 변경함
 
 	//Pre-Allocation Wrork ( In practice : Iteration of allocation work 
 	num_pre_alloc = ( sbi->bx_pre_size[ area ] * 1024 ) / ( sbi->cluster_size / 1024 );
+
+	
 	spin_lock_irqsave( &MSDOS_SB( sb )->bx_lock[ area ], flags ); //cheon_lock
+	spin_unlock_irqrestore( &MSDOS_SB( sb )->bx_lock[ area ], flags ); //cheon_lock	
 
 	//Abnormal case : New alloc or Reboot alloc
 	if( sbi->bx_next_start[area] == -1 ) //굳이next_start변수를 쓰지 않아도 됨
@@ -790,7 +757,6 @@ int fat_handle_cluster( struct inode *inode, int mode )
 		}
 		//Call function
 		preAlloc(sb, &next, prev, &new_next, &new_prev, allocated, need_to_alloc, area);
-	 	spin_unlock_irqrestore( &MSDOS_SB( sb )->bx_lock[ area ], flags ); //cheon_lock	
 
 		//First : Inode Update
 #ifdef __DEBUG__
@@ -815,6 +781,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 		spin_lock_irqsave( &MSDOS_SB( sb )->bx_lock[ area ], flags );    //cheon_lock
 		sbi->bx_free_clusters[area] -= num_pre_alloc;
 		sbi->free_clusters -= num_pre_alloc;
+
 		sbi->bx_next_start[area]  = new_next;
 		sbi->bx_prev_free[area] = new_prev;
 		spin_unlock_irqrestore( &MSDOS_SB( sb )->bx_lock[ area ], flags );     //cheon_lock
@@ -890,8 +857,6 @@ int fat_handle_cluster( struct inode *inode, int mode )
 #ifdef __DEBUG__
 	printk("[cheon] Complete alloc.... \n");
 #endif
-	
-//	mutex_unlock( &MSDOS_SB( sb )->s_lock );
 
 	return 0;
 

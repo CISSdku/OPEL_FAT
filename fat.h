@@ -13,6 +13,7 @@
 #define SD1_S_ID "sbd"
 #define SD2_S_ID "sdc1"
 
+#define TOTAL_AREA_CNT 6
 #define OFF 0
 #define ON 1
 

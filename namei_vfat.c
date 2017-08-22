@@ -27,7 +27,8 @@
 
 char manager_control_sd1[20]; 
 char manager_control_sd2[20]; 
-
+struct msdos_sb_info *g_sbi;
+unsigned int g_total_cluster[10];
 /*
  * If new entry was created in the parent, it could create the 8.3
  * alias (the shortname of logname).  So, the parent may have the
@@ -1127,11 +1128,14 @@ static void setup(struct super_block *sb)
 static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 {
 	int res;	
-//	struct msdos_sb_info *sbi = MSDOS_SB(sb); 
+	int i;
+	
 	printk( "[cheon] vfat_fill_super  S_ID : %s\n", sb->s_id  );
-
 	res = fat_fill_super(sb, data, silent, 1, setup);
 	struct msdos_sb_info *sbi = MSDOS_SB(sb); //여기에 있어야 함
+	g_sbi = sbi;
+
+////////////////////////////
 
 	if( !strcmp( sb->s_id, SD1_S_ID ) || !strcmp( sb->s_id, SD2_S_ID ) ) //if this device is SD card 
 	{
@@ -1139,6 +1143,9 @@ static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 		fat_config_init( sb );
 		fat_update_super( sb );
 
+		for(i=0;i<TOTAL_AREA_CNT;i++)	
+		g_total_cluster[i] = sbi->bx_free_clusters[i];
+	
 		if( sbi->fat_original_flag == ON )
 		{
 			if( !strcmp( sb->s_id, SD1_S_ID ) )
@@ -1195,6 +1202,35 @@ static ssize_t control_show_s2( struct kobject *kobj, struct kobj_attribute *att
 	return snprintf( buff, PAGE_SIZE, "%s \n", manager_control_sd2 );
 }
 
+static ssize_t size_show( struct kobject *kobj, struct kobj_attribute *attr, char *buff )
+{
+	int i = 0;
+	int cnt = 0;
+	unsigned int used_size[10] = {0,};
+	unsigned int free_size[10] = {0,};
+	unsigned int total_size[10] = {0,};
+	
+
+	printk( KERN_ALERT "[cheon] sys/fs/, size_monitoring()");
+
+	for(i=0;i<TOTAL_AREA_CNT;i++)
+	{
+		used_size[i] = (g_total_cluster[i] -g_sbi->bx_free_clusters[i] ) * 4;
+		free_size[i] = g_sbi->bx_free_clusters[i] * 4;
+		total_size[i] = g_total_cluster[i] * 4;
+	}
+
+	cnt = snprintf( buff, PAGE_SIZE, "%u\t%u\t%u\t%u\t%u\t%u \n%u\t%u\t%u\t%u\t%u\t%u \n%u\t%u\t%u\t%u\t%u\t%u \n", total_size[0], total_size[1],total_size[2], total_size[3], total_size[4], total_size[5], \
+																								  used_size[0], used_size[1], used_size[2], used_size[3], used_size[4], used_size[5], \
+																								  free_size[0], free_size[1], free_size[2], free_size[3], free_size[4], free_size[5] );
+//	cnt = snprintf( buff, PAGE_SIZE, "%u %u %u %u %u %u \n%u %u %u %u %u %u \n%u %u %u %u %u %u", total_size[0], total_size[1],total_size[2], total_size[3], total_size[4], total_size[5], \
+//																								  used_size[0], used_size[1], used_size[2], used_size[3], used_size[4], used_size[5], \
+//																								  free_size[0], free_size[1], free_size[2], free_size[3], free_size[4], free_size[5] );
+
+
+	return cnt;
+}
+////////////////////////////
 static ssize_t control_store( struct kobject *kobj, struct kobj_attribute *attr, const char *buff, size_t count )
 {
 	int num;
@@ -1209,11 +1245,13 @@ static ssize_t control_store( struct kobject *kobj, struct kobj_attribute *attr,
 
 static struct kobj_attribute control_attr1 = __ATTR( SD1_control, 0644, control_show_s1, control_store );
 static struct kobj_attribute control_attr2 = __ATTR( SD2_control, 0644, control_show_s2, control_store );
+static struct kobj_attribute control_attr3 = __ATTR( size_monitoring, 0644, size_show, control_store );
 
 //static struct kobj_attribute version_attr = __ATTR_RO( version);
 static struct attribute *attributes[ ] = {
 	    &control_attr1.attr,
 	    &control_attr2.attr,
+	    &control_attr3.attr,
 		NULL,
 };
 
