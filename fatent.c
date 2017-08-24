@@ -729,8 +729,8 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 	struct buffer_head *bhs[MAX_BUF_PER_PAGE];
 	int i, count, err, nr_bhs, idx_clus;
 	
-	struct dentry *dentry = NULL;
-	struct dentry *p_dentry = NULL;
+//	struct dentry *dentry = NULL;
+//	struct dentry *p_dentry = NULL;
 	int area = 0; //proper work area number for inode
 	unsigned long flags;
 
@@ -959,6 +959,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 	struct buffer_head *bhs[MAX_BUF_PER_PAGE];
 	int i, err, nr_bhs;
 	int first_cl = cluster, dirty_fsinfo = 0;
+	int previous_cluster = 0;
 
 	//choen
 	int area=0;
@@ -981,6 +982,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 			err = -EIO;
 			goto error;
 		}
+
 		//else
 		//	printk( KERN_ALERT "%d ", cluster );
 		//	printk( KERN_ALERT "[cheon] fat_free_clusters : %d ", cluster );
@@ -1025,7 +1027,19 @@ int fat_free_clusters(struct inode *inode, int cluster)
 				area = get_area_number_for_free_func( inode, fatent.entry );
 
 				spin_lock_irqsave( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
-					(sbi->bx_free_clusters[ area ])++;
+				
+				(sbi->bx_free_clusters[ area ])++;
+			
+#if 0
+				if( cluster == FAT_ENT_EOF )				{
+					sbi->bx_head[area] = previous_cluster + 1;
+					printk("[cheon] fat_free_clusters, last cluster : %d \n", sbi->bx_head[area] );	
+
+				}
+				else 
+					previous_cluster = cluster;		
+#endif
+
 				spin_unlock_irqrestore( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
 #endif
 

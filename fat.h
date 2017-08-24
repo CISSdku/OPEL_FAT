@@ -203,6 +203,9 @@ struct msdos_sb_info {
 	unsigned int bx_free_clusters[8] ; /* number of free cluster for each area */
 	unsigned int bx_prev_free[8];  /* Previously allocated cluster number for each area */
 	unsigned int bx_next_start[8];
+	//
+	unsigned int bx_head[8];
+	unsigned int bx_tail[8]; 
 	spinlock_t bx_lock[8];
 
 	int bx_free_valid; //valid check for bx

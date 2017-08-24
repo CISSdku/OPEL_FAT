@@ -126,7 +126,6 @@ void detect_and_control( char **dirs, int dir_cnt )
 			//꽉 차면 전체에서 일정 비율을 삭제할 거임
 			while( dir_size( dirs[ num ] )  > g_dir[ num ].check_portion ) 
 			{
-				printf("DELETE\n");	
 				
 				file_old_remove( dirs[ num ], num );
 			}

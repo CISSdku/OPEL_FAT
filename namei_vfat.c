@@ -1305,7 +1305,7 @@ MODULE_ALIAS_FS("vfat");
 static int __init init_vfat_fs(void)
 {
 #if 1
-	int rc;
+	int rc = 0;
 	printk( KERN_ALERT "[cheon] FAT sysfs Test!! \n");
   
 	rc = do_fs_sysfs_registration();

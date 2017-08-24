@@ -146,6 +146,7 @@ static void auto_select( int *selected_dir )
 	before_num = invoked;
 }   
 
+#define MAX_THREAD 8
 struct thread_arg{
 	char** dirs;
 	int load_flag;
@@ -154,16 +155,18 @@ void* thread_func( void* arg)
 {
 	int selected_dir;
 	struct thread_arg targ = *(struct thread_arg*)arg;
+
 	auto_select( &selected_dir );
-	printf("%s\n", targ.dirs[selected_dir]);
+	//printf("%s\n", targ.dirs[selected_dir]);
 	thread_file_create( targ.dirs, selected_dir, targ.load_flag );
 }
-#define MAX_THREAD 2
 void run_thread( char** dirs, int sinario, int load_flag)
 {
-	pthread_t tid[4];
-	struct thread_arg targ[4];
+	pthread_t tid[MAX_THREAD];
+	struct thread_arg targ[MAX_THREAD];
 	int i;
+
+
 	for( i = 0; i < MAX_THREAD; i++){
 		targ[i].dirs = dirs;
 		targ[i].load_flag = load_flag;
@@ -185,7 +188,7 @@ void run_workload( char **dirs, int sinario, int selected_dir, int load_flag )
 	{
 		auto_select( &selected_dir );
 		file_create( dirs, &selected_dir, sinario, load_flag );
-	}else{
+	}else{  //thread
 		run_thread( dirs, sinario, load_flag);
 	}
 }
