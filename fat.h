@@ -16,6 +16,7 @@
 #define TOTAL_AREA_CNT 6
 #define OFF 0
 #define ON 1
+#define ON_WITH_ERROR 3
 
 #define NUM_1	1  //normal 		//normal
 #define NUM_2	2  //normal_event 	//event
@@ -243,7 +244,7 @@ struct msdos_inode_info {
 	int i_logstart;		/* logical first cluster */
 	int i_attrs;		/* unused attribute bits */
 
-	int pre_alloced; //pre_alloc_check
+	unsigned char pre_alloced; //pre_alloc_check
 
 	loff_t i_pos;		/* on-disk position of directory entry or 0 */
 	struct hlist_node i_fat_hash;	/* hash by i_location */

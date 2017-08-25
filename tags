@@ -29,7 +29,7 @@ COUNT_AREA_2	inode.c	45;"	d	file:
 COUNT_AREA_3	inode.c	46;"	d	file:
 COUNT_AREA_4	inode.c	47;"	d	file:
 COUNT_AREA_5	inode.c	48;"	d	file:
-CURRENT_TIME_SEC_OPEL	fat.h	592;"	d
+CURRENT_TIME_SEC_OPEL	fat.h	595;"	d
 DAYS_DELTA	misc.c	184;"	d	file:
 DIR_1	fat.h	29;"	d
 DIR_2	fat.h	30;"	d
@@ -39,7 +39,7 @@ DIR_5	fat.h	33;"	d
 ETC_AREA_RATIO	fat.h	100;"	d
 ETC_DIRECTORY	fat.h	53;"	d
 FAT_ALLOC_CLUSTER	fat.h	70;"	d
-FAT_CACHE_VALID	fat.h	224;"	d
+FAT_CACHE_VALID	fat.h	227;"	d
 FAT_ERRORS_CONT	fat.h	117;"	d
 FAT_ERRORS_PANIC	fat.h	118;"	d
 FAT_ERRORS_RO	fat.h	119;"	d
@@ -55,7 +55,7 @@ FAT_MAX_UNI_CHARS	dir.c	35;"	d	file:
 FAT_MAX_UNI_SIZE	dir.c	36;"	d	file:
 FAT_NFS_NOSTALE_RO	fat.h	122;"	d
 FAT_NFS_STALE_RW	fat.h	121;"	d
-FAT_READA_SIZE	fatent.c	1127;"	d	file:
+FAT_READA_SIZE	fatent.c	1141;"	d	file:
 FAT_VALID_MODE	file.c	455;"	d	file:
 HANDWORK_DIRECTORY	fat.h	51;"	d
 IMAGE_AREA_RATIO	fat.h	99;"	d
@@ -173,11 +173,13 @@ bx_area_ratio	fat.h	/^	unsigned int bx_area_ratio[8]; \/\/영역 크기 비율$/
 bx_end_cluster	fat.h	/^	unsigned int bx_end_cluster[8]; \/* number of end cluster for each area *\/$/;"	m	struct:msdos_sb_info
 bx_free_clusters	fat.h	/^	unsigned int bx_free_clusters[8] ; \/* number of free cluster for each area *\/$/;"	m	struct:msdos_sb_info
 bx_free_valid	fat.h	/^	int bx_free_valid; \/\/valid check for bx$/;"	m	struct:msdos_sb_info
+bx_head	fat.h	/^	unsigned int bx_head[8];$/;"	m	struct:msdos_sb_info
 bx_lock	fat.h	/^	spinlock_t bx_lock[8];$/;"	m	struct:msdos_sb_info
 bx_next_start	fat.h	/^	unsigned int bx_next_start[8];$/;"	m	struct:msdos_sb_info
 bx_pre_size	fat.h	/^	unsigned int bx_pre_size[8];   \/\/미리할당 크기$/;"	m	struct:msdos_sb_info
 bx_prev_free	fat.h	/^	unsigned int bx_prev_free[8];  \/* Previously allocated cluster number for each area *\/$/;"	m	struct:msdos_sb_info
 bx_start_cluster	fat.h	/^	unsigned int bx_start_cluster[8]; \/* number of start cluster for each area *\/$/;"	m	struct:msdos_sb_info
+bx_tail	fat.h	/^	unsigned int bx_tail[8]; $/;"	m	struct:msdos_sb_info
 cache_contiguous	cache.c	/^static inline int cache_contiguous(struct fat_cache_id *cid, int dclus)$/;"	f	file:
 cache_init	cache.c	/^static inline void cache_init(struct fat_cache_id *cid, int fclus, int dclus)$/;"	f	file:
 cache_list	cache.c	/^	struct list_head cache_list;$/;"	m	struct:fat_cache	typeref:struct:fat_cache::list_head	file:
@@ -187,6 +189,7 @@ cache_valid_id	fat.h	/^	unsigned int cache_valid_id;$/;"	m	struct:msdos_inode_in
 calc_fat_clusters	inode.c	/^static unsigned long calc_fat_clusters(struct super_block *sb)$/;"	f	file:
 ceil	fat.h	68;"	d
 check_area_limit	inode.c	/^static int check_area_limit( struct super_block *sb, unsigned int start, unsigned int need_to_alloc, int area )$/;"	f	file:
+check_for_existing_file_conflicts	inode.c	/^static int check_for_existing_file_conflicts( struct super_block *sb, int two_frag, unsigned int **data, int page_num, int area)$/;"	f	file:
 check_page_align	inode.c	/^void check_page_align( unsigned int *cluster, unsigned int max_cluster, unsigned short fat_start )$/;"	f
 cluster_bits	fat.h	/^	unsigned short cluster_bits;  \/* log2(cluster_size) *\/$/;"	m	struct:msdos_sb_info
 cluster_size	fat.h	/^	unsigned int cluster_size;    \/* cluster size *\/$/;"	m	struct:msdos_sb_info
@@ -342,8 +345,8 @@ fat_flush_inodes	inode.c	/^int fat_flush_inodes(struct super_block *sb, struct i
 fat_free	file.c	/^static int fat_free(struct inode *inode, int skip)$/;"	f	file:
 fat_free_clusters	fatent.c	/^EXPORT_SYMBOL_GPL(fat_free_clusters);$/;"	v
 fat_free_clusters	fatent.c	/^int fat_free_clusters(struct inode *inode, int cluster)$/;"	f
-fat_fs_error	fat.h	540;"	d
-fat_fs_error_ratelimit	fat.h	542;"	d
+fat_fs_error	fat.h	543;"	d
+fat_fs_error_ratelimit	fat.h	545;"	d
 fat_generic_compat_ioctl	file.c	/^static long fat_generic_compat_ioctl(struct file *filp, unsigned int cmd,$/;"	f	file:
 fat_generic_ioctl	file.c	/^long fat_generic_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)$/;"	f
 fat_get_blknr_offset	fat.h	/^static inline void fat_get_blknr_offset(struct msdos_sb_info *sbi,$/;"	f
@@ -385,7 +388,7 @@ fat_mirror_bhs	fatent.c	/^static int fat_mirror_bhs(struct super_block *sb, stru
 fat_mode_can_hold_ro	fat.h	/^static inline int fat_mode_can_hold_ro(struct inode *inode)$/;"	f
 fat_mount_options	fat.h	/^struct fat_mount_options {$/;"	s
 fat_msg	misc.c	/^void fat_msg(struct super_block *sb, const char *level, const char *fmt, ...)$/;"	f
-fat_msg_ratelimit	fat.h	546;"	d
+fat_msg_ratelimit	fat.h	549;"	d
 fat_name_match	dir.c	/^static inline int fat_name_match(struct msdos_sb_info *sbi,$/;"	f	file:
 fat_nfs_get_inode	nfs.c	/^static struct inode *fat_nfs_get_inode(struct super_block *sb,$/;"	f	file:
 fat_original_flag	fat.h	/^	int fat_original_flag;$/;"	m	struct:msdos_sb_info
@@ -541,7 +544,7 @@ parent_i_gen	nfs.c	/^	u32 parent_i_gen;$/;"	m	struct:fat_fid	file:
 parent_i_pos_hi	nfs.c	/^	u16 parent_i_pos_hi;$/;"	m	struct:fat_fid	file:
 parent_i_pos_low	nfs.c	/^	u32 parent_i_pos_low;$/;"	m	struct:fat_fid	file:
 parse_options	inode.c	/^static int parse_options(struct super_block *sb, char *options, int is_vfat,$/;"	f	file:
-preAlloc	inode.c	/^static void preAlloc( struct inode *inode, unsigned int *next, unsigned int prev, unsigned int* new_next,  \\$/;"	f	file:
+preAlloc	inode.c	/^static int preAlloc( struct inode *inode, unsigned int *next, unsigned int prev, unsigned int* new_next,  \\$/;"	f	file:
 pre_alloced	fat.h	/^	int pre_alloced; \/\/pre_alloc_check$/;"	m	struct:msdos_inode_info
 prev_free	fat.h	/^	unsigned int prev_free;      \/* previously allocated cluster number *\/$/;"	m	struct:msdos_sb_info
 quiet	fat.h	/^	unsigned quiet:1,          \/* set = fake successful chmods and chowns *\/$/;"	m	struct:fat_mount_options
@@ -564,7 +567,6 @@ size_show	namei_vfat.c	/^static ssize_t size_show( struct kobject *kobj, struct 
 slot_off	fat.h	/^	loff_t slot_off;	\/* offset for slot or de start *\/$/;"	m	struct:fat_slot_info
 sys_immutable	fat.h	/^		 sys_immutable:1,  \/* set = system files are immutable *\/$/;"	m	struct:fat_mount_options
 temp_sb	fatent.c	/^struct super_block *temp_sb;$/;"	v	typeref:struct:super_block
-test_func	inode.c	/^static void test_func( unsigned int **data)$/;"	f	file:
 time	fat.h	/^	unsigned int time;$/;"	m	struct:msdos_sb_info
 time_offset	fat.h	/^	int time_offset;	   \/* Offset of timestamps from UTC (in minutes) *\/$/;"	m	struct:fat_mount_options
 time_ordering	inode.c	/^EXPORT_SYMBOL_GPL( time_ordering ); $/;"	v

@@ -373,6 +373,7 @@ static int detect_file_counter( int file_counter, int load_flag )
 	return 0;
 }
 
+char dummy_data [ 1024 ];
 
 void thread_file_create(char **dirs, int selected_dir, int load_flag )
 {
@@ -383,6 +384,8 @@ void thread_file_create(char **dirs, int selected_dir, int load_flag )
 	
 	static int file_creator[ DIR_NUM ] = { 0, };
 	unsigned long f_size = 0;
+	int sleepcnt = 1;
+	int retval = 0;
 	//f_size = f_rand_size( &selected_dir, S_AUTOMATION, load_flag );
 	f_size = 16500000 + rand()%10000000;
 
@@ -401,9 +404,9 @@ void thread_file_create(char **dirs, int selected_dir, int load_flag )
 
 	if( load_flag == ON )
 	{	
-		printf("File name : %d \t", file_creator[ selected_dir ] );
-		sprintf(fn1,"%s%d_%d%s", dirs[ selected_dir -1 ], file_creator[ selected_dir ], pthread_self(),".avi"  );
-		printf("%s\n", fn1);
+		//printf("File name : %d \t", file_creator[ selected_dir ] );
+	//	sprintf(fn1,"%s%d_%d%s", dirs[ selected_dir -1 ], file_creator[ selected_dir ], pthread_self(),".avi"  );
+//		printf("%s\n", fn1);
 #if 0	
 		printf("File name : %d \t\n", ++file_creator[ *selected_dir ]   );
 		sprintf(fn2,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".avi"  );
@@ -421,7 +424,15 @@ void thread_file_create(char **dirs, int selected_dir, int load_flag )
 
 		for( k=0 ; k < f_size ; k++)
 		{
-			fputs("k",fd1);
+			while(1){
+				retval = fputs("k",fd1);
+				if( retval == EOF ){
+					sleep(1);
+					printf("sleep count %d\n",sleepcnt++);
+				}else
+					break;
+			}
+
 		}
 
 		fclose( fd1 );
@@ -480,8 +491,15 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 
 		for( k=0 ; k < f_size ; k++)
 		{
+			
 			fputs("k",fd1);
+			
+			fprintf( stderr, "%s\n", strerror(errno));
+
 			fputs("k",fd2);
+			
+			fprintf( stderr, "%s\n", strerror(errno));
+			
 		}
 
 		fclose( fd1 );

@@ -1211,7 +1211,7 @@ static ssize_t size_show( struct kobject *kobj, struct kobj_attribute *attr, cha
 	unsigned int total_size[10] = {0,};
 	
 
-	printk( KERN_ALERT "[cheon] sys/fs/, size_monitoring()");
+	printk( KERN_ALERT "[cheon] sys/fs/, size_monitoring()\n");
 
 	for(i=0;i<TOTAL_AREA_CNT;i++)
 	{

@@ -1030,10 +1030,10 @@ int fat_free_clusters(struct inode *inode, int cluster)
 				
 				(sbi->bx_free_clusters[ area ])++;
 			
-#if 0
+#if 1
 				if( cluster == FAT_ENT_EOF )				{
 					sbi->bx_head[area] = previous_cluster + 1;
-					printk("[cheon] fat_free_clusters, last cluster : %d \n", sbi->bx_head[area] );	
+					printk("[cheon] fat_free_clusters, bx_head : %d \n", sbi->bx_head[area] );	
 
 				}
 				else 
