@@ -769,14 +769,14 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 		//printk("[cheon] get_area_number area : %d \n", area );
 
 		//Free space check for each area
+		spin_lock_irqsave( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
 		if( sbi->bx_free_clusters[ area ] < nr_cluster )
 		{
 			printk( KERN_ALERT "[cheon] No space storage / bx current free %u / nr_cluster %d / area : %d  \n", sbi->bx_free_clusters[ area ], nr_cluster, area );
 			unlock_fat(sbi);
 			return -ENOSPC;
-			unlock_fat(sbi);
 		}
-		
+		spin_unlock_irqrestore( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
 	}
 
 //#endif

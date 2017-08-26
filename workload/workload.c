@@ -6,6 +6,8 @@
  99 * 1024 * 1024 = 103809024
  */
 
+char err_msg[50] = {"Success"};
+
 static void save_load_track_to_file( FILE **fpp, int sinario )
 {
 	switch( sinario )
@@ -384,12 +386,14 @@ void thread_file_create(char **dirs, int selected_dir, int load_flag )
 	
 	static int file_creator[ DIR_NUM ] = { 0, };
 	unsigned long f_size = 0;
-	int sleepcnt = 1;
+	static unsigned long sleep_cnt = 1;
 	int retval = 0;
+	int collision_flag=0;
 	//f_size = f_rand_size( &selected_dir, S_AUTOMATION, load_flag );
 	f_size = 16500000 + rand()%10000000;
 
-	printf("f_size : %luM \t", f_size/1024/1024 );
+//	printf("f_size : %luM \t", f_size/1024/1024 );
+
 	switch( selected_dir )
 	{
 		//	case ETC 			: file_creator[ ETC ]++; break;
@@ -404,9 +408,9 @@ void thread_file_create(char **dirs, int selected_dir, int load_flag )
 
 	if( load_flag == ON )
 	{	
-		//printf("File name : %d \t", file_creator[ selected_dir ] );
-	//	sprintf(fn1,"%s%d_%d%s", dirs[ selected_dir -1 ], file_creator[ selected_dir ], pthread_self(),".avi"  );
-//		printf("%s\n", fn1);
+//		printf("File name : %d \t", file_creator[ selected_dir ] );
+		sprintf(fn1,"%s%d_%d%s", dirs[ selected_dir -1 ], file_creator[ selected_dir ], pthread_self(),".avi"  );
+		printf("File : %s\n", fn1);
 #if 0	
 		printf("File name : %d \t\n", ++file_creator[ *selected_dir ]   );
 		sprintf(fn2,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".avi"  );
@@ -424,14 +428,41 @@ void thread_file_create(char **dirs, int selected_dir, int load_flag )
 
 		for( k=0 ; k < f_size ; k++)
 		{
-			while(1){
+	//		while(1)
+	//		{
 				retval = fputs("k",fd1);
-				if( retval == EOF ){
-					sleep(1);
-					printf("sleep count %d\n",sleepcnt++);
-				}else
+
+#if 1
+				if( retval == EOF )
+				{
+					sleep_cnt++;
+
+					sleep(2);
+
+					printf("sleep_cnt : %lu \n", sleep_cnt );
+				}
+#endif
+#if 0
+				if( retval == EOF )
+					collision_flag = ON;
+
+				if( collision_flag == ON )
+				{
+					if( strcmp( err_msg, strerror(errno) ) ) //Success가 아니면
+					{
+						printf("%s\n", strerror( errno );
+						printf("sleep_cnt : %d \n", sleep_cnt );
+						sleep(1);
+						sleep_cnt++;
+					}
+					else//Success 이면 
+						collision_flag = OFF;
+				}
+
+				if( retval != EOF && collision_flag == OFF )
 					break;
 			}
+#endif
 
 		}
 
@@ -451,9 +482,11 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 	char fn2[ NAME_SIZE ];//, in_name[10];
 	char temp_full_file[ NAME_SIZE ];
 	int k;
+	int sleep_cnt = 1;
 	
 	static int file_creator[ DIR_NUM ] = { 0, };
 	unsigned long f_size = 0;
+
 
 	f_size = f_rand_size( selected_dir, sinario, load_flag );
 
@@ -493,12 +526,9 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 		{
 			
 			fputs("k",fd1);
-			
-			fprintf( stderr, "%s\n", strerror(errno));
-
 			fputs("k",fd2);
-			
-			fprintf( stderr, "%s\n", strerror(errno));
+	//		fprintf( stderr, "%s\n", strerror(errno));
+
 			
 		}
 

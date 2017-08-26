@@ -64,6 +64,7 @@ static void load_saved_log_file( FILE **fpp, int sinario )
 		case S_HANDWORK        	    : *fpp = fopen( SAVE_LOG_HANDWORK,      "a+" );     break;
 
 		case S_AUTOMATION    	    : *fpp = fopen( SAVE_LOG_AUTOMATION,    "a+" );     break;
+		case 7    	    			: *fpp = fopen( SAVE_LOG_AUTOMATION,    "a+" );     break;
 
 		default : printf("save_track_to_file \n");                         		        break;
 	}
@@ -170,6 +171,7 @@ void run_thread( char** dirs, int sinario, int load_flag)
 	for( i = 0; i < MAX_THREAD; i++){
 		targ[i].dirs = dirs;
 		targ[i].load_flag = load_flag;
+		
 		pthread_create( &tid[i], NULL, thread_func, (void *)&targ[i]);
 	}
 
@@ -189,6 +191,8 @@ void run_workload( char **dirs, int sinario, int selected_dir, int load_flag )
 		auto_select( &selected_dir );
 		file_create( dirs, &selected_dir, sinario, load_flag );
 	}else{  //thread
+
+		
 		run_thread( dirs, sinario, load_flag);
 	}
 }
@@ -238,7 +242,7 @@ int main( int argc, char *argv[] )
 	{
 		if( load_flag == ON )
 		{
-//			sleep(1);
+			sleep(1);
 //			sync();
 			
 		}
@@ -252,8 +256,8 @@ int main( int argc, char *argv[] )
 
 		
 		run_workload( dirs, sinario, selected_dir, load_flag );
-		usleep(10000);
-		printf("%d run\n",run_count++);
+//		usleep(10000);
+//		printf("%d run\n",run_count++);
 	}
 
 	return 0;
