@@ -27,8 +27,11 @@
 
 char manager_control_sd1[20]; 
 char manager_control_sd2[20]; 
-struct msdos_sb_info *g_sbi;
-unsigned int g_total_cluster[10];
+struct super_block *g_sb_s1;
+struct super_block *g_sb_s2;
+unsigned int g_total_cluster_s1[10];
+unsigned int g_total_cluster_s2[10];
+
 /*
  * If new entry was created in the parent, it could create the 8.3
  * alias (the shortname of logname).  So, the parent may have the
@@ -1133,20 +1136,19 @@ static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 	printk( "[cheon] vfat_fill_super  S_ID : %s\n", sb->s_id  );
 	res = fat_fill_super(sb, data, silent, 1, setup);
 	struct msdos_sb_info *sbi = MSDOS_SB(sb); //여기에 있어야 함
-	g_sbi = sbi;
+	
 
 ////////////////////////////
 
 	if( !strcmp( sb->s_id, SD1_S_ID ) || !strcmp( sb->s_id, SD2_S_ID ) ) //if this device is SD card 
 	{
 		printk("SD_card\n");
+
 		fat_config_init( sb );
 		fat_update_super( sb );
 
-		for(i=0;i<TOTAL_AREA_CNT;i++)	
-		g_total_cluster[i] = sbi->bx_free_clusters[i];
-	
-		if( sbi->fat_original_flag == ON )
+		
+		if( sbi->fat_original_flag == ON ) //ORIGINAL FAT //특정 영역 공간 부족
 		{
 			if( !strcmp( sb->s_id, SD1_S_ID ) )
 				strcpy( manager_control_sd1, "START_ORIGINAL" );
@@ -1155,11 +1157,33 @@ static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 		}
 		else  //OPEL
 		{
+
 			if( !strcmp( sb->s_id, SD1_S_ID ) )
 				strcpy( manager_control_sd1, "START_OPEL" );
 			else
 				strcpy( manager_control_sd2, "START_OPEL" );
 		}
+#if 1
+			if( !strcmp( sb->s_id, SD1_S_ID ) )
+			{
+				g_sb_s1 = sb;
+				for(i=0;i<TOTAL_AREA_CNT;i++)	
+					g_total_cluster_s1[i] = sbi->bx_end_cluster[i] - sbi->bx_start_cluster[i] + 1;
+
+				for(i=0;i<TOTAL_AREA_CNT;i++)	
+					printk("[cheon] SD1 total free clusters : %u \n", g_total_cluster_s1[i] );
+			}
+			else
+			{
+				g_sb_s2 = sb;
+				for(i=0;i<TOTAL_AREA_CNT;i++)	
+					g_total_cluster_s2[i] = sbi->bx_end_cluster[i] - sbi->bx_start_cluster[i] + 1;
+
+				for(i=0;i<TOTAL_AREA_CNT;i++)	
+					printk("[cheon] SD2 total free clusters : %u \n", g_total_cluster_s2[i] );
+
+			}
+#endif
 
 		printk( KERN_ALERT "manager_control_sd1 : %s \n", manager_control_sd1 );
 		printk( KERN_ALERT "manager_control_sd2 : %s \n", manager_control_sd2 );
@@ -1202,7 +1226,37 @@ static ssize_t control_show_s2( struct kobject *kobj, struct kobj_attribute *att
 	return snprintf( buff, PAGE_SIZE, "%s \n", manager_control_sd2 );
 }
 
-static ssize_t size_show( struct kobject *kobj, struct kobj_attribute *attr, char *buff )
+static ssize_t size_show_s1( struct kobject *kobj, struct kobj_attribute *attr, char *buff )
+{
+	int i = 0;
+	int cnt = 0;
+	unsigned int used_size[10] = {0,};
+	unsigned int free_size[10] = {0,};
+	unsigned int total_size[10] = {0,};
+
+	if( strcmp( g_sb_s1->s_id, SD1_S_ID ) )
+	{
+		printk("[cheon] sd1 is not mounted \n");		
+		return 0;
+	}
+	struct msdos_sb_info *sbi = MSDOS_SB( g_sb_s1 );
+
+	printk( KERN_ALERT "[cheon] sys/fs/, size_monitoring() _sd1\n");
+
+	for(i=0;i<TOTAL_AREA_CNT;i++)
+	{
+		used_size[i] = (g_total_cluster_s1[i] - sbi->bx_free_clusters[i] ) * 4;
+		free_size[i] = sbi->bx_free_clusters[i] * 4;
+		total_size[i] = g_total_cluster_s1[i] * 4;
+	}
+
+	cnt = snprintf( buff, PAGE_SIZE, "%u\t%u\t%u\t%u\t%u\t%u \n%u\t%u\t%u\t%u\t%u\t%u \n%u\t%u\t%u\t%u\t%u\t%u \n", total_size[0], total_size[1],total_size[2], total_size[3], total_size[4], total_size[5], \
+																								  used_size[0], used_size[1], used_size[2], used_size[3], used_size[4], used_size[5], \
+																								  free_size[0], free_size[1], free_size[2], free_size[3], free_size[4], free_size[5] );
+	return cnt;
+}
+
+static ssize_t size_show_s2( struct kobject *kobj, struct kobj_attribute *attr, char *buff )
 {
 	int i = 0;
 	int cnt = 0;
@@ -1210,23 +1264,24 @@ static ssize_t size_show( struct kobject *kobj, struct kobj_attribute *attr, cha
 	unsigned int free_size[10] = {0,};
 	unsigned int total_size[10] = {0,};
 	
-
-	printk( KERN_ALERT "[cheon] sys/fs/, size_monitoring()\n");
+	if( strcmp( g_sb_s2->s_id, SD2_S_ID ) )
+	{
+		printk("[cheon] sd1 is not mounted \n");		
+		return 0;
+	}
+	struct msdos_sb_info *sbi = MSDOS_SB( g_sb_s2 );
+	printk( KERN_ALERT "[cheon] sys/fs/, size_monitoring() _sd2\n");
 
 	for(i=0;i<TOTAL_AREA_CNT;i++)
 	{
-		used_size[i] = (g_total_cluster[i] -g_sbi->bx_free_clusters[i] ) * 4;
-		free_size[i] = g_sbi->bx_free_clusters[i] * 4;
-		total_size[i] = g_total_cluster[i] * 4;
+		used_size[i] = (g_total_cluster_s2[i] -sbi->bx_free_clusters[i] ) * 4;
+		free_size[i] = sbi->bx_free_clusters[i] * 4;
+		total_size[i] = g_total_cluster_s2[i] * 4;
 	}
 
 	cnt = snprintf( buff, PAGE_SIZE, "%u\t%u\t%u\t%u\t%u\t%u \n%u\t%u\t%u\t%u\t%u\t%u \n%u\t%u\t%u\t%u\t%u\t%u \n", total_size[0], total_size[1],total_size[2], total_size[3], total_size[4], total_size[5], \
 																								  used_size[0], used_size[1], used_size[2], used_size[3], used_size[4], used_size[5], \
 																								  free_size[0], free_size[1], free_size[2], free_size[3], free_size[4], free_size[5] );
-//	cnt = snprintf( buff, PAGE_SIZE, "%u %u %u %u %u %u \n%u %u %u %u %u %u \n%u %u %u %u %u %u", total_size[0], total_size[1],total_size[2], total_size[3], total_size[4], total_size[5], \
-//																								  used_size[0], used_size[1], used_size[2], used_size[3], used_size[4], used_size[5], \
-//																								  free_size[0], free_size[1], free_size[2], free_size[3], free_size[4], free_size[5] );
-
 
 	return cnt;
 }
@@ -1245,13 +1300,15 @@ static ssize_t control_store( struct kobject *kobj, struct kobj_attribute *attr,
 
 static struct kobj_attribute control_attr1 = __ATTR( SD1_control, 0644, control_show_s1, control_store );
 static struct kobj_attribute control_attr2 = __ATTR( SD2_control, 0644, control_show_s2, control_store );
-static struct kobj_attribute control_attr3 = __ATTR( size_monitoring, 0644, size_show, control_store );
+static struct kobj_attribute control_attr3 = __ATTR( SD1_size_monitoring, 0644, size_show_s1, control_store );
+static struct kobj_attribute control_attr4 = __ATTR( SD2_size_monitoring, 0644, size_show_s2, control_store );
 
 //static struct kobj_attribute version_attr = __ATTR_RO( version);
 static struct attribute *attributes[ ] = {
 	    &control_attr1.attr,
 	    &control_attr2.attr,
 	    &control_attr3.attr,
+	    &control_attr4.attr,
 		NULL,
 };
 

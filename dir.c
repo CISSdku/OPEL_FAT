@@ -1001,7 +1001,9 @@ int fat_scan_opel(struct inode *dir, const unsigned char *name,
 
 //		printk( KERN_ALERT "sinfo->de->name : %s	%s\n", sinfo->de->name, name );
 	//	printk( KERN_ALERT "sizeof : %d	%d\n", sizeof(sinfo->de->name), sizeof( name ) );
-		if( strstr( sinfo->de->name, "CON" ) != NULL &&  strstr( name, "CON" ) != NULL )
+#if 1
+		//if( strstr( sinfo->de->name, "CON" ) != NULL &&  strstr( name, "CON" ) != NULL )
+		if( strstr( sinfo->de->name, "BXFS" ) != NULL &&  strstr( name, "BXFS" ) != NULL )
 		{
 //			printk( KERN_ALERT "222222222222222222222222222222222222=\n");		
 			printk( KERN_ALERT "sinfo->de->name : %s	%s\n", sinfo->de->name, name );
@@ -1014,6 +1016,7 @@ int fat_scan_opel(struct inode *dir, const unsigned char *name,
 			return 0;	
 		}
 
+#endif
 
 		if (!strncmp(sinfo->de->name, name, MSDOS_NAME)) {
 	//	if (!strcmp(sinfo->de->name, name)) {

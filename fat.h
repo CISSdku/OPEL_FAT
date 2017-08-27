@@ -16,7 +16,7 @@
 #define TOTAL_AREA_CNT 6
 #define OFF 0
 #define ON 1
-#define ON_WITH_ERROR 3
+//#define ON_WITH_ERROR 3
 
 #define NUM_1	1  //normal 		//normal
 #define NUM_2	2  //normal_event 	//event
@@ -207,6 +207,7 @@ struct msdos_sb_info {
 	//
 	unsigned int bx_head[8];
 	unsigned int bx_tail[8]; 
+	unsigned int bx_area_limit[8];
 	spinlock_t bx_lock[8];
 
 	int bx_free_valid; //valid check for bx
