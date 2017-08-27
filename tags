@@ -4,24 +4,24 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-BB_ETC	fat.h	43;"	d
-BB_IMAGE	fat.h	41;"	d
-BB_MANUAL	fat.h	40;"	d
-BB_NORMAL	fat.h	37;"	d
-BB_NORMAL_EVENT	fat.h	38;"	d
-BB_PARKING	fat.h	39;"	d
-BLOCK_IN_PAGE	fat.h	63;"	d
-BX_END	fat.h	73;"	d
-BX_ETC	fat.h	90;"	d
-BX_IMAGE	fat.h	89;"	d
-BX_MANUAL	fat.h	88;"	d
-BX_NORMAL	fat.h	85;"	d
-BX_NORMAL_EVENT	fat.h	86;"	d
-BX_PARKING_EVENT	fat.h	87;"	d
-BX_REUPDATE_META_DIFFER	fat.h	81;"	d
-BX_START	fat.h	72;"	d
-CLUSTER_IN_BLOCK	fat.h	62;"	d
-CLUSTER_IN_PAGE	fat.h	61;"	d
+BB_ETC	fat.h	44;"	d
+BB_IMAGE	fat.h	42;"	d
+BB_MANUAL	fat.h	41;"	d
+BB_NORMAL	fat.h	38;"	d
+BB_NORMAL_EVENT	fat.h	39;"	d
+BB_PARKING	fat.h	40;"	d
+BLOCK_IN_PAGE	fat.h	64;"	d
+BX_END	fat.h	74;"	d
+BX_ETC	fat.h	91;"	d
+BX_IMAGE	fat.h	90;"	d
+BX_MANUAL	fat.h	89;"	d
+BX_NORMAL	fat.h	86;"	d
+BX_NORMAL_EVENT	fat.h	87;"	d
+BX_PARKING_EVENT	fat.h	88;"	d
+BX_REUPDATE_META_DIFFER	fat.h	82;"	d
+BX_START	fat.h	73;"	d
+CLUSTER_IN_BLOCK	fat.h	63;"	d
+CLUSTER_IN_PAGE	fat.h	62;"	d
 CONFIG_FAT_DEFAULT_IOCHARSET	inode.c	37;"	d	file:
 COUNT_AREA_0	inode.c	43;"	d	file:
 COUNT_AREA_1	inode.c	44;"	d	file:
@@ -29,56 +29,57 @@ COUNT_AREA_2	inode.c	45;"	d	file:
 COUNT_AREA_3	inode.c	46;"	d	file:
 COUNT_AREA_4	inode.c	47;"	d	file:
 COUNT_AREA_5	inode.c	48;"	d	file:
-CURRENT_TIME_SEC_OPEL	fat.h	595;"	d
+CURRENT_TIME_SEC_OPEL	fat.h	596;"	d
 DAYS_DELTA	misc.c	184;"	d	file:
-DIR_1	fat.h	29;"	d
-DIR_2	fat.h	30;"	d
-DIR_3	fat.h	31;"	d
-DIR_4	fat.h	32;"	d
-DIR_5	fat.h	33;"	d
-ETC_AREA_RATIO	fat.h	100;"	d
-ETC_DIRECTORY	fat.h	53;"	d
-FAT_ALLOC_CLUSTER	fat.h	70;"	d
-FAT_CACHE_VALID	fat.h	227;"	d
-FAT_ERRORS_CONT	fat.h	117;"	d
-FAT_ERRORS_PANIC	fat.h	118;"	d
-FAT_ERRORS_RO	fat.h	119;"	d
+DIR_1	fat.h	30;"	d
+DIR_2	fat.h	31;"	d
+DIR_3	fat.h	32;"	d
+DIR_4	fat.h	33;"	d
+DIR_5	fat.h	34;"	d
+ETC_AREA_RATIO	fat.h	101;"	d
+ETC_DIRECTORY	fat.h	54;"	d
+FAT_ALLOC_CLUSTER	fat.h	71;"	d
+FAT_CACHE_VALID	fat.h	228;"	d
+FAT_ERRORS_CONT	fat.h	118;"	d
+FAT_ERRORS_PANIC	fat.h	119;"	d
+FAT_ERRORS_RO	fat.h	120;"	d
 FAT_FID_SIZE_WITHOUT_PARENT	nfs.c	26;"	d	file:
 FAT_FID_SIZE_WITH_PARENT	nfs.c	27;"	d	file:
-FAT_FREE_CLUSTER	fat.h	71;"	d
-FAT_HASH_BITS	fat.h	153;"	d
-FAT_HASH_SIZE	fat.h	154;"	d
+FAT_FREE_CLUSTER	fat.h	72;"	d
+FAT_HASH_BITS	fat.h	154;"	d
+FAT_HASH_SIZE	fat.h	155;"	d
 FAT_IOCTL_FILLDIR_FUNC	dir.c	719;"	d	file:
 FAT_MAX_CACHE	cache.c	17;"	d	file:
 FAT_MAX_SHORT_SIZE	dir.c	30;"	d	file:
 FAT_MAX_UNI_CHARS	dir.c	35;"	d	file:
 FAT_MAX_UNI_SIZE	dir.c	36;"	d	file:
-FAT_NFS_NOSTALE_RO	fat.h	122;"	d
-FAT_NFS_STALE_RW	fat.h	121;"	d
+FAT_NFS_NOSTALE_RO	fat.h	123;"	d
+FAT_NFS_STALE_RW	fat.h	122;"	d
 FAT_READA_SIZE	fatent.c	1141;"	d	file:
 FAT_VALID_MODE	file.c	455;"	d	file:
-HANDWORK_DIRECTORY	fat.h	51;"	d
-IMAGE_AREA_RATIO	fat.h	99;"	d
+HANDWORK_DIRECTORY	fat.h	52;"	d
+IMAGE_AREA_RATIO	fat.h	100;"	d
 INIT_SHORTNAME_INFO	namei_vfat.c	269;"	d	file:
 IS_LEAP_YEAR	misc.c	187;"	d	file:
-MANUAL_AREA_RATIO	fat.h	98;"	d
-MANUAL_DIRECTORY	fat.h	50;"	d
+MANUAL_AREA_RATIO	fat.h	99;"	d
+MANUAL_DIRECTORY	fat.h	51;"	d
 MSDOS_I	fat.h	/^static inline struct msdos_inode_info *MSDOS_I(struct inode *inode)$/;"	f
 MSDOS_SB	fat.h	/^static inline struct msdos_sb_info *MSDOS_SB(struct super_block *sb)$/;"	f
-NORMAL_AREA_RATIO	fat.h	95;"	d
-NORMAL_DIRECTORY	fat.h	47;"	d
-NORMAL_EVENT_AREA_RATIO	fat.h	96;"	d
-NORMAL_EVENT_DIRECTORY	fat.h	48;"	d
-NUM_1	fat.h	20;"	d
-NUM_2	fat.h	21;"	d
-NUM_3	fat.h	22;"	d
-NUM_4	fat.h	23;"	d
-NUM_5	fat.h	24;"	d
-NUM_6	fat.h	26;"	d
-NUM_EVNET	fat.h	83;"	d
-NUM_EVNET_DIRECTORY	fat.h	92;"	d
+NORMAL_AREA_RATIO	fat.h	96;"	d
+NORMAL_DIRECTORY	fat.h	48;"	d
+NORMAL_EVENT_AREA_RATIO	fat.h	97;"	d
+NORMAL_EVENT_DIRECTORY	fat.h	49;"	d
+NUM_1	fat.h	21;"	d
+NUM_2	fat.h	22;"	d
+NUM_3	fat.h	23;"	d
+NUM_4	fat.h	24;"	d
+NUM_5	fat.h	25;"	d
+NUM_6	fat.h	27;"	d
+NUM_EVNET	fat.h	84;"	d
+NUM_EVNET_DIRECTORY	fat.h	93;"	d
 OFF	fat.h	17;"	d
 ON	fat.h	18;"	d
+ON_WITH_ERROR	fat.h	19;"	d
 Opt_allow_utime	inode.c	/^	Opt_umask, Opt_dmask, Opt_fmask, Opt_allow_utime, Opt_codepage,$/;"	e	enum:__anon2	file:
 Opt_charset	inode.c	/^	Opt_charset, Opt_shortname_lower, Opt_shortname_win95,$/;"	e	enum:__anon2	file:
 Opt_check_n	inode.c	/^	Opt_check_n, Opt_check_r, Opt_check_s, Opt_uid, Opt_gid,$/;"	e	enum:__anon2	file:
@@ -121,15 +122,15 @@ Opt_uni_xl_yes	inode.c	/^	Opt_uni_xl_no, Opt_uni_xl_yes, Opt_nonumtail_no, Opt_n
 Opt_usefree	inode.c	/^	Opt_usefree, Opt_nocase, Opt_quiet, Opt_showexec, Opt_debug,$/;"	e	enum:__anon2	file:
 Opt_utf8_no	inode.c	/^	Opt_shortname_winnt, Opt_shortname_mixed, Opt_utf8_no, Opt_utf8_yes,$/;"	e	enum:__anon2	file:
 Opt_utf8_yes	inode.c	/^	Opt_shortname_winnt, Opt_shortname_mixed, Opt_utf8_no, Opt_utf8_yes,$/;"	e	enum:__anon2	file:
-PARKING_DIRECTORY	fat.h	49;"	d
-PARKING_EVENT_AREA_RATIO	fat.h	97;"	d
+PARKING_DIRECTORY	fat.h	50;"	d
+PARKING_EVENT_AREA_RATIO	fat.h	98;"	d
 PARSE_EOF	dir.c	/^enum { PARSE_INVALID = 1, PARSE_NOT_LONGNAME, PARSE_EOF, };$/;"	e	enum:__anon1	file:
 PARSE_INVALID	dir.c	/^enum { PARSE_INVALID = 1, PARSE_NOT_LONGNAME, PARSE_EOF, };$/;"	e	enum:__anon1	file:
 PARSE_NOT_LONGNAME	dir.c	/^enum { PARSE_INVALID = 1, PARSE_NOT_LONGNAME, PARSE_EOF, };$/;"	e	enum:__anon1	file:
 PRE_ALLOC_ON	inode.c	53;"	d	file:
 SD1_S_ID	fat.h	13;"	d
 SD2_S_ID	fat.h	14;"	d
-SD_PAGE_SIZE	fat.h	59;"	d
+SD_PAGE_SIZE	fat.h	60;"	d
 SECS_PER_DAY	misc.c	182;"	d	file:
 SECS_PER_HOUR	misc.c	181;"	d	file:
 SECS_PER_MIN	misc.c	180;"	d	file:
@@ -137,11 +138,11 @@ TIMES_SET_FLAGS	file.c	453;"	d	file:
 TOTAL_AREA_CNT	fat.h	16;"	d
 VFAT_IOCTL_READDIR_BOTH32	dir.c	828;"	d	file:
 VFAT_IOCTL_READDIR_SHORT32	dir.c	829;"	d	file:
-VFAT_SFN_CREATE_WIN95	fat.h	114;"	d
-VFAT_SFN_CREATE_WINNT	fat.h	115;"	d
-VFAT_SFN_DISPLAY_LOWER	fat.h	111;"	d
-VFAT_SFN_DISPLAY_WIN95	fat.h	112;"	d
-VFAT_SFN_DISPLAY_WINNT	fat.h	113;"	d
+VFAT_SFN_CREATE_WIN95	fat.h	115;"	d
+VFAT_SFN_CREATE_WINNT	fat.h	116;"	d
+VFAT_SFN_DISPLAY_LOWER	fat.h	112;"	d
+VFAT_SFN_DISPLAY_WIN95	fat.h	113;"	d
+VFAT_SFN_DISPLAY_WINNT	fat.h	114;"	d
 YEAR_2100	misc.c	186;"	d	file:
 _FAT_H	fat.h	2;"	d
 __fat_cache_inval_inode	cache.c	/^static void __fat_cache_inval_inode(struct inode *inode)$/;"	f	file:
@@ -161,6 +162,7 @@ __used	vfat.mod.c	/^__used$/;"	v	typeref:struct:____versions	file:
 __vfat_striptail_len	namei_vfat.c	/^static unsigned int __vfat_striptail_len(unsigned int len, const char *name)$/;"	f	file:
 _fat_bmap	inode.c	/^static sector_t _fat_bmap(struct address_space *mapping, sector_t block)$/;"	f	file:
 _fat_chain_add	config.c	/^static int _fat_chain_add(struct inode *inode, int new_dclus, int nr_cluster)$/;"	f	file:
+align_check	inode.c	/^static inline unsigned int align_check( struct msdos_sb_info *sbi, unsigned int next )$/;"	f	file:
 allow_utime	fat.h	/^	unsigned short allow_utime;\/* permission for setting the [am]time *\/$/;"	m	struct:fat_mount_options
 attr_group	namei_vfat.c	/^static struct attribute_group attr_group = {$/;"	v	typeref:struct:attribute_group	file:
 attributes	namei_vfat.c	/^static struct attribute *attributes[ ] = {$/;"	v	typeref:struct:attribute	file:
@@ -187,7 +189,7 @@ cache_lru	fat.h	/^	struct list_head cache_lru;$/;"	m	struct:msdos_inode_info	typ
 cache_lru_lock	fat.h	/^	spinlock_t cache_lru_lock;$/;"	m	struct:msdos_inode_info
 cache_valid_id	fat.h	/^	unsigned int cache_valid_id;$/;"	m	struct:msdos_inode_info
 calc_fat_clusters	inode.c	/^static unsigned long calc_fat_clusters(struct super_block *sb)$/;"	f	file:
-ceil	fat.h	68;"	d
+ceil	fat.h	69;"	d
 check_area_limit	inode.c	/^static int check_area_limit( struct super_block *sb, unsigned int start, unsigned int need_to_alloc, int area )$/;"	f	file:
 check_for_existing_file_conflicts	inode.c	/^static int check_for_existing_file_conflicts( struct super_block *sb, int two_frag, unsigned int **data, int page_num, int area)$/;"	f	file:
 check_page_align	inode.c	/^void check_page_align( unsigned int *cluster, unsigned int max_cluster, unsigned short fat_start )$/;"	f
@@ -345,8 +347,8 @@ fat_flush_inodes	inode.c	/^int fat_flush_inodes(struct super_block *sb, struct i
 fat_free	file.c	/^static int fat_free(struct inode *inode, int skip)$/;"	f	file:
 fat_free_clusters	fatent.c	/^EXPORT_SYMBOL_GPL(fat_free_clusters);$/;"	v
 fat_free_clusters	fatent.c	/^int fat_free_clusters(struct inode *inode, int cluster)$/;"	f
-fat_fs_error	fat.h	543;"	d
-fat_fs_error_ratelimit	fat.h	545;"	d
+fat_fs_error	fat.h	544;"	d
+fat_fs_error_ratelimit	fat.h	546;"	d
 fat_generic_compat_ioctl	file.c	/^static long fat_generic_compat_ioctl(struct file *filp, unsigned int cmd,$/;"	f	file:
 fat_generic_ioctl	file.c	/^long fat_generic_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)$/;"	f
 fat_get_blknr_offset	fat.h	/^static inline void fat_get_blknr_offset(struct msdos_sb_info *sbi,$/;"	f
@@ -388,7 +390,7 @@ fat_mirror_bhs	fatent.c	/^static int fat_mirror_bhs(struct super_block *sb, stru
 fat_mode_can_hold_ro	fat.h	/^static inline int fat_mode_can_hold_ro(struct inode *inode)$/;"	f
 fat_mount_options	fat.h	/^struct fat_mount_options {$/;"	s
 fat_msg	misc.c	/^void fat_msg(struct super_block *sb, const char *level, const char *fmt, ...)$/;"	f
-fat_msg_ratelimit	fat.h	549;"	d
+fat_msg_ratelimit	fat.h	550;"	d
 fat_name_match	dir.c	/^static inline int fat_name_match(struct msdos_sb_info *sbi,$/;"	f	file:
 fat_nfs_get_inode	nfs.c	/^static struct inode *fat_nfs_get_inode(struct super_block *sb,$/;"	f	file:
 fat_original_flag	fat.h	/^	int fat_original_flag;$/;"	m	struct:msdos_sb_info
@@ -459,7 +461,7 @@ fcluster	cache.c	/^	int fcluster;$/;"	m	struct:fat_cache_id	file:
 file_name	fat.h	/^	const char* file_name;$/;"	m	struct:msdos_sb_info
 fill_page_and_repos_start	inode.c	/^static unsigned int fill_page_and_repos_start( struct super_block *sb, int two_frag, unsigned int *chain, unsigned int **data, unsigned int need_to_alloc, int area )$/;"	f	file:
 find_valid_new_next	inode.c	/^static unsigned int find_valid_new_next(struct inode *inode, int area, unsigned int* next, unsigned int* prev)$/;"	f	file:
-floor	fat.h	69;"	d
+floor	fat.h	70;"	d
 flush	fat.h	/^		 flush:1,	   \/* write things quickly *\/$/;"	m	struct:fat_mount_options
 free_clus_valid	fat.h	/^	unsigned int free_clus_valid; \/* is free_clusters valid? *\/$/;"	m	struct:msdos_sb_info
 free_clusters	fat.h	/^	unsigned int free_clusters;  \/* -1 if undefined *\/$/;"	m	struct:msdos_sb_info
@@ -545,7 +547,7 @@ parent_i_pos_hi	nfs.c	/^	u16 parent_i_pos_hi;$/;"	m	struct:fat_fid	file:
 parent_i_pos_low	nfs.c	/^	u32 parent_i_pos_low;$/;"	m	struct:fat_fid	file:
 parse_options	inode.c	/^static int parse_options(struct super_block *sb, char *options, int is_vfat,$/;"	f	file:
 preAlloc	inode.c	/^static int preAlloc( struct inode *inode, unsigned int *next, unsigned int prev, unsigned int* new_next,  \\$/;"	f	file:
-pre_alloced	fat.h	/^	int pre_alloced; \/\/pre_alloc_check$/;"	m	struct:msdos_inode_info
+pre_alloced	fat.h	/^	unsigned char pre_alloced; \/\/pre_alloc_check$/;"	m	struct:msdos_inode_info
 prev_free	fat.h	/^	unsigned int prev_free;      \/* previously allocated cluster number *\/$/;"	m	struct:msdos_sb_info
 quiet	fat.h	/^	unsigned quiet:1,          \/* set = fake successful chmods and chowns *\/$/;"	m	struct:fat_mount_options
 ratelimit	fat.h	/^	struct ratelimit_state ratelimit;$/;"	m	struct:msdos_sb_info	typeref:struct:msdos_sb_info::ratelimit_state

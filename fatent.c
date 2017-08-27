@@ -767,7 +767,6 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 		get_area_number( &area, inode );
 
 		//printk("[cheon] get_area_number area : %d \n", area );
-
 		//Free space check for each area
 		if( sbi->bx_free_clusters[ area ] < nr_cluster )
 		{
@@ -1159,24 +1158,17 @@ void get_area_number( int *area, struct inode *inode )
 	struct dentry *upper_dentry = NULL;
 	int temp_area = -1;
 	////////////////////
-	//FOR SD Card 7/26
 	//struct super_block *sb = inode->i_sb;
-
 	//printk( "[cheon] S_ID : %s\n", sb->s_id  );
-
-	
 	dentry = list_entry( inode->i_dentry.first, struct dentry, d_u.d_alias ); 
-
 	if( S_ISDIR( inode->i_mode) || dentry->d_parent == NULL)
 	{
 		temp_area = BB_ETC;
-
 //		printk( "[cheon] DE, alloc ETC \n");
 	}	
 	else
 	{
 		upper_dentry = dentry->d_parent;
-
 		while( upper_dentry != NULL )
 		{
 			if( upper_dentry->d_name.name == NULL )
@@ -1186,7 +1178,6 @@ void get_area_number( int *area, struct inode *inode )
 //				temp_area = BB_ETC;
 			//etc는 따로 디렉터리 설정으로 하지 않고 말그대로 기타로 하겟음 ( ex ) 현재 보드상엣 /media/boot 부분에 boot.ini랑 디바이스 파일이랑 , zImage올라가있는데
 			//이 쪽 파티션이 vfat로 되어 있어서 이런 역할로 etc를 나눠 주겟음
-
 			else if(strcmp(upper_dentry->d_name.name, DIR_1 ) == 0 )
 				temp_area = NUM_1;
 
@@ -1214,6 +1205,7 @@ void get_area_number( int *area, struct inode *inode )
 		}
 	}
 
+#if 0
 	if( 1 <= temp_area && temp_area <= 4 ) //normal, evnet, parking, manual인데 avi가 아니먄 etc에서 할당
 	{
 		if( strstr( dentry->d_name.name, "avi" ) == NULL )
@@ -1223,12 +1215,11 @@ void get_area_number( int *area, struct inode *inode )
 			return;
 		}		
 	}
-
+#endif
 	if( temp_area == -1 )
 		*area = BB_ETC;
 	else
 		*area =temp_area;
-	
 //	printk("[cheon] get_area_number : %d\n", *area );
 }
 

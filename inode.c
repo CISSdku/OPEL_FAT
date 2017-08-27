@@ -711,6 +711,7 @@ static int preAlloc( struct inode *inode, unsigned int *next, unsigned int prev,
 		return -ENOSPC;
 	}
 
+
 	sbi->bx_tail[area] = (data[page_num-1][1023] - 1); //data[][]는 그 다음을 가리키니깐 하나를 빼줘야함
 	printk("[cheon] preAlloc, bx_head : %u bx_tail : %u bx_free_clusters[area] : %u  \n", sbi->bx_head[area],  sbi->bx_tail[area], sbi->bx_free_clusters[area] );
 	printk("[cheon] Data First %u, Data Last : %u\n", data[0][0], data[ num_of_page -1 ][1023]  );
@@ -727,6 +728,49 @@ static int preAlloc( struct inode *inode, unsigned int *next, unsigned int prev,
 	return 0;
 }
 #endif
+
+#if 0
+//Align check
+//			if(next % CLUSTER_IN_PAGE  != 0){
+//printk("[cheon] Align Check 1 \n");
+//				next = next + (CLUSTER_IN_PAGE  - (next % CLUSTER_IN_PAGE )); 
+//				prev = next-1;
+//			}
+
+
+if((sbi->fat_start % 8) != 0) //FAT strat point not match with align
+{  
+	int adjust = sbi->fat_start % BLOCK_IN_PAGE ;
+	next = next - (adjust * CLUSTER_IN_BLOCK );
+	prev = next - 1;
+	if(next < sbi->bx_start_cluster[area])	{
+		next = next + CLUSTER_IN_PAGE ;
+		prev = next -1;
+	}
+}
+#endif
+
+static inline unsigned int align_check( struct msdos_sb_info *sbi, unsigned int next, int area )
+{	
+	
+	if( next % CLUSTER_IN_PAGE == 0 );
+	else
+		next = next + (CLUSTER_IN_PAGE  - (next % CLUSTER_IN_PAGE )); 
+
+	if( (sbi->fat_start % 8) != 0 ) //FAT strat point not match with align
+	{
+		int adjust = sbi->fat_start % BLOCK_IN_PAGE ;
+		next = next - (adjust * CLUSTER_IN_BLOCK );
+		//prev = next - 1;
+
+		if(next < sbi->bx_start_cluster[area])	{
+			next = next + CLUSTER_IN_PAGE ;
+		//	prev = next -1;
+		}
+	}
+
+	return next;
+}
 
 int fat_handle_cluster( struct inode *inode, int mode )
 {
@@ -745,18 +789,18 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	 			 need_to_alloc = 0;
 	unsigned long flags;
 	//printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
+
 	get_area_number( &area, inode );
 	if( area == BB_ETC || sbi->fat_original_flag == ON )
 		goto NORMAL_ALLOC;			
 	dentry = list_entry( inode->i_dentry.first, struct dentry, d_u.d_alias );
-	if( dentry == NULL || strstr( dentry->d_name.name, "avi" ) == NULL )
+	if( dentry == NULL  || strstr( dentry->d_name.name, "avi" ) == NULL )
 		goto NORMAL_ALLOC;
 
 	if( MSDOS_I(inode)->pre_alloced & ON ) //preAlloc함수 한번 타고 나오면 안들어간다.
 	{
 		if( (MSDOS_I(inode)->pre_alloced  >> 1 ) & ON ) 
 			return -ENOSPC;	
-		
 		return 0;
 	}
 
@@ -764,44 +808,27 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	MSDOS_I(inode)->pre_alloced = ON; //기존에는 inode->i_ino로 구별했었는데 변경함
 
 	//Pre-Allocation Wrork ( In practice : Iteration of allocation work 
-	//num_pre_alloc = ( sbi->bx_pre_size[ area ] * 1024 ) / ( sbi->cluster_size / 1024 );
-//	first_start = sbi->bx_next_start[area];
-
 	//Abnormal case : New alloc or Reboot alloc
 	mutex_lock(&sbi->fat_lock);
 
 	num_pre_alloc = ( sbi->bx_pre_size[ area ] * 1024 ) / ( sbi->cluster_size / 1024 );
 	if( sbi->bx_next_start[area] == -1 )
-//	if( first_start == -1 )
 	{
-		//printk("[cheon] Restart or First Start of Pre-allocation \n");	
+		printk("[cheon] Restart or First Start of Pre-allocation \n");	
 	//	spin_lock_irqsave( &MSDOS_SB( sb )->bx_lock[ area ], flags );    //cheon_lock
-		//First Allocation
+
+		printk("[cheon] %u %u %u \n", sbi->bx_free_clusters[area], num_pre_alloc, (sbi->bx_end_cluster[ area ] - sbi->bx_start_cluster[ area ] + 1 ) );
+
 		if( (sbi->bx_free_clusters[ area ] + num_pre_alloc) > (sbi->bx_end_cluster[ area ] - sbi->bx_start_cluster[ area ] + 1 ) ) //7/25
 		{
-//			printk("[cheon] Case 1 : Area : %d Current free : %u + Pre_Size : %d > Total Cluster : %u  \n", \
-					area, sbi->bx_free_clusters[ area ], num_pre_alloc, (sbi->bx_end_cluster[ area ] - sbi->bx_start_cluster[ area ] + 1 ) );
 			prev = sbi->bx_prev_free[ area ];
 			next = prev+1;
 
 			allocated = 0;
 			need_to_alloc = num_pre_alloc;
-			//Align check
-			if(next % CLUSTER_IN_PAGE  != 0){
-				//printk("[cheon] Align Check 1 \n");
-				next = next + (CLUSTER_IN_PAGE  - (next % CLUSTER_IN_PAGE )); 
-				prev = next-1;
-			}
-			if((sbi->fat_start % 8) != 0) //FAT strat point not match with align
-			{  
-				int adjust = sbi->fat_start % BLOCK_IN_PAGE ;
-				next = next - (adjust * CLUSTER_IN_BLOCK );
-				prev = next - 1;
-				if(next < sbi->bx_start_cluster[area])	{
-					next = next + CLUSTER_IN_PAGE ;
-					prev = next -1;
-				}
-			}
+		
+			next = align_check( sbi, next, area );
+			prev = next - 1;
 
 			sbi->bx_head[area] = next;
 		}
@@ -823,8 +850,6 @@ int fat_handle_cluster( struct inode *inode, int mode )
 		//Fill Page with cluster chain & 영역 처음으로 왔을 때 위치 선정
 		temp_start = fill_page_and_repos_start( sb, two_frag, &chain, data, need_to_alloc, area );
 #endif
-
-		//		sbi_update_with_prealloc( inode, new_next, new_prev, num_pre_alloc, next, area );
 	}
 	//Continuous Allocation
 	else
@@ -837,7 +862,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	//	spin_unlock_irqrestore( &MSDOS_SB( sb )->bx_lock[ area ], flags );     //cheon_lock
 
 		if(need_to_alloc < 0){
-			printk("[cheon] aaa\n");
+			printk("[cheon] need_to_alloc < 0\n");
 //			spin_lock_irqsave( &MSDOS_SB( sb )->bx_lock[ area ], flags );    //cheon_lock
 			sbi_update_with_prealloc( inode, (sbi->bx_next_start[area]+num_pre_alloc-1), NULL, num_pre_alloc, next, area );
 //			spin_unlock_irqrestore( &MSDOS_SB( sb )->bx_lock[ area ], flags );     //cheon_lock
@@ -850,13 +875,14 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	}
 	
 	mutex_unlock(&sbi->fat_lock);
-
 	//printk("[cheon] Complete alloc.... \n");
-	//return 0;
 	return err;
 
 NORMAL_ALLOC:
 	//origin
+
+//	printk("[cheon] NORMAL ALLOC\n");
+
 	err = fat_alloc_clusters( inode, &cluster, 1 );
 	if (err)
 		return err;
@@ -1196,20 +1222,6 @@ static int fat_add_cluster(struct inode *inode)
 		return err;
 #endif
 
-#if 0 //걍 파일 이름만 얻어옴
-	//[cheon] 
-	if( list_entry( inode->i_dentry.first, struct dentry, d_u.d_alias ) )
-	{
-		dentry = list_entry( inode->i_dentry.first, struct dentry, d_u.d_alias ); 
-		
-		sbi->file_name = ( unsigned char* )dentry->d_name.name;
-
-		if( sbi->file_name )
-			printk( KERN_ALERT "dentry->d_name.name : %s \n", sbi->file_name );
-
-	}
-		///
-#endif	
 
 	/* FIXME: this cluster should be added after data of this
 	 * cluster is writed */
@@ -1513,6 +1525,8 @@ static int fat_get_block(struct inode *inode, sector_t iblock,
 	unsigned long max_blocks = bh_result->b_size >> inode->i_blkbits;
 	int err;
 
+	//printk("[cheon] fgb ");
+
 	err = __fat_get_block(inode, iblock, &max_blocks, bh_result, create);
 	if (err)
 		return err;
@@ -1526,25 +1540,27 @@ static int fat_get_block(struct inode *inode, sector_t iblock,
 
 static int fat_writepage(struct page *page, struct writeback_control *wbc)
 {
-//	printk( KERN_ALERT "[cheon] fat_writepage \n");
+//	printk( KERN_ALERT "[cheon] fat_writepage ");
 	return block_write_full_page(page, fat_get_block, wbc);
 }
 
 static int fat_writepages(struct address_space *mapping,
 			  struct writeback_control *wbc)
 {
-//	printk( KERN_ALERT "[cheon] fat_writepages \n");
+//	printk( KERN_ALERT "[cheon] fat_writepages ");
 	return mpage_writepages(mapping, wbc, fat_get_block);
 }
 
 static int fat_readpage(struct file *file, struct page *page)
 {
+//	printk( KERN_ALERT "[cheon] fat_readpage ");
 	return mpage_readpage(page, fat_get_block);
 }
 
 static int fat_readpages(struct file *file, struct address_space *mapping,
 			 struct list_head *pages, unsigned nr_pages)
 {
+//	printk( KERN_ALERT "[cheon] fat_readpages ");
 	return mpage_readpages(mapping, pages, nr_pages, fat_get_block);
 }
 
@@ -1563,14 +1579,17 @@ static int fat_write_begin(struct file *file, struct address_space *mapping,
 			struct page **pagep, void **fsdata)
 {
 	int err;
-//	printk( KERN_ALERT "[cheon] fat_write_begin \n");
+//	printk( KERN_ALERT "[cheon] fat_write_begin ");
 
 	*pagep = NULL;
 	err = cont_write_begin(file, mapping, pos, len, flags,
 				pagep, fsdata, fat_get_block,
 				&MSDOS_I(mapping->host)->mmu_private);
 	if (err < 0)
+	{
+		printk("[cheon] fat_write_begin failed \n");
 		fat_write_failed(mapping, pos + len);
+	}
 	return err;
 }
 
