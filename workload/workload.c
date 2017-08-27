@@ -388,10 +388,10 @@ void thread_file_create(char **dirs, int selected_dir, int load_flag )
 	unsigned long f_size = 0;
 	static unsigned long sleep_cnt = 1;
 	int retval = 0;
-	int collision_flag=0;
+	int setcond = 0;
 	//f_size = f_rand_size( &selected_dir, S_AUTOMATION, load_flag );
+	
 	f_size = 16500000 + rand()%10000000;
-
 //	printf("f_size : %luM \t", f_size/1024/1024 );
 
 	switch( selected_dir )
@@ -411,63 +411,44 @@ void thread_file_create(char **dirs, int selected_dir, int load_flag )
 //		printf("File name : %d \t", file_creator[ selected_dir ] );
 		sprintf(fn1,"%s%d_%d%s", dirs[ selected_dir -1 ], file_creator[ selected_dir ], pthread_self(),".avi"  );
 		printf("File : %s\n", fn1);
-#if 0	
-		printf("File name : %d \t\n", ++file_creator[ *selected_dir ]   );
-		sprintf(fn2,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".avi"  );
-#endif
 
-		//sprintf(fn,"%s%d", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ] );
-		//printf("%s \n", fn );
-		//실제 타겟 파일에 설정된 크기 만큼, 파일을 생성하고 씀
 #if 1
-		//if( (fd1 = fopen(fn1,"w")) ){
-		if( (fd1 = fopen(fn1,"w"))<0 ){
-			printf("File create error\n");
-			exit(-1);
-		}
-
-		for( k=0 ; k < f_size ; k++)
+		while(1)
 		{
-	//		while(1)
-	//		{
-				retval = fputs("k",fd1);
-
-#if 1
-				if( retval == EOF )
-				{
-					sleep_cnt++;
-
-					sleep(2);
-
-					printf("sleep_cnt : %lu \n", sleep_cnt );
-				}
-#endif
-#if 0
-				if( retval == EOF )
-					collision_flag = ON;
-
-				if( collision_flag == ON )
-				{
-					if( strcmp( err_msg, strerror(errno) ) ) //Success가 아니면
-					{
-						printf("%s\n", strerror( errno );
-						printf("sleep_cnt : %d \n", sleep_cnt );
-						sleep(1);
-						sleep_cnt++;
-					}
-					else//Success 이면 
-						collision_flag = OFF;
-				}
-
-				if( retval != EOF && collision_flag == OFF )
-					break;
+			//if( (fd1 = fopen(fn1,"w")) ){
+			if( (fd1 = fopen(fn1,"w"))<0 ){
+				printf("File create error\n");
+				exit(-1);
 			}
-#endif
 
+			for( k=0 ; k < f_size ; k++)
+			{
+				retval = fwrite( "k",1, 1, fd1);
+
+				if( retval <= 0 ) {
+					printf("retval : %d \n", retval );
+					setcond = 1;
+					printf("%s file \n", fn1 );
+					perror("fwrite");
+
+					fclose( fd1 );
+					fd1 = NULL;
+					sleep(10);
+					break;
+				}
+
+				if( setcond ) {
+					printf("no write\n");
+					sleep(10);
+				}
+			}
+			setcond = 0;
+			if( fd1 )
+			{
+				fclose( fd1 );	
+				break;
+			}
 		}
-
-		fclose( fd1 );
-		//	fflush(stdout);
 #endif
 	}
 }

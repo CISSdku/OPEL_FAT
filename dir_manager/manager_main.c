@@ -256,11 +256,11 @@ void init( int dir_cnt, char **dirs, char **config_line, char *sysfs_line )
 	printf("Split Size : %lu %lu %lu %lu %lu\n", g_dir[ NORMAL ].dir_size, g_dir[ NORMAL_EVENT ].dir_size, g_dir[ PARKING ].dir_size, g_dir[ PARKING_EVENT ].dir_size, g_dir[ HANDWORK ].dir_size );
 
 #if 1
-	g_dir[ NORMAL ].dir_size        = g_dir[ NORMAL ].dir_size * 0.60;
-	g_dir[ NORMAL_EVENT ].dir_size  = g_dir[ NORMAL_EVENT ].dir_size  * 0.60;
-	g_dir[ PARKING ].dir_size       = g_dir[ PARKING ].dir_size * 0.60;
-	g_dir[ PARKING_EVENT ].dir_size = g_dir[ PARKING_EVENT ].dir_size * 0.60;
-	g_dir[ HANDWORK ].dir_size      = g_dir[ HANDWORK ].dir_size * 0.60;
+	g_dir[ NORMAL ].dir_size        = g_dir[ NORMAL ].dir_size * 0.70;
+	g_dir[ NORMAL_EVENT ].dir_size  = g_dir[ NORMAL_EVENT ].dir_size  * 0.70;
+	g_dir[ PARKING ].dir_size       = g_dir[ PARKING ].dir_size * 0.70;
+	g_dir[ PARKING_EVENT ].dir_size = g_dir[ PARKING_EVENT ].dir_size * 0.70;
+	g_dir[ HANDWORK ].dir_size      = g_dir[ HANDWORK ].dir_size * 0.70;
 	//  g_dir[ ETC ].dir_size           = control_size * ( (double)config_ratio[5] / 100 );                  //etc는 그냥 dummy
 
 	printf("Target Size : %lu %lu %lu %lu %lu\n\n", g_dir[ NORMAL ].dir_size, g_dir[ NORMAL_EVENT ].dir_size, g_dir[ PARKING ].dir_size, g_dir[ PARKING_EVENT ].dir_size, g_dir[ HANDWORK ].dir_size );
@@ -291,7 +291,7 @@ void init( int dir_cnt, char **dirs, char **config_line, char *sysfs_line )
 
 	for( i = 0 ; i < dir_cnt ; i++ )
 	{
-		g_dir[ i ].check_portion = g_dir[ i ].dir_size * 0.40;// - ( g_dir[ i ].dir_size  / 3 );
+		g_dir[ i ].check_portion = g_dir[ i ].dir_size * 0.50;// - ( g_dir[ i ].dir_size  / 3 );
 
 		printf("%-35s Check Full Status [-10%] %luM\t After Remove Size %luM\n",dirs[ i ], g_dir[ i ].dir_size/1024 , g_dir[ i ].check_portion/1024 );
 	}

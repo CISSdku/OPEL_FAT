@@ -223,7 +223,7 @@ int main( int argc, char *argv[] )
 		printf("sinario 5 : handwork\n");
 		printf("sinario 6 : automation \n");
 
-		printf("sinario 7 : muti_thread : 4ea\n");
+		printf("sinario 7 : muti_thread : 8ea\n");
 
 		//printf("Select sinario_num flag_mode( origina || opel ) :");
 
