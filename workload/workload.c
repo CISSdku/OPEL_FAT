@@ -409,7 +409,7 @@ void thread_file_create(char **dirs, int selected_dir, int load_flag )
 	if( load_flag == ON )
 	{	
 //		printf("File name : %d \t", file_creator[ selected_dir ] );
-		sprintf(fn1,"%s%d_%d%s", dirs[ selected_dir -1 ], file_creator[ selected_dir ], pthread_self(),".avi"  );
+		sprintf(fn1,"%s%d_%d%s", dirs[ selected_dir -1 ], file_creator[ selected_dir ], pthread_self(),".mp4"  );
 		printf("File : %s\n", fn1);
 
 #if 1
@@ -487,10 +487,10 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 	if( load_flag == ON )
 	{	
 		printf("File name : %d \t", file_creator[ *selected_dir ] );
-		sprintf(fn1,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".avi"  );
+		sprintf(fn1,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".mp4"  );
 
 		printf("File name : %d \t\n", ++file_creator[ *selected_dir ]   );
-		sprintf(fn2,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".avi"  );
+		sprintf(fn2,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".mp4"  );
 
 		//sprintf(fn,"%s%d", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ] );
 		//printf("%s \n", fn );

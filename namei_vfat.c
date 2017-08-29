@@ -1147,6 +1147,8 @@ static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 		fat_config_init( sb );
 		fat_update_super( sb );
 
+		g_sb_s1 = NULL;
+		g_sb_s2 = NULL;
 		
 		if( sbi->fat_original_flag == ON ) //ORIGINAL FAT //특정 영역 공간 부족
 		{
@@ -1170,8 +1172,8 @@ static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 				for(i=0;i<TOTAL_AREA_CNT;i++)	
 					g_total_cluster_s1[i] = sbi->bx_end_cluster[i] - sbi->bx_start_cluster[i] + 1;
 
-				for(i=0;i<TOTAL_AREA_CNT;i++)	
-					printk("[cheon] SD1 total free clusters : %u \n", g_total_cluster_s1[i] );
+	//			for(i=0;i<TOTAL_AREA_CNT;i++)	
+	//				printk("[cheon] SD1 total free clusters : %u \n", g_total_cluster_s1[i] );
 			}
 			else
 			{
@@ -1179,8 +1181,8 @@ static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 				for(i=0;i<TOTAL_AREA_CNT;i++)	
 					g_total_cluster_s2[i] = sbi->bx_end_cluster[i] - sbi->bx_start_cluster[i] + 1;
 
-				for(i=0;i<TOTAL_AREA_CNT;i++)	
-					printk("[cheon] SD2 total free clusters : %u \n", g_total_cluster_s2[i] );
+	//			for(i=0;i<TOTAL_AREA_CNT;i++)	
+	//				printk("[cheon] SD2 total free clusters : %u \n", g_total_cluster_s2[i] );
 
 			}
 #endif
@@ -1203,7 +1205,7 @@ static struct dentry *vfat_mount(struct file_system_type *fs_type,
 		       int flags, const char *dev_name,
 		       void *data)
 {
-	printk( KERN_ALERT "[cheon] 0712 1627\n");
+	printk( KERN_ALERT "[cheon] 0828 1627\n");
 	printk( KERN_ALERT "[cheon] vfat_mount !! \n");
 	return mount_bdev(fs_type, flags, dev_name, data, vfat_fill_super);
 }
@@ -1264,9 +1266,10 @@ static ssize_t size_show_s2( struct kobject *kobj, struct kobj_attribute *attr, 
 	unsigned int free_size[10] = {0,};
 	unsigned int total_size[10] = {0,};
 	
-	if( strcmp( g_sb_s2->s_id, SD2_S_ID ) )
+//	if( strcmp( g_sb_s2->s_id, SD2_S_ID ) )
+	if( g_sb_s2 == NULL  )
 	{
-		printk("[cheon] sd1 is not mounted \n");		
+		printk("[cheon] sd2 is not mounted \n");		
 		return 0;
 	}
 	struct msdos_sb_info *sbi = MSDOS_SB( g_sb_s2 );

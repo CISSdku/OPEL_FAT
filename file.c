@@ -325,7 +325,7 @@ static int fat_free(struct inode *inode, int skip)
 		struct fat_entry fatent;
 		int ret, fclus, dclus;
 
-		//printk( KERN_ALERT "[cheon] fat_free skip test2 : %u \n", sbi->bx_free_clusters[ BB_NORMAL ]);
+		printk( KERN_ALERT "[cheon] fat_free skip test2 : %u \n", sbi->bx_free_clusters[ BB_NORMAL ]);
 		ret = fat_get_cluster(inode, skip - 1, &fclus, &dclus);
 		if (ret < 0)
 			return ret;

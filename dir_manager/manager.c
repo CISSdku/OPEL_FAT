@@ -128,6 +128,7 @@ void detect_and_control( char **dirs, int dir_cnt )
 			{
 				
 				file_old_remove( dirs[ num ], num );
+				file_old_remove( dirs[ num ], num );
 			}
 
 //			printf("check_portion : %lu \n", g_dir[ num ].check_portion / 1024 );

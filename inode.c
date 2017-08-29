@@ -672,7 +672,7 @@ static int preAlloc( struct inode *inode, unsigned int *next, unsigned int prev,
 	unsigned int num_pre_alloc = 0;
 	unsigned int fat_block_pos = fat_block + start / CLUSTER_IN_BLOCK ; //fat block : fat_start //prev+1 : start
 	
-	printk("\n[cheon] .......... Preallocation............\n");
+//	printk("\n[cheon] .......... Preallocation............\n");
 //	if( num_of_page > 15 ) //num_of_page 하나 당 4MB
 	//printk("[cheon] ==================error, num_of_page is large!================== \n");
 	
@@ -716,7 +716,7 @@ static int preAlloc( struct inode *inode, unsigned int *next, unsigned int prev,
 //	sbi->bx_tail[area] = (data[page_num-1][1023] - 1); //data[][]는 그 다음을 가리키니깐 하나를 빼줘야함
 #endif
 //	printk("[cheon] preAlloc, bx_head : %u bx_tail : %u bx_free_clusters[area] : %u  \n", sbi->bx_head[area],  sbi->bx_tail[area], sbi->bx_free_clusters[area] );
-	printk("[cheon] index First %u, index Last : %u\n", data[0][0] - 1, data[ num_of_page -1 ][1023] -1   );
+//	printk("[cheon] index First %u, index Last : %u\n", data[0][0] - 1, data[ num_of_page -1 ][1023] -1   );
 
 	
 	//
@@ -826,7 +826,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	if( area == BB_ETC || sbi->fat_original_flag == ON )
 		goto NORMAL_ALLOC;			
 	dentry = list_entry( inode->i_dentry.first, struct dentry, d_u.d_alias );
-	if( dentry == NULL  || strstr( dentry->d_name.name, "avi" ) == NULL )
+	if( dentry == NULL  || strstr( dentry->d_name.name, "mp4" ) == NULL )
 		goto NORMAL_ALLOC;
 
 
@@ -875,7 +875,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	}
 
 	////////////////////////////////////
-	printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
+//	printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
 	MSDOS_I(inode)->pre_alloced = ON; //기존에는 inode->i_ino로 구별했었는데 변경함
 	
 	//Pre-Allocation Wrork ( In practice : Iteration of allocation work 
@@ -883,7 +883,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 
 	if( sbi->bx_next_start[area] == -1 )
 	{
-		printk("[cheon] Restart or First Start of Pre-allocation \n");	
+//		printk("[cheon] Restart or First Start of Pre-allocation \n");	
 	//	spin_lock_irqsave( &MSDOS_SB( sb )->bx_lock[ area ], flags );    //cheon_lock
 
 	//	printk("[cheon] %u %u %u \n", sbi->bx_free_clusters[area], num_pre_alloc, (sbi->bx_end_cluster[ area ] - sbi->bx_start_cluster[ area ] + 1 ) );
@@ -904,7 +904,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 		// There are exist old file, need to check, cluster number 
 		else
 		{
-			printk("[cheon] case 2 : exist old file \n");	
+			//printk("[cheon] case 2 : exist old file \n");	
 			find_valid_new_next( inode, area, &next, &prev );
 
 			allocated = prev - next + 1;
@@ -1675,7 +1675,7 @@ static int fat_write_begin(struct file *file, struct address_space *mapping,
 				&MSDOS_I(mapping->host)->mmu_private);
 	if (err < 0)
 	{
-		printk("[cheon] fat_write_begin failed \n");
+//		printk("[cheon] fat_write_begin failed \n");
 		fat_write_failed(mapping, pos + len);
 	}
 	return err;

@@ -773,7 +773,6 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 			printk( KERN_ALERT "[cheon] No space storage / bx current free %u / nr_cluster %d / area : %d  \n", sbi->bx_free_clusters[ area ], nr_cluster, area );
 			unlock_fat(sbi);
 			return -ENOSPC;
-			unlock_fat(sbi);
 		}
 		
 	}
@@ -861,10 +860,10 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 					//update for each area data
 					if (sbi->free_clusters != -1)
 					{
-						spin_lock_irqsave( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
+						//spin_lock_irqsave( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
 						sbi->free_clusters--;
 						sbi->bx_free_clusters[ area ]--;
-						spin_unlock_irqrestore( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
+					//	spin_unlock_irqrestore( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
 					}
 
 					cluster[idx_clus] = entry;
@@ -1023,10 +1022,10 @@ int fat_free_clusters(struct inode *inode, int cluster)
 				#endif
 #endif
 #if 1
-				area = get_area_number_for_free_func( inode, fatent.entry );
 
-				spin_lock_irqsave( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
+				//spin_lock_irqsave( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
 				
+				area = get_area_number_for_free_func( inode, fatent.entry );
 				(sbi->bx_free_clusters[ area ])++;
 			
 #if 0
@@ -1039,7 +1038,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 					previous_cluster = cluster;		
 #endif
 
-				spin_unlock_irqrestore( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
+			//	spin_unlock_irqrestore( &MSDOS_SB(sb)->bx_lock[ area ], flags ); //cheon_lock
 #endif
 
 #if 0
@@ -1205,10 +1204,10 @@ void get_area_number( int *area, struct inode *inode )
 		}
 	}
 
-#if 0
+#if 1
 	if( 1 <= temp_area && temp_area <= 4 ) //normal, evnet, parking, manual인데 avi가 아니먄 etc에서 할당
 	{
-		if( strstr( dentry->d_name.name, "avi" ) == NULL )
+		if( strstr( dentry->d_name.name, "mp4" ) == NULL )
 		{
 			*area = BB_ETC;			
 			//printk("[cheon] get_area_number(nut avi) :%d \n",*area);
