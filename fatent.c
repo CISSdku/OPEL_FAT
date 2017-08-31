@@ -963,6 +963,9 @@ int fat_free_clusters(struct inode *inode, int cluster)
 	int area=0;
 	unsigned long flags;
 
+	//test
+	static unsigned int freed_cnt = 0;
+
 	nr_bhs = 0;
 	fatent_init(&fatent);
 	lock_fat(sbi);
@@ -980,9 +983,8 @@ int fat_free_clusters(struct inode *inode, int cluster)
 			err = -EIO;
 			goto error;
 		}
-
-		//else
-		//	printk( KERN_ALERT "%d ", cluster );
+//		else
+//			printk( KERN_ALERT "%d ", cluster );
 		//	printk( KERN_ALERT "[cheon] fat_free_clusters : %d ", cluster );
 
 		if (sbi->options.discard) {
@@ -1027,13 +1029,14 @@ int fat_free_clusters(struct inode *inode, int cluster)
 				
 				area = get_area_number_for_free_func( inode, fatent.entry );
 				(sbi->bx_free_clusters[ area ])++;
+				freed_cnt++;
 			
 #if 1
 				if( cluster == FAT_ENT_EOF )				{
 			//		sbi->bx_head[area] = previous_cluster + 1;
 		//			printk("[cheon] fat_free_clusters, bx_head : %d \n", sbi->bx_head[area] );	
-					printk("[cheon] fat_free_cluster, cluster : %d area : %d \n", previous_cluster , area );	
-
+					printk("[cheon] fat_free_cluster, cluster : %d area : %d freed_cnt : %u \n", previous_cluster, area, freed_cnt );	
+					freed_cnt = 0;
 				}
 				else 
 					previous_cluster = cluster;		
