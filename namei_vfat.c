@@ -1236,13 +1236,14 @@ static ssize_t size_show_s1( struct kobject *kobj, struct kobj_attribute *attr, 
 	unsigned int free_size[10] = {0,};
 	unsigned int total_size[10] = {0,};
 
-	if( strcmp( g_sb_s1->s_id, SD1_S_ID ) )
+	//if( strcmp( g_sb_s1->s_id, SD1_S_ID ) )
+	if( g_sb_s1 == NULL )
 	{
 		printk("[cheon] sd1 is not mounted \n");		
 		return 0;
 	}
+	
 	struct msdos_sb_info *sbi = MSDOS_SB( g_sb_s1 );
-
 	printk( KERN_ALERT "[cheon] sys/fs/, size_monitoring() _sd1\n");
 
 	for(i=0;i<TOTAL_AREA_CNT;i++)
@@ -1272,6 +1273,7 @@ static ssize_t size_show_s2( struct kobject *kobj, struct kobj_attribute *attr, 
 		printk("[cheon] sd2 is not mounted \n");		
 		return 0;
 	}
+
 	struct msdos_sb_info *sbi = MSDOS_SB( g_sb_s2 );
 	printk( KERN_ALERT "[cheon] sys/fs/, size_monitoring() _sd2\n");
 

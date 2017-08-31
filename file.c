@@ -40,6 +40,8 @@ static int fat_ioctl_set_attributes(struct file *file, u32 __user *user_attr)
 	u32 attr, oldattr;
 	struct iattr ia;
 	int err;
+	
+//	printk("[cheon] fat_ioctl_set_attributes() \n");
 
 	err = get_user(attr, user_attr);
 	if (err)
@@ -302,7 +304,7 @@ static int fat_free(struct inode *inode, int skip)
 
 	/* First, we write the new file size. */
 	if (!skip) {
-//		printk( KERN_ALERT "[cheon] fat_free skip test1 \n");
+		printk( KERN_ALERT "[cheon] fat_free skip test1 \n");
 		MSDOS_I(inode)->i_start = 0;
 		MSDOS_I(inode)->i_logstart = 0;
 	}
@@ -310,7 +312,7 @@ static int fat_free(struct inode *inode, int skip)
 //	inode->i_ctime = inode->i_mtime = CURRENT_TIME_SEC_OPEL;
 	inode->i_ctime = inode->i_mtime = CURRENT_TIME_SEC;
 	if (wait) {
-		printk( KERN_ALERT "[cheon] fat_free skip wait1 \n");
+		printk( KERN_ALERT "[cheon] fat_free skip wait2 \n");
 		err = fat_sync_inode(inode);
 		if (err) {
 			MSDOS_I(inode)->i_start = i_start;
@@ -325,7 +327,7 @@ static int fat_free(struct inode *inode, int skip)
 		struct fat_entry fatent;
 		int ret, fclus, dclus;
 
-		printk( KERN_ALERT "[cheon] fat_free skip test2 : %u \n", sbi->bx_free_clusters[ BB_NORMAL ]);
+		printk( KERN_ALERT "[cheon] fat_free skip test3 : %u \n", sbi->bx_free_clusters[ BB_NORMAL ]);
 		ret = fat_get_cluster(inode, skip - 1, &fclus, &dclus);
 		if (ret < 0)
 			return ret;
@@ -367,6 +369,7 @@ void fat_truncate_blocks(struct inode *inode, loff_t offset)
 	const unsigned int cluster_size = sbi->cluster_size;
 	int nr_clusters;
 
+	printk("[cheon] fat_truncate_blocks \n");
 	/*
 	 * This protects against truncating a file bigger than it was then
 	 * trying to write into the hole.

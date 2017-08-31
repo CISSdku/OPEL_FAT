@@ -716,7 +716,7 @@ static int preAlloc( struct inode *inode, unsigned int *next, unsigned int prev,
 //	sbi->bx_tail[area] = (data[page_num-1][1023] - 1); //data[][]는 그 다음을 가리키니깐 하나를 빼줘야함
 #endif
 //	printk("[cheon] preAlloc, bx_head : %u bx_tail : %u bx_free_clusters[area] : %u  \n", sbi->bx_head[area],  sbi->bx_tail[area], sbi->bx_free_clusters[area] );
-//	printk("[cheon] index First %u, index Last : %u\n", data[0][0] - 1, data[ num_of_page -1 ][1023] -1   );
+	printk("[cheon] index First %u, index Last : %u\n", data[0][0] - 1, data[ num_of_page -1 ][1023] -1   );
 
 	
 	//
@@ -875,7 +875,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	}
 
 	////////////////////////////////////
-//	printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
+	printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
 	MSDOS_I(inode)->pre_alloced = ON; //기존에는 inode->i_ino로 구별했었는데 변경함
 	
 	//Pre-Allocation Wrork ( In practice : Iteration of allocation work 
@@ -950,7 +950,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 NORMAL_ALLOC:
 	//origin
 
-//	printk("[cheon] NORMAL ALLOC\n");
+	printk("[cheon] NORMAL ALLOC\n");
 
 	err = fat_alloc_clusters( inode, &cluster, 1 );
 	if (err)
@@ -2015,6 +2015,8 @@ EXPORT_SYMBOL_GPL(fat_build_inode);
 
 static void fat_evict_inode(struct inode *inode)
 {
+	printk("[cheon] fat_evict_inode() \n");
+
 	truncate_inode_pages(&inode->i_data, 0);
 	if (!inode->i_nlink) {
 		inode->i_size = 0;

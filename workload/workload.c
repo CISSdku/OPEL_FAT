@@ -465,7 +465,7 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 	int k;
 	int sleep_cnt = 1;
 	
-	static int file_creator[ DIR_NUM ] = { 0, };
+	static int file_creator[ DIR_NUM ] = { 100, };
 	unsigned long f_size = 0;
 
 
