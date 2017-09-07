@@ -1110,7 +1110,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 	fatent_init(&fatent);
 	lock_fat(sbi);
 
-	printk( KERN_ALERT "[cheon] fat_free_clusters : %d \n", cluster );
+//	printk( KERN_ALERT "[cheon] fat_free_clusters : %d \n", cluster );
 #if 0
 	if( sbi->fat_original_flag == OFF )  //OPEL_FAT
 	{
@@ -1129,7 +1129,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 		cluster = fat_ent_read(inode, &fatent, cluster);
 		if (cluster < 0) {
 
-			printk("[cheon] fat_free_clusters check 1 \n");
+//			printk("[cheon] fat_free_clusters check 1 \n");
 			
 			err = cluster;
 			goto error;
@@ -1143,7 +1143,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 //			printk( KERN_ALERT "%d ", cluster );
 
 		if (sbi->options.discard) {
-			printk("[cheon] fat_free_clusters check 2 \n");
+//			printk("[cheon] fat_free_clusters check 2 \n");
 			/*
 			 * Issue discard for the sectors we no longer
 			 * care about, batching contiguous clusters
@@ -1179,7 +1179,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 				if( cluster == FAT_ENT_EOF )				{
 			//		sbi->bx_head[area] = previous_cluster + 1;
 		//			printk("[cheon] fat_free_clusters, bx_head : %d \n", sbi->bx_head[area] );	
-					printk("[cheon] fat_free_cluster, cluster : %d area : %d freed_cnt : %u \n", previous_cluster, area, freed_cnt );	
+//					printk("[cheon] fat_free_cluster, cluster : %d area : %d freed_cnt : %u \n", previous_cluster, area, freed_cnt );	
 					freed_cnt = 0;
 				}
 				else 
@@ -1201,18 +1201,15 @@ int fat_free_clusters(struct inode *inode, int cluster)
 		if (nr_bhs + fatent.nr_bhs > MAX_BUF_PER_PAGE) {
 			if (sb->s_flags & MS_SYNCHRONOUS) {
 			
-				printk("[cheon] fat_free_clusters check 3 \n");
 				err = fat_sync_bhs(bhs, nr_bhs);
 				if (err)
 				{
-					printk("[cheon] fat_free_clusters check 4 \n");
 					goto error;
 				}
 			}
 			err = fat_mirror_bhs(sb, bhs, nr_bhs);
 			if (err)
 			{
-				printk("[cheon] fat_free_clusters check 5 \n");
 				goto error;
 			}
 			for (i = 0; i < nr_bhs; i++)
@@ -1226,14 +1223,12 @@ int fat_free_clusters(struct inode *inode, int cluster)
 		err = fat_sync_bhs(bhs, nr_bhs);
 		if (err)
 		{
-			printk("[cheon] fat_free_clusters check 6 \n");
 			goto error;
 		}
 	}
 	err = fat_mirror_bhs(sb, bhs, nr_bhs);
 error:
 			
-	printk("[cheon] fat_free_clusters check 7 \n");
 	fatent_brelse(&fatent);
 	for (i = 0; i < nr_bhs; i++)
 		brelse(bhs[i]);

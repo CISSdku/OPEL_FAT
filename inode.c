@@ -591,7 +591,7 @@ void fat_table_update( struct super_block *sb, int start, int two_frag, int page
 	int num_buf=0, i=0, j=0;
 	struct buffer_head *bh[300];
 
-	printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
+//	printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
 
 	for( i=0; i<page_num; i++ )
 	{
@@ -760,7 +760,7 @@ static int preAlloc( struct inode *inode, unsigned int *next, unsigned int prev,
 //	sbi->bx_tail[area] = (data[page_num-1][1023] - 1); //data[][]는 그 다음을 가리키니깐 하나를 빼줘야함
 #endif
 //	printk("[cheon] preAlloc, bx_head : %u bx_tail : %u bx_free_clusters[area] : %u  \n", sbi->bx_head[area],  sbi->bx_tail[area], sbi->bx_free_clusters[area] );
-	printk("[cheon] index First %u, index Last : %u\n", data[0][0] - 1, data[ num_of_page -1 ][1023] -1   );
+//	printk("[cheon] index First %u, index Last : %u\n", data[0][0] - 1, data[ num_of_page -1 ][1023] -1   );
 
 	data[page_num-1][1023] = FAT_ENT_EOF; 
 	//preAlloc()끝나고 진행했떤 sb update를 preAlloc 안에서 미리 진행함 //SB update
