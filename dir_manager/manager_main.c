@@ -35,7 +35,7 @@ static int extrat_setting_value( char **config_line, int *config_ratio )
 	}
 }
 
-static int open_files( char *target_direcotry, char **dirs, char ***pbuf )
+int open_files( char *target_direcotry, char **dirs, char ***pbuf )
 {
 	FILE *fp = fopen( target_direcotry, "r" );	
 	int cnt = 0,
@@ -119,7 +119,7 @@ char *dir_path(char *title)
 	}
 	return str;
 }
-
+#if 0
 static void total_size_SD_card( unsigned long *total_size )
 {
 	int n;
@@ -150,7 +150,8 @@ static void total_size_SD_card( unsigned long *total_size )
 
 	pclose( fp );
 }
-
+#endif
+#if 0
 //일단 대충 짜자
 static void current_size_SD_card( unsigned long *current_size )
 {
@@ -199,30 +200,49 @@ static void current_size_SD_card( unsigned long *current_size )
 		pclose( fp );
 		return;	
 	}
+}
+#endif
 
+long long size_SD_card_v2( char **read_sizes  )
+{
+	char temp_string[50];
+	long long size_sum;
+
+	strcpy( temp_string, *read_sizes );
+//	printf("read %s\n", temp_string );
+	size_sum = atoll( strtok( temp_string, "\t") );
+	size_sum += atoll( strtok( NULL, "\t ") );
+	size_sum += atoll( strtok( NULL, "\t ") );
+	size_sum += atoll( strtok( NULL, "\t ") );
+	size_sum += atoll( strtok( NULL, "\t ") );
+	size_sum += atoll( strtok( NULL, "\t ") );
+
+	//printf("%lld \n", size_sum / 1024 / 1024 );
+
+	return size_sum;
 }
 
-void init( int dir_cnt, char **dirs, char **config_line, char *sysfs_line )
+void init( int dir_cnt, char **dirs, char **config_line, char *sysfs_line, char **each_size_line  )
 {
 	int i = 0;
 	int config_ratio[ 10 ] = { 0, };
 	int config_cnt;
-	unsigned long SDcard_total_size;
-	unsigned long SDcard_current_size;
-	unsigned long control_size;
+	long long SDcard_total_size;
+	long long SDcard_current_size;
+	long long control_size;
 
 
 	g_dir = ( dir_info * )malloc( sizeof( dir_info ) * dir_cnt ); 
 	memset( ( void *)g_dir, 0x0, sizeof( g_dir ) * dir_cnt );
 	/////
 	config_cnt = extrat_setting_value( config_line, config_ratio );
-	total_size_SD_card( &SDcard_total_size );
+//	total_size_SD_card( &SDcard_total_size );
+	
+	SDcard_total_size = size_SD_card_v2( &each_size_line[0] ); //첫번쨰까 토탈 
 	//특정 파티션 FULL 상태일 때 남은 공간을 파악해야 함
-
-	current_size_SD_card( &SDcard_current_size );
-	printf("SD Total Size : %lu, Current SD Size : %lu \n", SDcard_total_size, SDcard_current_size );
-
-	//	printf("test : %s \n", sysfs_line );
+//	current_size_SD_card( &SDcard_current_size );
+	SDcard_current_size = size_SD_card_v2( &each_size_line[1] ); //두번째까 이미 사용된printf("SD Total Size : %lu, Current SD Size : %lu \n", SDcard_total_size, SDcard_current_size );
+	printf("Total Size : %lld Current Size : %lld \n", SDcard_total_size, SDcard_current_size );
 
 	//if( !strcmp( "START_ORIGINAL", sysfs_line ) )
 	if( strstr( sysfs_line, "ORIGINAL" ) )
@@ -238,11 +258,10 @@ void init( int dir_cnt, char **dirs, char **config_line, char *sysfs_line )
 		printf("START_OPEL\n");
 		control_size = SDcard_total_size;
 	}
-	printf("control_size : %lu \n\n", control_size );
+	printf("control_size : %lld \n\n", control_size );
 
 	for( i = 0 ; i < config_cnt ; i++ )
 		printf("config_ratio : %d \n", config_ratio[ i ] );
-
 
 	printf("\n");
 
@@ -266,37 +285,10 @@ void init( int dir_cnt, char **dirs, char **config_line, char *sysfs_line )
 	printf("Target Size : %lu %lu %lu %lu %lu\n\n", g_dir[ NORMAL ].dir_size, g_dir[ NORMAL_EVENT ].dir_size, g_dir[ PARKING ].dir_size, g_dir[ PARKING_EVENT ].dir_size, g_dir[ HANDWORK ].dir_size );
 #endif
 
-	//while(1);
-#if 0
-
-	//전체 크기에서 1% 뺀 크기를 기준으로 디렉터리가 꽉 찼는지 판단
-	//	g_dir[ ETC ].dir_size 			= ETC_SIZE;  //etc는 그냥 dummy
-	g_dir[ NORMAL ].dir_size 		= NORMAL_SIZE;
-	g_dir[ NORMAL_EVENT ].dir_size  = NORMAL_EVENT_SIZE;
-	g_dir[ PARKING ].dir_size 		= PARKING_SIZE;
-	g_dir[ PARKING_EVENT ].dir_size = PARKING_EVENT_SIZE;
-	g_dir[ HANDWORK ].dir_size 		= HANDWORK_SIZE;
-
-	for( i = 0 ; i <= dir_cnt ; i++ )
-		printf("%luM ", g_dir[ i ].dir_size / 1024  ); // M 단위
-
-	//	g_dir[ ETC ].dir_size 			= ETC_SIZE 		     - ( ETC_SIZE * 0.01 );
-	g_dir[ NORMAL ].dir_size 		= NORMAL_SIZE	  	 - ( NORMAL_SIZE * 0.6 );
-	g_dir[ NORMAL_EVENT ].dir_size  = NORMAL_EVENT_SIZE	 - ( NORMAL_EVENT_SIZE * 0.6 );
-	g_dir[ PARKING ].dir_size 		= PARKING_SIZE 		 - ( PARKING_SIZE * 0.6 );
-	g_dir[ PARKING_EVENT ].dir_size = PARKING_EVENT_SIZE - ( PARKING_EVENT_SIZE * 0.6 );
-	g_dir[ HANDWORK ].dir_size 		= HANDWORK_SIZE 	 - ( HANDWORK_SIZE * 0.6 );
-	printf("\n");
-#endif
-
-	for( i = 0 ; i < dir_cnt ; i++ )
-	{
+	for( i = 0 ; i < dir_cnt ; i++ ){
 		g_dir[ i ].check_portion = g_dir[ i ].dir_size * 0.50;// - ( g_dir[ i ].dir_size  / 3 );
-
 		printf("%-35s Check Full Status [-10%] %luM\t After Remove Size %luM\n",dirs[ i ], g_dir[ i ].dir_size/1024 , g_dir[ i ].check_portion/1024 );
 	}
-
-
 	printf("\n");
 }
 
@@ -313,6 +305,8 @@ int main( int argc, char *argv[] )
 	char **sysfs_buf; 
 	char *sysfs_line;
 
+	char *each_size_line[ STRING_SIZE ];
+
 	if( argc < 2 )
 	{
 		printf("USAGE : ./a.out target_direcotry.txt \n");
@@ -324,11 +318,13 @@ int main( int argc, char *argv[] )
 	cnt = open_files( dir_path("FS_CONFIG_FILE"), config_line, &config_buf ); //read config file  //mnt/ 위치는 수정되어야 함
 //	view_dirs( config_line, cnt );
 
-
 	cnt = open_files( "/sys/fs/OPEL_FAT/SD1_control", &sysfs_line, &sysfs_buf ); //FAT Policy
 //	view_dirs( &sysfs_line, cnt );
+	cnt = open_files( "/sys/fs/OPEL_FAT/SD1_size_monitoring", each_size_line, &sysfs_buf ); //SD1_sizes
+//	view_dirs( each_size_line, cnt );
 
-	init( dir_cnt, dirs, config_line, sysfs_line );
+//	while(1);
+	init( dir_cnt, dirs, config_line, sysfs_line, each_size_line );
 	printf("dir_cnt : %d \n", dir_cnt );
 
 	detect_and_control( dirs, dir_cnt );		

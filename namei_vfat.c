@@ -885,7 +885,7 @@ static int vfat_unlink(struct inode *dir, struct dentry *dentry)
 	struct fat_slot_info sinfo;
 	int err;
 
-	printk( KERN_ALERT "[cheon] vfat_unlink \n" );
+//	printk( KERN_ALERT "[cheon] vfat_unlink \n" );
 
 
 	mutex_lock(&MSDOS_SB(sb)->s_lock);
@@ -1137,9 +1137,6 @@ static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 	res = fat_fill_super(sb, data, silent, 1, setup);
 	struct msdos_sb_info *sbi = MSDOS_SB(sb); //여기에 있어야 함
 	
-
-////////////////////////////
-
 	if( !strcmp( sb->s_id, SD1_S_ID ) || !strcmp( sb->s_id, SD2_S_ID ) ) //if this device is SD card 
 	{
 		printk("SD_card\n");
@@ -1149,7 +1146,7 @@ static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 
 		g_sb_s1 = NULL;
 		g_sb_s2 = NULL;
-		
+
 		if( sbi->fat_original_flag == ON ) //ORIGINAL FAT //특정 영역 공간 부족
 		{
 			if( !strcmp( sb->s_id, SD1_S_ID ) )
@@ -1165,27 +1162,34 @@ static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 			else
 				strcpy( manager_control_sd2, "START_OPEL" );
 		}
-#if 1
-			if( !strcmp( sb->s_id, SD1_S_ID ) )
-			{
-				g_sb_s1 = sb;
-				for(i=0;i<TOTAL_AREA_CNT;i++)	
-					g_total_cluster_s1[i] = sbi->bx_end_cluster[i] - sbi->bx_start_cluster[i] + 1;
 
-	//			for(i=0;i<TOTAL_AREA_CNT;i++)	
-	//				printk("[cheon] SD1 total free clusters : %u \n", g_total_cluster_s1[i] );
-			}
-			else
-			{
-				g_sb_s2 = sb;
-				for(i=0;i<TOTAL_AREA_CNT;i++)	
-					g_total_cluster_s2[i] = sbi->bx_end_cluster[i] - sbi->bx_start_cluster[i] + 1;
+		if( !strcmp( sb->s_id, SD1_S_ID ) )
+		{
+			g_sb_s1 = sb;
+			if( g_sb_s2 == NULL )
+				strcpy( manager_control_sd2, "Not mounted" );
 
-	//			for(i=0;i<TOTAL_AREA_CNT;i++)	
-	//				printk("[cheon] SD2 total free clusters : %u \n", g_total_cluster_s2[i] );
 
-			}
-#endif
+			for(i=0;i<TOTAL_AREA_CNT;i++)	
+				g_total_cluster_s1[i] = sbi->bx_end_cluster[i] - sbi->bx_start_cluster[i] + 1;
+
+			//			for(i=0;i<TOTAL_AREA_CNT;i++)	
+			//				printk("[cheon] SD1 total free clusters : %u \n", g_total_cluster_s1[i] );
+		}
+		else
+		{
+			g_sb_s2 = sb;
+			if( g_sb_s1 == NULL )
+				strcpy( manager_control_sd1, "Not mounted" );
+
+
+			for(i=0;i<TOTAL_AREA_CNT;i++)	
+				g_total_cluster_s2[i] = sbi->bx_end_cluster[i] - sbi->bx_start_cluster[i] + 1;
+
+			//			for(i=0;i<TOTAL_AREA_CNT;i++)	
+			//				printk("[cheon] SD2 total free clusters : %u \n", g_total_cluster_s2[i] );
+
+		}
 
 		printk( KERN_ALERT "manager_control_sd1 : %s \n", manager_control_sd1 );
 		printk( KERN_ALERT "manager_control_sd2 : %s \n", manager_control_sd2 );
@@ -1193,7 +1197,7 @@ static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 	else
 	{
 		printk("For Android\n");
-	
+
 		fat_just_init_super( sb ); //단지 그냥 초기화
 		sbi->fat_original_flag = ON;
 	}
@@ -1205,7 +1209,7 @@ static struct dentry *vfat_mount(struct file_system_type *fs_type,
 		       int flags, const char *dev_name,
 		       void *data)
 {
-	printk( KERN_ALERT "[cheon] 0828 1627\n");
+	printk( KERN_ALERT "[cheon] 0906 1627\n");
 	printk( KERN_ALERT "[cheon] vfat_mount !! \n");
 	return mount_bdev(fs_type, flags, dev_name, data, vfat_fill_super);
 }
@@ -1216,6 +1220,11 @@ static struct kobject *opel_fat_kobj;
 
 static ssize_t control_show_s1( struct kobject *kobj, struct kobj_attribute *attr, char *buff )
 {
+	if( g_sb_s1 == NULL ){
+		printk("[cheon] sd1 is not mounted \n");		
+		return 0;
+	}
+	
 	printk( KERN_ALERT "[cheon] sysfs control_show_s1() : %s\n", manager_control_sd1 );
 	
 	return snprintf( buff, PAGE_SIZE, "%s \n", manager_control_sd1 );
@@ -1223,6 +1232,11 @@ static ssize_t control_show_s1( struct kobject *kobj, struct kobj_attribute *att
 
 static ssize_t control_show_s2( struct kobject *kobj, struct kobj_attribute *attr, char *buff )
 {
+	if( g_sb_s2 == NULL ){
+		printk("[cheon] sd2 is not mounted \n");		
+		return 0;
+	}
+	
 	printk( KERN_ALERT "[cheon] sysfs control_show_s2() : %s\n", manager_control_sd2 );
 	
 	return snprintf( buff, PAGE_SIZE, "%s \n", manager_control_sd2 );
@@ -1244,13 +1258,13 @@ static ssize_t size_show_s1( struct kobject *kobj, struct kobj_attribute *attr, 
 	}
 	
 	struct msdos_sb_info *sbi = MSDOS_SB( g_sb_s1 );
-	printk( KERN_ALERT "[cheon] sys/fs/, size_monitoring() _sd1\n");
+//	printk( KERN_ALERT "[cheon] sys/fs/, size_monitoring() _sd1\n");
 
 	for(i=0;i<TOTAL_AREA_CNT;i++)
 	{
-		used_size[i] = (g_total_cluster_s1[i] - sbi->bx_free_clusters[i] ) * 4;
-		free_size[i] = sbi->bx_free_clusters[i] * 4;
-		total_size[i] = g_total_cluster_s1[i] * 4;
+		used_size[i] = (g_total_cluster_s1[i] - sbi->bx_free_clusters[i] ) * (sbi->cluster_size/1024);
+		free_size[i] = sbi->bx_free_clusters[i] * (sbi->cluster_size/1024);
+		total_size[i] = g_total_cluster_s1[i] * (sbi->cluster_size/1024);
 	}
 
 	cnt = snprintf( buff, PAGE_SIZE, "%u\t%u\t%u\t%u\t%u\t%u \n%u\t%u\t%u\t%u\t%u\t%u \n%u\t%u\t%u\t%u\t%u\t%u \n", total_size[0], total_size[1],total_size[2], total_size[3], total_size[4], total_size[5], \
@@ -1275,13 +1289,13 @@ static ssize_t size_show_s2( struct kobject *kobj, struct kobj_attribute *attr, 
 	}
 
 	struct msdos_sb_info *sbi = MSDOS_SB( g_sb_s2 );
-	printk( KERN_ALERT "[cheon] sys/fs/, size_monitoring() _sd2\n");
+//	printk( KERN_ALERT "[cheon] sys/fs/, size_monitoring() _sd2\n");
 
 	for(i=0;i<TOTAL_AREA_CNT;i++)
 	{
-		used_size[i] = (g_total_cluster_s2[i] -sbi->bx_free_clusters[i] ) * 4;
-		free_size[i] = sbi->bx_free_clusters[i] * 4;
-		total_size[i] = g_total_cluster_s2[i] * 4;
+		used_size[i] = (g_total_cluster_s2[i] -sbi->bx_free_clusters[i] ) * (sbi->cluster_size/1024);
+		free_size[i] = sbi->bx_free_clusters[i] * (sbi->cluster_size/1024);
+		total_size[i] = g_total_cluster_s2[i] * (sbi->cluster_size/1024);
 	}
 
 	cnt = snprintf( buff, PAGE_SIZE, "%u\t%u\t%u\t%u\t%u\t%u \n%u\t%u\t%u\t%u\t%u\t%u \n%u\t%u\t%u\t%u\t%u\t%u \n", total_size[0], total_size[1],total_size[2], total_size[3], total_size[4], total_size[5], \
@@ -1353,13 +1367,34 @@ static void do_fs_sysfs_unregistration( void )
 }
 #endif
 
+static void opel_kill_block_super( struct super_block *sb )
+{
+	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+
+	if( sbi->fat_original_flag != ON )
+	{
+		if( !strcmp( sb->s_id, SD1_S_ID ) )
+		{
+			g_sb_s1 = NULL;
+			strcpy( manager_control_sd1, "Not mounted" );
+		}
+		else
+		{
+			g_sb_s2 = NULL;
+			strcpy( manager_control_sd2, "Not mounted" );
+		}
+	}
+	
+	kill_block_super( sb );
+}
 
 /////////////////////
 static struct file_system_type vfat_fs_type = {
 	.owner		= THIS_MODULE,
 	.name		= "vfat",
 	.mount		= vfat_mount,
-	.kill_sb	= kill_block_super,
+	//.kill_sb	= kill_block_super,
+	.kill_sb	= opel_kill_block_super,
 	.fs_flags	= FS_REQUIRES_DEV,
 };
 MODULE_ALIAS_FS("vfat");
@@ -1382,6 +1417,7 @@ static int __init init_vfat_fs(void)
 
 static void __exit exit_vfat_fs(void)
 {
+//	printk("[cheon] bye\n");
 	do_fs_sysfs_unregistration();
 	unregister_filesystem(&vfat_fs_type);
 }

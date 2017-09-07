@@ -1,8 +1,8 @@
 #include"manager.h"
 
 #define STN_SIZE 100
-
-static unsigned long dir_size( char *dn)
+#if 0
+static unsigned long dir_size_cal( char *dn)
 {
 	FILE *fp = NULL;
 	char stn[ STN_SIZE ];
@@ -16,10 +16,7 @@ static unsigned long dir_size( char *dn)
 
 	//printf("%s \t", dn );
 	sprintf( stn,  "%s%s%s",ch[0],dn,ch[1] );
-
 //	printf("\ntest : %s \n ", stn);
-	
-		
 	fp = popen(stn,"r");
 	if(fp == NULL) {
 		printf("Error opening : %s\n", strerror( errno ));
@@ -39,6 +36,32 @@ static unsigned long dir_size( char *dn)
 	l_size = strtoul( size, NULL, 10 );
 
 //	printf("dir_size : %luM \n", l_size / 1024  );
+	return l_size;
+}
+#endif
+
+static long dir_size_cal( int num )
+{
+	int cnt = 0, i;
+	long l_size;
+	char buf[ STRING_SIZE ];
+
+	FILE *fp = fopen( "/sys/fs/OPEL_FAT/SD1_size_monitoring", "r" );
+
+	fgets( buf, sizeof( buf ), fp );
+	fgets( buf, sizeof( buf ), fp );
+//	printf("buf : %s \n", buf );
+	//manager에서 normal부터 num이 0임 (0 1 2 3 4) 들어옴	
+
+#if 1
+	l_size = atol( strtok( buf, "\t" ) );
+	for( i = 0 ; i < (num+1) ; i++ )
+			l_size = atol( strtok( NULL, "\t" ) );
+
+//	printf("l_size : %ld \n", l_size );
+//	while(1);
+#endif
+	fclose( fp );
 
 	return l_size;
 }
@@ -101,7 +124,8 @@ static void file_old_remove( char *dn, int selected_dir )
 	closedir( dir );
 	//printf("Old file remove : %s \t  %lu \t  %lu \t %lu M \t %d\n",old_name, temp_st.st_size /1024, dir_size( dn ) /1024, g_dir[ selected_dir ].check_portion/1024, g_dir[ selected_dir ].full_count );
 //	printf("Old file remove %15s\tmtime %12lu\tnsec %12lu\tdir_size %8lu\tcheck_portion %lu full_count %5d \n",old_name, temp_st.st_mtime, temp_st.st_mtim.tv_nsec, dir_size( dn ) /1024, g_dir[ selected_dir ].check_portion/1024, g_dir[ selected_dir ].full_count );
-	printf("Old file remove %15s\tdir_size %8lu\tcheck_portion %lu full_count %5d \n",old_name, dir_size( dn ) /1024, g_dir[ selected_dir ].check_portion/1024, g_dir[ selected_dir ].full_count );
+//	printf("Old file remove %15s\tdir_size %8lu\tcheck_portion %lu full_count %5d \n",old_name, dir_size_cal( dn ) /1024, g_dir[ selected_dir ].check_portion/1024, g_dir[ selected_dir ].full_count );
+	printf("Old file remove %15s\tdir_size %8lu\tcheck_portion %lu full_count %5d \n",old_name, dir_size_cal( selected_dir ) /1024, g_dir[ selected_dir ].check_portion/1024, g_dir[ selected_dir ].full_count );
 }
 
 void detect_and_control( char **dirs, int dir_cnt )
@@ -114,9 +138,10 @@ void detect_and_control( char **dirs, int dir_cnt )
 	while(1)
 	{
 
-		while( ( size = dir_size( dirs[ num ] ) ) > g_dir[ num ].dir_size ) // 꽉찬 경우
+	//	while( ( size = dir_size_cal( dirs[ num ] ) ) > g_dir[ num ].dir_size ) // 꽉찬 경우
+		while( ( size = dir_size_cal( num ) ) > g_dir[ num ].dir_size ) // 꽉찬 경우
 		{
-
+#if 1
 			printf("Full---------------------------------------------------------------------------------------------- \n");
 			printf("%s	%lu \n", dirs[ num ], size/1024 );
 
@@ -124,9 +149,8 @@ void detect_and_control( char **dirs, int dir_cnt )
 //			printf("full_count : %d \n", g_dir[ num ].full_count );
 
 			//꽉 차면 전체에서 일정 비율을 삭제할 거임
-			while( dir_size( dirs[ num ] )  > g_dir[ num ].check_portion ) 
+			while( dir_size_cal( num )  > g_dir[ num ].check_portion ) 
 			{
-				
 				file_old_remove( dirs[ num ], num );
 				file_old_remove( dirs[ num ], num );
 			}
@@ -134,6 +158,7 @@ void detect_and_control( char **dirs, int dir_cnt )
 //			printf("check_portion : %lu \n", g_dir[ num ].check_portion / 1024 );
 	
 //			while(1);
+#endif
 		}
 	
 		num++;

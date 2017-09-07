@@ -55,8 +55,8 @@ FAT_MAX_UNI_CHARS	dir.c	35;"	d	file:
 FAT_MAX_UNI_SIZE	dir.c	36;"	d	file:
 FAT_NFS_NOSTALE_RO	fat.h	123;"	d
 FAT_NFS_STALE_RW	fat.h	122;"	d
-FAT_READA_SIZE	fatent.c	1140;"	d	file:
-FAT_VALID_MODE	file.c	455;"	d	file:
+FAT_READA_SIZE	fatent.c	1253;"	d	file:
+FAT_VALID_MODE	file.c	460;"	d	file:
 HANDWORK_DIRECTORY	fat.h	52;"	d
 IMAGE_AREA_RATIO	fat.h	100;"	d
 INIT_SHORTNAME_INFO	namei_vfat.c	272;"	d	file:
@@ -133,7 +133,7 @@ SD_PAGE_SIZE	fat.h	60;"	d
 SECS_PER_DAY	misc.c	182;"	d	file:
 SECS_PER_HOUR	misc.c	181;"	d	file:
 SECS_PER_MIN	misc.c	180;"	d	file:
-TIMES_SET_FLAGS	file.c	453;"	d	file:
+TIMES_SET_FLAGS	file.c	458;"	d	file:
 TOTAL_AREA_CNT	fat.h	16;"	d
 VFAT_IOCTL_READDIR_BOTH32	dir.c	828;"	d	file:
 VFAT_IOCTL_READDIR_SHORT32	dir.c	829;"	d	file:
@@ -192,7 +192,7 @@ cluster_bits	fat.h	/^	unsigned short cluster_bits;  \/* log2(cluster_size) *\/$/
 cluster_size	fat.h	/^	unsigned int cluster_size;    \/* cluster size *\/$/;"	m	struct:msdos_sb_info
 clusterchain_reupdate	inode.c	/^void clusterchain_reupdate(struct super_block *sb, struct inode *inode){$/;"	f
 codepage	fat.h	/^	unsigned short codepage;   \/* Codepage for shortname conversions *\/$/;"	m	struct:fat_mount_options
-config_data	config.c	/^const char *config_data = "Blackbox Configuration\\r\\n\\r\\nPartitioning Size[Percentage]\\r\\n\\tBX_NORMAL       =20\\r\\n\\tBX_NORMAL_EVENT    =15\\r\\n\\tBX_PARKING_EVENT   =15\\r\\n\\tBX_MANUAL       =15\\r\\n\\tBX_IMAGE        =15\\r\\n\\tBX_ETC          =20\\r\\n\\r\\nPreallocation Setting[MB]\\r\\n\\tBX_NORMAL      =48\\r\\n\\tBX_NORMAL_EVENT    =48\\r\\n\\tBX_PARKING_EVENT   =48\\r\\n\\tBX_MANUAL      =48\\r\\n\\t\\0";$/;"	v
+config_data	config.c	/^const char *config_data = "Blackbox Configuration\\r\\n\\r\\nPartitioning Size[Percentage]\\r\\n\\tBX_NORMAL       =20\\r\\n\\tBX_NORMAL_EVENT    =15\\r\\n\\tBX_PARKING_EVENT   =15\\r\\n\\tBX_MANUAL       =15\\r\\n\\tBX_IMAGE        =15\\r\\n\\tBX_ETC          =20\\r\\n\\r\\nPreallocation Setting[MB]\\r\\n\\tBX_NORMAL      =4\\r\\n\\tBX_NORMAL_EVENT    =4\\r\\n\\tBX_PARKING_EVENT   =4\\r\\n\\tBX_MANUAL      =4\\r\\n\\t\\0";$/;"	v
 control_attr1	namei_vfat.c	/^static struct kobj_attribute control_attr1 = __ATTR( SD1_control, 0644, control_show_s1, control_store );$/;"	v	typeref:struct:kobj_attribute	file:
 control_attr2	namei_vfat.c	/^static struct kobj_attribute control_attr2 = __ATTR( SD2_control, 0644, control_show_s2, control_store );$/;"	v	typeref:struct:kobj_attribute	file:
 control_attr3	namei_vfat.c	/^static struct kobj_attribute control_attr3 = __ATTR( SD1_size_monitoring, 0644, size_show_s1, control_store );$/;"	v	typeref:struct:kobj_attribute	file:
@@ -537,7 +537,9 @@ nr_contig	cache.c	/^	int nr_contig;	\/* number of contiguous clusters *\/$/;"	m	
 nr_contig	cache.c	/^	int nr_contig;$/;"	m	struct:fat_cache_id	file:
 nr_slots	fat.h	/^	int nr_slots;		\/* number of slots + 1(de) in filename *\/$/;"	m	struct:fat_slot_info
 numtail	fat.h	/^		 numtail:1,        \/* Does first alias have a numeric '~1' type tail? *\/$/;"	m	struct:fat_mount_options
+opel_fat_free_clusters	fatent.c	/^static int opel_fat_free_clusters( struct inode *inode, int cluster )$/;"	f	file:
 opel_fat_kobj	namei_vfat.c	/^static struct kobject *opel_fat_kobj;$/;"	v	typeref:struct:kobject	file:
+opel_fat_mirror_bhs	inode.c	/^static int opel_fat_mirror_bhs(struct super_block *sb, struct buffer_head **bhs,$/;"	f	file:
 opel_vfat_find_form	config.c	/^static int opel_vfat_find_form( struct msdos_sb_info *sbi, struct inode *dir, unsigned char *name, sector_t *blknr )$/;"	f	file:
 options	fat.h	/^	struct fat_mount_options options;$/;"	m	struct:msdos_sb_info	typeref:struct:msdos_sb_info::fat_mount_options
 parent_i_gen	nfs.c	/^	u32 parent_i_gen;$/;"	m	struct:fat_fid	file:

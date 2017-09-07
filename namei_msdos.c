@@ -679,12 +679,12 @@ static struct dentry *msdos_mount(struct file_system_type *fs_type,
 
 static struct file_system_type msdos_fs_type = {
 	.owner		= THIS_MODULE,
-	.name		= "msdos",
+	.name		= "msdos_opel",
 	.mount		= msdos_mount,
 	.kill_sb	= kill_block_super,
 	.fs_flags	= FS_REQUIRES_DEV,
 };
-MODULE_ALIAS_FS("msdos");
+MODULE_ALIAS_FS("msdos_opel");
 
 static int __init init_msdos_fs(void)
 {

@@ -76,6 +76,6 @@ dir_info *g_dir;
 
 
 void detect_and_control( char **dirs, int dir_cnt );
-
+int open_files( char *target_direcotry, char **dirs, char ***pbuf );
 
 #endif

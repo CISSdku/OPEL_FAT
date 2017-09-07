@@ -4,10 +4,6 @@ insmod fat.ko
 insmod vfat.ko
 mkfs.vfat /dev/sbd 
 mount /dev/sbd /mnt
+#mount /dev/sdc5 /mnt
 
-mkdir /mnt/normal
-mkdir /mnt/event
-mkdir /mnt/parking
-mkdir /mnt/manual
-mkdir /mnt/config
 

@@ -109,6 +109,8 @@ static int fat_cache_lookup(struct inode *inode, int fclus,
 		cid->dcluster = hit->dcluster;
 		*cached_fclus = cid->fcluster + offset;
 		*cached_dclus = cid->dcluster + offset;
+
+//		printk("fat_cache_lookup %d %d %d %d \n", cid->fcluster, cid->dcluster, *cached_fclus, *cached_dclus );
 	}
 	spin_unlock(&MSDOS_I(inode)->cache_lru_lock);
 
@@ -238,6 +240,8 @@ int fat_get_cluster(struct inode *inode, int cluster, int *fclus, int *dclus)
 	if (cluster == 0)
 		return 0;
 
+
+#if 1
 	if (fat_cache_lookup(inode, cluster, &cid, fclus, dclus) < 0) {
 		/*
 		 * dummy, always not contiguous
@@ -245,6 +249,7 @@ int fat_get_cluster(struct inode *inode, int cluster, int *fclus, int *dclus)
 		 */
 		cache_init(&cid, -1, -1);
 	}
+#endif
 
 	fatent_init(&fatent);
 

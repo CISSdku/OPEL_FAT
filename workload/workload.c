@@ -28,6 +28,7 @@ static unsigned long random_range( unsigned int n1, unsigned int n2 )
 //	srand( time( NULL ) );
 	return ( unsigned long )( rand() % ( n2 - n1 ) + n1 );
 }
+#if 0
 static unsigned long dir_size( char *dn)
 {
 	FILE *fp = NULL;
@@ -74,6 +75,7 @@ static unsigned long dir_size( char *dn)
 
 	return l_size;
 }
+#endif
 
 /*
  17.01.23
@@ -201,6 +203,7 @@ int compare_time(const void *node1, const void *node2)
 			return 0;
 	}
 }
+#if 0
 void fdel(char *dn, int gap)
 {
 	DIR *dir;
@@ -272,7 +275,7 @@ void fdel(char *dn, int gap)
 	free(farr);
 	closedir( dir );
 }
-
+#endif
 #if 0
 static void remove_file_for_calculate_fragmentation( char *dn )
 {
@@ -359,10 +362,10 @@ static int detect_file_counter( int file_counter, int load_flag )
 	//	remove_file_for_calculate_fragmentation( "/mnt/parking/" );
 	//	remove_file_for_calculate_fragmentation( "/mnt/parking_event" );
 
-		fdel( "./mnt/normal/", 20 );
-		fdel( "./mnt/normal_event/", 20 );
-		fdel( "./mnt/parking/", 20 );
-		fdel( "./mnt/parking_event/", 20 );
+	//	fdel( "./mnt/normal/", 20 );
+//		fdel( "./mnt/normal_event/", 20 );
+//		fdel( "./mnt/parking/", 20 );
+//		fdel( "./mnt/parking_event/", 20 );
 
 		
 		if( load_flag == ON )
@@ -531,7 +534,8 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 #endif
 		g_total.file_counter++;
 		//printf("File create: %-20s \t %10luM \t dir_size(): %10luM \n",fn, f_size/1024/1024, dir_size( dirs[ *selected_dir ] )/1024/1024 );
-		printf("File create: %-20s %-20s\t %10luK \t dir_size(): %10luK \n", fn1, fn2, f_size/1024, dir_size( dirs[ *selected_dir - 1 ] )/1024 );
+//		printf("File create: %-20s %-20s\t %10luK \t dir_size(): %10luK \n", fn1, fn2, f_size/1024, dir_size( dirs[ *selected_dir - 1 ] )/1024 );
+		printf("File create: %-20s %-20s\t %10luK \n", fn1, fn2, f_size/1024 );
 
 		//		detect_file_counter( g_total.file_counter, load_flag );
 	}
