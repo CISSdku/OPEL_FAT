@@ -1,4 +1,4 @@
-SD_DEV =/dev/sdc1
+SD_DEV =/dev/sbd
 FS_MNT_PWD =/mnt/
 FS_CONFIG_FILE =/mnt/BXFS_CON
 

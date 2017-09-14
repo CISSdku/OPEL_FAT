@@ -591,7 +591,7 @@ void fat_table_update( struct super_block *sb, int start, int two_frag, int page
 	int num_buf=0, i=0, j=0;
 	struct buffer_head *bh[300];
 
-//	printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
+	printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
 
 	for( i=0; i<page_num; i++ )
 	{
