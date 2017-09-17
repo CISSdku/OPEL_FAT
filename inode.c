@@ -478,7 +478,12 @@ static void sbi_update_with_prealloc( struct inode *inode, unsigned int new_next
 	//SB update//
 	sbi->bx_free_clusters[area] -= num_pre_alloc;
 	sbi->free_clusters -= num_pre_alloc;
-	sbi->bx_next_start[area]  = new_next;
+
+	//170917 Due to fsck, Our policy is changed, if new_next + next PA unit > sbi->bx_end_cluster, skip
+	if( new_next + (num_pre_alloc - 1)  > sbi->bx_end_cluster[area] )
+		sbi->bx_next_start[area] = sbi->bx_start_cluster[ area ];				
+	else
+		sbi->bx_next_start[area]  = new_next;
 
 	if( new_prev != NULL )
 		sbi->bx_prev_free[area] = new_prev;
@@ -509,8 +514,8 @@ static int check_area_limit( struct super_block *sb, unsigned int start, unsigne
 			if( ( (start  ) + (i * CLUSTER_IN_PAGE)) <= sbi->bx_end_cluster[area]) //7/26
 				two_frag++;
 		}
-		printk("[cheon] Case : Execeed border of area, two_frag :%d \n", two_frag);
-		printk("[cheon] start : %u \n", start ); 
+//		printk("[cheon] Case : Execeed border of area, two_frag :%d \n", two_frag);
+//		printk("[cheon] start : %u \n", start ); 
 	}
 
 	return two_frag; 
@@ -528,7 +533,7 @@ static unsigned int fill_page_and_repos_start( struct super_block *sb, int two_f
 	{
 		if(j==two_frag)
 		{
-			printk("[cheon] First cluster update occur \n");
+//			printk("[cheon] First cluster update occur \n");
 			*chain = sbi->bx_start_cluster[area];
 			temp_start = *chain = *chain + ( CLUSTER_IN_PAGE - ( *chain % CLUSTER_IN_PAGE ) ); //updated
 			
@@ -591,7 +596,7 @@ void fat_table_update( struct super_block *sb, int start, int two_frag, int page
 	int num_buf=0, i=0, j=0;
 	struct buffer_head *bh[300];
 
-	printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
+//	printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
 
 	for( i=0; i<page_num; i++ )
 	{

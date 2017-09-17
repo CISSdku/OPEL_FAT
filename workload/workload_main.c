@@ -242,8 +242,8 @@ int main( int argc, char *argv[] )
 	{
 		if( load_flag == ON )
 		{
-			sleep(1);
-//			sync();
+//			sleep(1);
+			sync();
 			
 		}
 		

@@ -492,14 +492,15 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 		printf("File name : %d \t", file_creator[ *selected_dir ] );
 		sprintf(fn1,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".mp4"  );
 
-		printf("File name : %d \t\n", ++file_creator[ *selected_dir ]   );
-		sprintf(fn2,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".mp4"  );
+//		printf("File name : %d \t\n", ++file_creator[ *selected_dir ]   );
+//		sprintf(fn2,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".mp4"  );
 
 		//sprintf(fn,"%s%d", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ] );
 		//printf("%s \n", fn );
 		//실제 타겟 파일에 설정된 크기 만큼, 파일을 생성하고 씀
 #if 1
-		if( (fd1 = fopen(fn1,"w")) == NULL || (fd2 = fopen(fn2,"w")) == NULL ) {
+		if( (fd1 = fopen(fn1,"w")) == NULL ) {
+		//if( (fd1 = fopen(fn1,"w")) == NULL || (fd2 = fopen(fn2,"w")) == NULL ) {
 
 			printf("g_total.file_counter : %lu \n", g_total.file_counter );	
 			printf("File create error\n");
@@ -510,14 +511,14 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 		{
 			
 			fputs("k",fd1);
-			fputs("k",fd2);
+//			fputs("k",fd2);
 	//		fprintf( stderr, "%s\n", strerror(errno));
 
 			
 		}
 
 		fclose( fd1 );
-		fclose( fd2 );
+//		fclose( fd2 );
 		//	fflush(stdout);
 #endif
 #if 0
@@ -535,7 +536,8 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 		g_total.file_counter++;
 		//printf("File create: %-20s \t %10luM \t dir_size(): %10luM \n",fn, f_size/1024/1024, dir_size( dirs[ *selected_dir ] )/1024/1024 );
 //		printf("File create: %-20s %-20s\t %10luK \t dir_size(): %10luK \n", fn1, fn2, f_size/1024, dir_size( dirs[ *selected_dir - 1 ] )/1024 );
-		printf("File create: %-20s %-20s\t %10luK \n", fn1, fn2, f_size/1024 );
+	//	printf("File create: %-20s %-20s\t %10luK \n", fn1, fn2, f_size/1024 );
+		printf("File create: %-20s\t %10luK \n", fn1,  f_size/1024 );
 
 		//		detect_file_counter( g_total.file_counter, load_flag );
 	}

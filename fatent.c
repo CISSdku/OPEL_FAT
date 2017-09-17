@@ -480,7 +480,88 @@ static void fat_collect_bhs(struct buffer_head **bhs, int *nr_bhs,
 		}
 	}
 }
+#if 0
+int view_fatent_entry( void )
+{
+	struct msdos_sb_info *sbi = MSDOS_SB( temp_sb );
+	struct fatent_operations *ops = sbi->fatent_ops;
+	struct fat_entry fatent;
+	int count, err, i;
+	int entry = 0;
+	
+	int temp_entry = -1, key=0;
+	unsigned int cnt=0;
 
+
+	/////////////////////////////////////////
+	printk( KERN_ALERT "[cheon] view_fatent_entry() test \n");
+	count = 0;
+
+	for( i = 1 ; i <= 4; i++ )
+	{
+		fatent_init( &fatent );
+		fatent_set_entry( &fatent, sbi->bx_start_cluster[ i ] );
+
+		while( count < (sbi->bx_start_cluster[i] - sbi->bx_end_cluster[i] + 1 ) )
+		{
+			if( fatent.entry >= sbi->max_cluster )
+				fatent.entry = FAT_START_ENT;
+
+			fatent_set_entry( &fatent, fatent.entry );
+			err = fat_ent_read_block( temp_sb, &fatent );
+			if( err )
+				goto out;
+
+			do
+			{
+				if( ops->ent_get( &fatent ) == FAT_ENT_FREE )
+				{
+					if( key == 1 )
+					{
+						printk("cnt : %u entry : %d \n", cnt, fatent.entry );
+						cnt =0 ;
+						key = 0;
+					}
+
+									
+				}
+				else
+				{
+					entry = fatent.entry;
+					
+					if( entry != FAT_ENT_EOF && temp_entry != FAT_ENT_EOF && temp_entry != FAT_ENT_FREE )
+					{
+						if( entry != temp_entry + 1 )
+						{
+							cnt++;
+							printk("%d %d \n", entry, temp_entry);
+						}
+
+					}
+					
+
+			
+					
+					temp_entry = entry;	
+
+					key = 1;
+				}   
+			//	if( fatent.entry == sbi->bx_end_cluster[ i ] )
+
+				count++;
+				if( count == sbi->bx_end_cluster[i] ) break;
+			}   
+			while( fat_ent_next( sbi, &fatent ) );
+		}   
+out:    
+		fatent_brelse( &fatent );
+	}   
+
+	return 0;
+}   
+EXPORT_SYMBOL_GPL( view_fatent_entry );
+#endif
+#if 0
 int view_fatent_entry( void )
 {
 	struct msdos_sb_info *sbi = MSDOS_SB( temp_sb );
@@ -533,7 +614,7 @@ int view_fatent_entry( void )
 				{
 					if( flag == 1 )
 					{
-						printk( KERN_ALERT "[cheon] [%d ~ %d ]\t: %luM \n",start, end, successive_data * 4096 / 1024 / 1024 );
+						printk( KERN_ALERT "[cheon] [%d ~ %d ]\t: %lu \n",start, end, successive_data * 4096 ); // 1024 / 1024 );
 
 						successive_data = 1;
 						flag = 0;
@@ -543,7 +624,7 @@ int view_fatent_entry( void )
 				{   
 					if( flag == 1 )
 					{
-						printk( KERN_ALERT "[cheon] [%d ~ %d ]\t: %luM \n",start, end, successive_data * 4096 / 1024 / 1024  );
+						printk( KERN_ALERT "[cheon] [%d ~ %d ]\t: %lu \n",start, end, successive_data * 4096 ); /// 1024 / 1024  );
 
 						successive_data = 1;
 						flag = 0;
@@ -559,67 +640,6 @@ out:
 
 	return 0;
 }   
-EXPORT_SYMBOL_GPL( view_fatent_entry );
-
-
-
-
-
-#if 0
-/*
- 모듈에서 호출해서 free된 공간 보는거임
- */
-int view_fatent_entry( void )
-{
-	struct msdos_sb_info *sbi = MSDOS_SB( temp_sb );
-	struct fatent_operations *ops = sbi->fatent_ops;
-	struct fat_entry fatent;
-	int count, err, i;
-	
-	printk( KERN_ALERT "[cheon] view_fatent_entry() \n");
-
-	count = FAT_START_ENT;
-
-	for( i = BB_NORMAL ; i <= BB_IMAGE ; i++ ) 
-	{
-		fatent_init( &fatent );
-		fatent_set_entry( &fatent, sbi->bx_start_cluster[ i ] );
-
-		while( count < sbi->max_cluster )
-		{
-			if( fatent.entry >= sbi->max_cluster )
-				fatent.entry = FAT_START_ENT;
-
-			fatent_set_entry( &fatent, fatent.entry );	
-			err = fat_ent_read_block( temp_sb, &fatent );
-			if( err )
-				goto out;
-
-			do{
-				if( ops->ent_get( &fatent ) == FAT_ENT_FREE )		
-				{
-					int entry = fatent.entry;
-
-					printk( KERN_ALERT "[cheon] entry : %d \n", entry );
-
-				}	
-
-
-				if( fatent.entry == sbi->bx_end_cluster[ i ] )
-					goto out;
-
-			}
-			while( fat_ent_next( sbi, &fatent ) );
-		}
-
-out:
-
-		fatent_brelse( &fatent );
-	}
-
-	return 0;
-
-}
 EXPORT_SYMBOL_GPL( view_fatent_entry );
 #endif
 
@@ -1098,13 +1118,14 @@ int fat_free_clusters(struct inode *inode, int cluster)
 	struct dentry *dentry = NULL;
 	int i, err, nr_bhs;
 	int first_cl = cluster, dirty_fsinfo = 0;
-	int previous_cluster = 0;
+	int previous_cluster, temp_cluster= 0;
 
 	//choen
 	int area=0;
 	unsigned long flags;
 	//test
 	static unsigned int freed_cnt = 0;
+	static int cnt = 0;
 
 	nr_bhs = 0;
 	fatent_init(&fatent);
@@ -1139,8 +1160,28 @@ int fat_free_clusters(struct inode *inode, int cluster)
 			err = -EIO;
 			goto error;
 		}
-//		else
-//			printk( KERN_ALERT "%d ", cluster );
+		else
+		{	
+			if( cluster != FAT_ENT_EOF )
+			{
+	//			printk( KERN_ALERT "%d ", cluster );
+				
+				if( cluster != temp_cluster + 1 )
+				{
+					cnt++;
+				}
+
+				temp_cluster = cluster;
+			}
+			else //EOF
+			{
+				cnt = cnt - 1;
+				printk("cnt = %d \n", cnt );
+				temp_cluster = 0;
+				cnt = 0;
+			}
+		}
+
 
 		if (sbi->options.discard) {
 //			printk("[cheon] fat_free_clusters check 2 \n");
