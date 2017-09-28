@@ -10,6 +10,11 @@
 #include <linux/ratelimit.h>
 #include <linux/msdos_fs.h>
 
+#define FREE 0x0
+#define USED 0x2
+#define GARBAGE 0x4
+#define MIDEOF 0x8
+
 #define SD1_S_ID "sbd"
 #define SD2_S_ID "sdc1"
 
@@ -153,6 +158,34 @@ struct fat_mount_options {
 
 #define FAT_HASH_BITS	8
 #define FAT_HASH_SIZE	(1UL << FAT_HASH_BITS)
+//FOR PA management
+struct PA_unit_t{
+	unsigned int start,
+				 end;
+	unsigned char flag;
+};
+
+struct PA{
+	struct PA_unit *pa_unit;
+	int pa_num;
+};
+
+#ifndef _FAT_
+	#ifndef __VARIABLE_EXT__
+		#define __VARIABLE_EXT__	extern 
+	#endif
+#else
+	#ifndef __VARIABLE_EXT__
+		#define __VARIABLE_EXT__ 
+	#endif
+#endif
+
+__VARIABLE_EXT__ struct PA area_PA[ TOTAL_AREA_CNT ];
+//__VARIABLE_EXT__ struct PA_unit_t *punit;
+
+
+
+
 
 /*
  * MS-DOS file system in-core superblock data
@@ -493,6 +526,8 @@ extern int fat_just_init_super(struct super_block *sb);
 extern int fat_update_super(struct super_block *sb);
 extern int fat_config_init(struct super_block *sb);
 
+
+
 ///////////////////////////////////
 extern void fat_ent_access_init(struct super_block *sb);
 extern int fat_ent_read(struct inode *inode, struct fat_entry *fatent,
@@ -508,6 +543,7 @@ extern int fat_count_free_clusters(struct super_block *sb);
 
 extern int fat_count_free_clusters_for_area(struct super_block *sb);
 
+extern int decide_each_pa_status( struct super_block *sb, struct PA_unit_t *punit, int area );
 
 /* fat/file.c */
 extern long fat_generic_ioctl(struct file *filp, unsigned int cmd,
@@ -597,3 +633,9 @@ extern {
 #define CURRENT_TIME_SEC_OPEL ( ( struct timespec ){ get_seconds(), time_ordering() } )
 
 #endif /* !_FAT_H */
+
+
+//extern struct PA area_PA[ TOTAL_AREA_CNT ];
+
+
+

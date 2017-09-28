@@ -11,7 +11,8 @@
 
 //#define __DEBUG__
 //#define __ORIGINAL_FAT_TEST__
-
+//extern struct PA area_PA[ ];
+//extern struct PA_unit_t *punit;
 
 struct super_block *temp_sb;
 
@@ -938,9 +939,9 @@ out:
 	return err;
 }
 
-static int get_area_number_for_free_func( struct inode *inode, int entry )
+//static int get_area_number_for_free_func( struct inode *inode, int entry )
+static int get_area_number_for_free_func( struct super_block *sb, int entry )
 {
-	struct super_block *sb = inode->i_sb;
 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
 
 	if( sbi->bx_start_cluster[ BB_ETC ] <= entry && entry <= sbi->bx_end_cluster[ BB_ETC ] )
@@ -967,147 +968,6 @@ static int get_area_number_for_free_func( struct inode *inode, int entry )
 		return BB_ETC;
 	}
 }
-
-static int opel_fat_free_clusters( struct inode *inode, int cluster )
-{
-	struct super_block *sb = inode->i_sb;
-	struct msdos_sb_info *sbi = MSDOS_SB(sb);
-	struct fatent_operations *ops = sbi->fatent_ops;
-	struct fat_entry fatent;
-	struct buffer_head *bhs[MAX_BUF_PER_PAGE];
-	int i, err, nr_bhs, cnt;
-	int first_cl = cluster, dirty_fsinfo = 0;
-	int previous_cluster = 0;
-
-	//choen
-	int area=0;
-	unsigned long flags;
-	//test
-	static unsigned int freed_cnt = 0;
-
-	nr_bhs = 0;
-	fatent_init(&fatent);
-	lock_fat(sbi);
-
-	printk( KERN_ALERT "[cheon] opel_fat_free_clusters : %d \n", cluster );
-	previous_cluster = cluster;
-			
-	for( cnt = 0 ; cnt < 1024 ; cnt++  )
-	{
-		if( cnt < 1000 )
-		{
-			if ( cluster < FAT_START_ENT || sbi->max_cluster <= cluster) 
-			{
-				printk("[cheon] check cluster : %d, previous_cluster : %d \n", cluster, previous_cluster );
-				cluster = previous_cluster + 1;
-			}
-		}
-
-		cluster = fat_ent_read(inode, &fatent, cluster);
-
-#if 0
-		if (cluster < 0) {
-			printk("[cheon] fat_free_clusters check 1 \n");
-			err = cluster;
-			goto error;
-		} else if (cluster == FAT_ENT_FREE) {
-			fat_fs_error(sb, "%s: deleting FAT entry beyond EOF",
-				     __func__);
-			err = -EIO;
-			goto error;
-		}
-#endif
-
-		if (sbi->options.discard) {
-			printk("[cheon] fat_free_clusters check 2 \n");
-			/*
-			 * Issue discard for the sectors we no longer
-			 * care about, batching contiguous clusters
-			 * into one request
-			 */
-			if (cluster != fatent.entry + 1) {
-				int nr_clus = fatent.entry - first_cl + 1;
-
-				sb_issue_discard(sb,
-					fat_clus_to_blknr(sbi, first_cl),
-					nr_clus * sbi->sec_per_clus,
-					GFP_NOFS, 0);
-
-				first_cl = cluster;
-			}
-		}
-
-#if 1 //origin
-		ops->ent_put(&fatent, FAT_ENT_FREE);
-		if (sbi->free_clusters != -1) {
-			sbi->free_clusters++;
-
-			area = get_area_number_for_free_func( inode, fatent.entry );
-			(sbi->bx_free_clusters[ area ])++;
-			freed_cnt++;
-
-		//	printk("[cheon] previous_cluster : %d cluster : %d \n", previous_cluster, cluster );
-
-			if( cluster == FAT_ENT_EOF )				{
-				//		sbi->bx_head[area] = previous_cluster + 1;
-				//			printk("[cheon] fat_free_clusters, bx_head : %d \n", sbi->bx_head[area] );	
-				printk("[cheon] fat_free_cluster, cluster : %d area : %d freed_cnt : %u \n", previous_cluster, area, freed_cnt );	
-				freed_cnt = 0;
-			}
-			else 
-				previous_cluster = cluster;		
-
-			dirty_fsinfo = 1;
-		}
-#endif
-		if (nr_bhs + fatent.nr_bhs > MAX_BUF_PER_PAGE) {
-			if (sb->s_flags & MS_SYNCHRONOUS) {
-
-				printk("[cheon] fat_free_clusters check 3 \n");
-				err = fat_sync_bhs(bhs, nr_bhs);
-				if (err)
-				{
-					printk("[cheon] fat_free_clusters check 4 \n");
-					goto error;
-				}
-			}
-			err = fat_mirror_bhs(sb, bhs, nr_bhs);
-			if (err)
-			{
-				printk("[cheon] fat_free_clusters check 5 \n");
-				goto error;
-			}
-			for (i = 0; i < nr_bhs; i++)
-				brelse(bhs[i]);
-			nr_bhs = 0;
-		}
-		fat_collect_bhs(bhs, &nr_bhs, &fatent);
-	}
-	//} while (cluster != FAT_ENT_EOF);
-
-	if (sb->s_flags & MS_SYNCHRONOUS) {
-		err = fat_sync_bhs(bhs, nr_bhs);
-		if (err)
-		{
-			printk("[cheon] fat_free_clusters check 6 \n");
-			goto error;
-		}
-	}
-	err = fat_mirror_bhs(sb, bhs, nr_bhs);
-error:
-			
-	printk("[cheon] fat_free_clusters check 7 \n");
-	fatent_brelse(&fatent);
-	for (i = 0; i < nr_bhs; i++)
-		brelse(bhs[i]);
-	unlock_fat(sbi);
-	if (dirty_fsinfo)
-		mark_fsinfo_dirty(sb);
-
-	return err;
-
-}
-
 int fat_free_clusters(struct inode *inode, int cluster)
 {
 	struct super_block *sb = inode->i_sb;
@@ -1132,26 +992,12 @@ int fat_free_clusters(struct inode *inode, int cluster)
 	lock_fat(sbi);
 
 //	printk( KERN_ALERT "[cheon] fat_free_clusters : %d \n", cluster );
-#if 0
-	if( sbi->fat_original_flag == OFF )  //OPEL_FAT
-	{
-	//	dentry = list_entry( inode->i_dentry.first, struct dentry, d_u.d_alias );
-	//	if( dentry == NULL  || strstr( dentry->d_name.name, "mp4" ) == NULL );
-	//	else{
-			unlock_fat(sbi); //안에서 다시 
-			err = opel_fat_free_clusters( inode, cluster );	
-			return err;
-	//	}
-	}
-#endif
 
-	//////////////////////////////////////////////////
 	do {
 		cluster = fat_ent_read(inode, &fatent, cluster);
 		if (cluster < 0) {
 
 //			printk("[cheon] fat_free_clusters check 1 \n");
-			
 			err = cluster;
 			goto error;
 		} else if (cluster == FAT_ENT_FREE) {
@@ -1212,7 +1058,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 			{
 #if 1
 
-				area = get_area_number_for_free_func( inode, fatent.entry );
+				area = get_area_number_for_free_func( sb, fatent.entry );
 				(sbi->bx_free_clusters[ area ])++;
 				freed_cnt++;
 			
@@ -1444,6 +1290,205 @@ area_out:
 	return 0;
 }
 
+
+static int __decide_each_pa_status( unsigned int start, unsigned int mid, unsigned int end, unsigned int pa_cnt, struct PA_unit_t *punit, struct super_block *sb )
+{
+	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+	struct fatent_operations *ops = sbi->fatent_ops;
+	struct fat_entry fatent;
+	unsigned long reada_blocks, reada_mask, cur_block;
+	int err = 0, free;
+	int cluster_cur = 0;
+	int cnt = 0;
+
+//	printk("__decide_each_pa_status %d \n", pa_cnt);
+
+	if( !( (end & mid) ^ FAT_ENT_EOF) || !( (end & start) ^ FAT_ENT_EOF) ) //중간 혹은 처음과 끝이 EOF면 연결
+		punit[ pa_cnt ].flag = MIDEOF;
+	else if( end == FAT_ENT_EOF && mid != FAT_ENT_EOF )
+	{
+		if( start == FAT_ENT_FREE )
+		{
+			printk("[cheon] GARBAGE \n");
+			punit[ pa_cnt ].flag = GARBAGE;
+			//Garbage (5)
+		}
+		else if( start != FAT_ENT_FREE )
+		{
+			//used 정상파일(1,2)	
+			punit[ pa_cnt ].flag = USED;
+		
+		}
+	}
+
+//	lock_fat( sbi );	
+
+	reada_blocks = FAT_READA_SIZE >> sb->s_blocksize_bits;
+	reada_mask = reada_blocks - 1;
+	cur_block = 0;
+
+	free = 0;
+	fatent_init(&fatent);
+//	fatent_set_entry(&fatent, FAT_START_ENT);
+	fatent_set_entry(&fatent, punit[ pa_cnt ].start );
+	//while (fatent.entry < sbi->max_cluster) {
+	while (fatent.entry <= punit[ pa_cnt ].end ) {
+
+		/* readahead of fat blocks */
+		if ((cur_block & reada_mask) == 0) {
+			unsigned long rest = sbi->fat_length - cur_block;
+			fat_ent_reada(sb, &fatent, min(reada_blocks, rest));
+		}
+		cur_block++;
+
+		err = fat_ent_read_block(sb, &fatent);
+		if (err)
+			goto out;
+
+		do {
+		
+			if( punit[ pa_cnt ].flag == MIDEOF )
+			{
+				printk("[cheon] MIDEOF \n");
+				if( ops->ent_get( &fatent ) == FAT_ENT_EOF && fatent.entry != punit[pa_cnt].end )
+				{
+					ops->ent_put( &fatent, fatent.entry + 1 );	
+					punit[ pa_cnt ].flag = FREE;
+				}
+			}
+			else if( punit[ pa_cnt ].flag == GARBAGE )
+			{
+#if 1
+	//			printk("[cheon] GARBAGE \n");
+				if( punit[ pa_cnt ].start <= fatent.entry && fatent.entry <= punit[ pa_cnt ].end )
+				{
+					if( ops->ent_get( &fatent ) != FAT_ENT_FREE )		
+					{
+						ops->ent_put( &fatent, FAT_ENT_FREE );	
+//						printk("[cheon] %u \n", ops->ent_get( &fatent ) );
+					}
+				}
+#endif
+			}
+			else; //used
+		
+			cnt++;
+		} while (fat_ent_next(sbi, &fatent));
+
+	}
+
+//	printk("[cheon] cnt : %d \n", cnt );
+
+
+	//	printk("[cheon] decide_each_pa_status : %d %u \n", fatent.entry, cluster_num );
+	//sbi->free_clusters = free;
+	//sbi->free_clus_valid = 1;
+	mark_fsinfo_dirty(sb);
+	fatent_brelse(&fatent);
+out:
+	//unlock_fat(sbi);
+	return err;
+}
+
+int decide_each_pa_status( struct super_block *sb, struct PA_unit_t *punit, int area  )
+{
+	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+	struct fatent_operations *ops = sbi->fatent_ops;
+	struct fat_entry fatent;
+	unsigned long reada_blocks, reada_mask, cur_block;
+	int err = 0, free;
+	int cluster_cur = 0;
+
+	
+	int total_pa_cnt=0, i=0;
+	int before_cl = FAT_START_ENT;
+	unsigned int cluster_num = FAT_START_ENT;
+	unsigned int pa_cnt = 0, num_pre_alloc = ( sbi->bx_pre_size[ area ] * 1024 ) / ( sbi->cluster_size / 1024 );
+	unsigned int start = 0, mid = 0, end = 0;
+
+	printk("decide_each_pa_status\n");
+
+//	for( i=0 ; i < (TOTAL_AREA_CNT-1) ; i++ )
+//		total_pa_cnt += area_PA[ i ].pa_num;
+
+	lock_fat(sbi);
+	//if (sbi->free_clusters != -1 && sbi->free_clus_valid)
+	//	goto out;
+
+	reada_blocks = FAT_READA_SIZE >> sb->s_blocksize_bits;
+	reada_mask = reada_blocks - 1;
+	cur_block = 0;
+
+	free = 0;
+	fatent_init(&fatent);
+	fatent_set_entry(&fatent, FAT_START_ENT);
+//	printk("decide_each_pa_status\n");
+	
+	while (fatent.entry < sbi->max_cluster) {
+
+		/* readahead of fat blocks */
+		if ((cur_block & reada_mask) == 0) {
+			unsigned long rest = sbi->fat_length - cur_block;
+			fat_ent_reada(sb, &fatent, min(reada_blocks, rest));
+		}
+		cur_block++;
+
+		err = fat_ent_read_block(sb, &fatent);
+		if (err)
+			goto out;
+
+		do {
+		
+
+			if( punit[ pa_cnt ].start <= fatent.entry && fatent.entry <= punit[ pa_cnt ].end )
+			{
+				if( fatent.entry == punit[ pa_cnt ].start )
+				{			
+					start = ops->ent_get( &fatent ); 
+
+		//			printk("[cheon] %d %d \n", start, fatent.entry );
+			//		ops->ent_put( &fatent, FAT_ENT_FREE );
+				}
+
+				if( ops->ent_get( &fatent ) == FAT_ENT_EOF )
+				{
+					printk("eof entry : %d \n", fatent.entry );
+
+					if( fatent.entry == punit[ pa_cnt ].end ) //끝 EOF
+						end = ops->ent_get( &fatent );
+					
+					else if( punit[ pa_cnt ].start < fatent.entry && fatent.entry < punit[ pa_cnt ].end ) //중간 EOF
+					{
+						mid = ops->ent_get( &fatent );	
+					}
+
+				}
+			}
+
+			if( fatent.entry == punit[ pa_cnt ].end )
+			{
+				pa_cnt++;
+	//			printk("%u %u %u %u\n", start, mid, end, pa_cnt );
+				__decide_each_pa_status( start, mid, end, pa_cnt-1, punit, sb );
+
+				start = mid = end = FAT_ENT_FREE;
+
+			}
+			
+			
+		} while (fat_ent_next(sbi, &fatent));
+		
+	}
+//	printk("[cheon] decide_each_pa_status : %d %u \n", fatent.entry, cluster_num );
+	//sbi->free_clusters = free;
+	//sbi->free_clus_valid = 1;
+	mark_fsinfo_dirty(sb);
+	fatent_brelse(&fatent);
+out:
+	unlock_fat(sbi);
+	return err;
+}
+EXPORT_SYMBOL_GPL( decide_each_pa_status );
 
 int fat_count_free_clusters(struct super_block *sb)
 {

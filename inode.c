@@ -723,6 +723,7 @@ static int preAlloc( struct inode *inode, unsigned int *next, unsigned int prev,
 	unsigned int num_pre_alloc = 0;
 	unsigned int fat_block_pos = fat_block + start / CLUSTER_IN_BLOCK ; //fat block : fat_start //prev+1 : start
 	
+	printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
 //	printk("\n[cheon] .......... Preallocation............\n");
 //	if( num_of_page > 15 ) //num_of_page 하나 당 4MB
 	//printk("[cheon] ==================error, num_of_page is large!================== \n");
@@ -747,25 +748,8 @@ static int preAlloc( struct inode *inode, unsigned int *next, unsigned int prev,
 	*new_prev = chain -2; // cheon
 	*next = data[0][0] - 1;	 // cheon //cluser시작
 
-#if 0
-	//test
-	if( check_for_existing_file_conflicts( sb, two_frag, data, page_num, area) ) //데이터 쓰려고 하는데 데이터 존재 체크
-	{
-		printk("[cheon]==preAlloc confliction==\n");
-		printk("[cheon] preAlloc, bx_head : %u bx_tail : %u bx_free_clusters[area] : %u  \n", sbi->bx_head[area],  sbi->bx_tail[area], sbi->bx_free_clusters[area] );
-	
-		for( i = 0 ; i < page_num ; i++)
-			kfree(data[i]);
-
-		MSDOS_I(inode)->pre_alloced = ON_WITH_ERROR;
-	
-		return -ENOSPC;
-	}
-
-//	sbi->bx_tail[area] = (data[page_num-1][1023] - 1); //data[][]는 그 다음을 가리키니깐 하나를 빼줘야함
-#endif
 //	printk("[cheon] preAlloc, bx_head : %u bx_tail : %u bx_free_clusters[area] : %u  \n", sbi->bx_head[area],  sbi->bx_tail[area], sbi->bx_free_clusters[area] );
-//	printk("[cheon] index First %u, index Last : %u\n", data[0][0] - 1, data[ num_of_page -1 ][1023] -1   );
+	printk("[cheon] index First %u, index Last : %u\n", data[0][0] - 1, data[ num_of_page -1 ][1023] -1   );
 
 	data[page_num-1][1023] = FAT_ENT_EOF; 
 	//preAlloc()끝나고 진행했떤 sb update를 preAlloc 안에서 미리 진행함 //SB update
@@ -1120,30 +1104,6 @@ int fat_just_init_super(struct super_block *sb)
 	sbi->bx_free_clusters[ BB_MANUAL ]		 = 0;
 	sbi->bx_free_clusters[ BB_IMAGE ] 		 = 0;
 	
-	sbi->bx_head[ BB_ETC ]			= -1;
-	sbi->bx_head[ BB_NORMAL ]			= -1;
-	sbi->bx_head[ BB_NORMAL_EVENT ]	= -1;
-	sbi->bx_head[ BB_PARKING ]		= -1;
-	sbi->bx_head[ BB_MANUAL ]			= -1;
-	sbi->bx_head[ BB_IMAGE ] 			= -1;
-
-	sbi->bx_tail[ BB_ETC ]			= -1;
-	sbi->bx_tail[ BB_NORMAL ]			= -1;
-	sbi->bx_tail[ BB_NORMAL_EVENT ]	= -1;
-	sbi->bx_tail[ BB_PARKING ]		= -1;
-	sbi->bx_tail[ BB_MANUAL ]			= -1;
-	sbi->bx_tail[ BB_IMAGE ] 			= -1;
-
-	sbi->bx_area_limit[ BB_ETC ]			= -1;
-	sbi->bx_area_limit[ BB_NORMAL ]			= -1;
-	sbi->bx_area_limit[ BB_NORMAL_EVENT ]	= -1;
-	sbi->bx_area_limit[ BB_PARKING ]		= -1;
-	sbi->bx_area_limit[ BB_MANUAL ]			= -1;
-	sbi->bx_area_limit[ BB_IMAGE ] 			= -1;
-	
-
-
-
 
 	sbi->fat_original_flag = OFF;	
 	fat_count_free_clusters_for_area( sb );
@@ -1192,22 +1152,6 @@ int fat_update_super(struct super_block *sb){
 	sbi->bx_end_cluster[ BB_IMAGE        ] = sbi->max_cluster - 1;
 #endif
 	
-#if 0
-	sbi->bx_start_cluster[ BB_ETC          ] = FAT_START_ENT + 2;
-	sbi->bx_start_cluster[ BB_NORMAL       ] = FAT_START_ENT + 2 + COUNT_AREA_0;
-	sbi->bx_start_cluster[ BB_NORMAL_EVENT ] = FAT_START_ENT + 2 + COUNT_AREA_0 + ( COUNT_AREA_1 );  //10M + 400k : 400k는 여유 공간
-	sbi->bx_start_cluster[ BB_PARKING      ] = FAT_START_ENT + 2 + COUNT_AREA_0 + ( COUNT_AREA_1 ) + COUNT_AREA_2;
-	sbi->bx_start_cluster[ BB_MANUAL       ] = FAT_START_ENT + 2 + COUNT_AREA_0 + ( COUNT_AREA_1 ) + COUNT_AREA_2 + COUNT_AREA_3;
-	sbi->bx_start_cluster[ BB_IMAGE        ] = FAT_START_ENT + 2 + COUNT_AREA_0 + ( COUNT_AREA_1 ) + COUNT_AREA_2 + COUNT_AREA_3 + COUNT_AREA_4;
-
-	sbi->bx_end_cluster[  BB_ETC         ] = sbi->bx_start_cluster[ BB_NORMAL       ] - 1;
-	sbi->bx_end_cluster[  BB_NORMAL      ] = sbi->bx_start_cluster[ BB_NORMAL_EVENT ] - 1;
-	sbi->bx_end_cluster[  BB_NORMAL_EVENT] = sbi->bx_start_cluster[ BB_PARKING      ] - 1;
-	sbi->bx_end_cluster[  BB_PARKING     ] = sbi->bx_start_cluster[ BB_MANUAL       ] - 1;
-	sbi->bx_end_cluster[  BB_MANUAL      ] = sbi->bx_start_cluster[ BB_IMAGE        ] - 1;
-	sbi->bx_end_cluster[  BB_IMAGE       ] = sbi->bx_start_cluster[ BB_IMAGE ] + COUNT_AREA_5 - 1;
-#endif
-
 	sbi->bx_prev_free[ BB_ETC ]			 = sbi->bx_start_cluster[ BB_ETC ];
 	sbi->bx_prev_free[ BB_NORMAL ]		 = sbi->bx_start_cluster[ BB_NORMAL ];
 	sbi->bx_prev_free[ BB_NORMAL_EVENT ] = sbi->bx_start_cluster[ BB_NORMAL_EVENT ];
@@ -1228,29 +1172,6 @@ int fat_update_super(struct super_block *sb){
 	sbi->bx_free_clusters[ BB_PARKING ]		 = 0;
 	sbi->bx_free_clusters[ BB_MANUAL ]		 = 0;
 	sbi->bx_free_clusters[ BB_IMAGE ] 		 = 0;
-
-	sbi->bx_head[ BB_ETC ]			= -1;
-	sbi->bx_head[ BB_NORMAL ]			= -1;
-	sbi->bx_head[ BB_NORMAL_EVENT ]	= -1;
-	sbi->bx_head[ BB_PARKING ]		= -1;
-	sbi->bx_head[ BB_MANUAL ]			= -1;
-	sbi->bx_head[ BB_IMAGE ] 			= -1;
-	
-	sbi->bx_tail[ BB_ETC ]			= -1;
-	sbi->bx_tail[ BB_NORMAL ]			= -1;
-	sbi->bx_tail[ BB_NORMAL_EVENT ]	= -1;
-	sbi->bx_tail[ BB_PARKING ]		= -1;
-	sbi->bx_tail[ BB_MANUAL ]			= -1;
-	sbi->bx_tail[ BB_IMAGE ] 			= -1;
-	
-	sbi->bx_area_limit[ BB_ETC ]			= -1;
-	sbi->bx_area_limit[ BB_NORMAL ]			= -1;
-	sbi->bx_area_limit[ BB_NORMAL_EVENT ]	= -1;
-	sbi->bx_area_limit[ BB_PARKING ]		= -1;
-	sbi->bx_area_limit[ BB_MANUAL ]			= -1;
-	sbi->bx_area_limit[ BB_IMAGE ] 			= -1;
-	
-
 
 	//초기화
 	sbi->fat_original_flag = OFF;	

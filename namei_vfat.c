@@ -15,6 +15,7 @@
  *				OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
  */
 
+#define _FAT_
 #include<linux/kernel.h>
 
 #include <linux/module.h>
@@ -24,6 +25,11 @@
 #include <linux/buffer_head.h>
 #include <linux/namei.h>
 #include "fat.h"
+
+
+//struct PA area_PA[ TOTAL_AREA_CNT ];
+//struct PA_unit_t *punit;
+
 
 char manager_control_sd1[20]; 
 char manager_control_sd2[20]; 
@@ -1128,6 +1134,113 @@ static void setup(struct super_block *sb)
 		sb->s_d_op = &vfat_dentry_ops;
 }
 
+static inline unsigned int align_check( struct msdos_sb_info *sbi, unsigned int next, int area )
+{	
+	if( next % CLUSTER_IN_PAGE == 0 );
+	else
+		next = next + (CLUSTER_IN_PAGE  - (next % CLUSTER_IN_PAGE )); 
+
+	if( (sbi->fat_start % 8) != 0 ) //FAT strat point not match with align
+	{
+		int adjust = sbi->fat_start % BLOCK_IN_PAGE ;
+		next = next - (adjust * CLUSTER_IN_BLOCK );
+		//prev = next - 1;
+		
+		if(next < sbi->bx_start_cluster[area])	{
+			next = next + CLUSTER_IN_PAGE ;
+		//	prev = next -1;
+		}
+	}
+
+	return next;
+}
+
+static void show_the_status_unit_flag( struct PA_unit_t *punit, int area )
+{
+	int unit_cnt = area_PA[ area ].pa_num;
+	int i = 0, j = 0;
+
+	printk("[cheon] unit_flag \n");
+
+	for( i=0 ; i < unit_cnt ; i++ )
+	{
+		printk("%d ", punit[ i ].flag );	
+
+		j++;
+		if( j /10 )
+		{
+			printk("\n");
+			j=0;
+		}
+	}
+	printk("\n");
+	
+
+}
+
+static void setting_start_end_in_memory( struct super_block *sb )
+{
+	struct msdos_sb_info *sbi = MSDOS_SB( sb );
+	struct PA_unit_t *punit;
+	unsigned int start = 0, end = 0, num_pre_alloc= 0;
+	int cnt=0, i=0;
+
+	for( i = 1 ; i < (TOTAL_AREA_CNT-1) ; i++ )
+//	i = 1;
+	{
+		start = align_check( sbi, sbi->bx_prev_free[i]+1, i );	
+		punit = area_PA[ i ].pa_unit;
+
+		num_pre_alloc = ( sbi->bx_pre_size[ i ] * 1024 ) / ( sbi->cluster_size / 1024 );
+
+//		printk("[cheon] ==area change==\n");
+
+		while(1)
+		{
+			punit[cnt].start = start;
+			punit[cnt].end = start + num_pre_alloc - 1;
+
+			start += num_pre_alloc;	
+			
+			punit[cnt].flag = FREE; //일단 전부 FREE
+			printk("[cheon] start, end : %u, %u \n",  punit[cnt].start, punit[cnt].end );
+
+			cnt++;
+			if( cnt == area_PA[ i ].pa_num  ){
+				cnt = 0;	
+				break;
+			}
+		}
+	}
+}
+
+static void PA_management( struct super_block *sb )
+{
+	struct msdos_sb_info *sbi = MSDOS_SB( sb );
+	
+	printk("[cheon] PA_management Test \n");
+
+	int i = 0;
+	
+	for( i = 1 ; i < (TOTAL_AREA_CNT-1) ; i++ ) // 테스트로 4개만 normal, event, parking. manual
+	{
+		area_PA[ i ].pa_num = ( ( sbi->bx_end_cluster[ i ] - sbi->bx_start_cluster[ i ] + 1 ) ) /  ((sbi->bx_pre_size[ i ] * 1024) / (sbi->cluster_size / 1024)); //각 영역의 PA개수
+		area_PA[ i ].pa_num -= 1; //1개 뺴줌
+		printk("[cheon] area[%d].pa_num : %d \n", i, area_PA[ i ].pa_num );
+
+		area_PA[ i ].pa_unit = ( struct PA_unit_t  *)kmalloc( sizeof( struct PA_unit_t ) * area_PA[ i ].pa_num, GFP_KERNEL ); 
+		memset( ( void *)area_PA[ i ].pa_unit, 0x0, sizeof( struct PA_unit_t ) * area_PA[ i ].pa_num );
+	}
+
+	setting_start_end_in_memory( sb );
+
+	for( i = 1 ; i < (TOTAL_AREA_CNT -1) ; i++ )
+		decide_each_pa_status( sb, area_PA[ i ].pa_unit, i );
+	
+	for( i = 1 ; i < (TOTAL_AREA_CNT -1) ; i++ )
+		show_the_status_unit_flag( area_PA[ i ].pa_unit, i );
+}
+
 static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 {
 	int res;	
@@ -1158,9 +1271,17 @@ static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 		{
 
 			if( !strcmp( sb->s_id, SD1_S_ID ) )
+			{
 				strcpy( manager_control_sd1, "START_OPEL" );
+				
+				PA_management( sb );
+			}
 			else
+			{
 				strcpy( manager_control_sd2, "START_OPEL" );
+				
+				PA_management( sb );
+			}
 		}
 
 		if( !strcmp( sb->s_id, SD1_S_ID ) )
@@ -1370,6 +1491,11 @@ static void do_fs_sysfs_unregistration( void )
 static void opel_kill_block_super( struct super_block *sb )
 {
 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+	int i = 0;
+	
+	for( i = 0 ; i < ( TOTAL_AREA_CNT - 1 ) ; i++ )
+		kfree( area_PA[ i ].pa_unit );
+
 
 	if( sbi->fat_original_flag != ON )
 	{

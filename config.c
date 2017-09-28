@@ -21,7 +21,7 @@
 //const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =40\r\n\tBX_NORMAL_EVENT    =20\r\n\tBX_PARKING_EVENT   =10\r\n\tBX_MANUAL       =5\r\n\tBX_IMAGE        =5\r\n\tBX_ETC          =20\r\n\r\nPreallocation Setting[MB]\r\n\tBX_NORMAL      =60\r\n\tBX_NORMAL_EVENT    =60\r\n\tBX_PARKING_EVENT   =60\r\n\tBX_MANUAL      =60\r\n\t\0";
 //const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =20\r\n\tBX_NORMAL_EVENT    =15\r\n\tBX_PARKING_EVENT   =15\r\n\tBX_MANUAL       =15\r\n\tBX_IMAGE        =15\r\n\tBX_ETC          =20\r\n\r\nPreallocation Setting[MB]\r\n\tBX_NORMAL      =48\r\n\tBX_NORMAL_EVENT    =48\r\n\tBX_PARKING_EVENT   =48\r\n\tBX_MANUAL      =48\r\n\t\0";
 
-const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =20\r\n\tBX_NORMAL_EVENT    =15\r\n\tBX_PARKING_EVENT   =15\r\n\tBX_MANUAL       =15\r\n\tBX_IMAGE        =15\r\n\tBX_ETC          =20\r\n\r\nPreallocation Setting[MB]\r\n\tBX_NORMAL      =12\r\n\tBX_NORMAL_EVENT    =8\r\n\tBX_PARKING_EVENT   =4\r\n\tBX_MANUAL      =4\r\n\t\0";
+const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =20\r\n\tBX_NORMAL_EVENT    =15\r\n\tBX_PARKING_EVENT   =15\r\n\tBX_MANUAL       =15\r\n\tBX_IMAGE        =15\r\n\tBX_ETC          =20\r\n\r\nPreallocation Setting[MB]\r\n\tBX_NORMAL      =8\r\n\tBX_NORMAL_EVENT    =8\r\n\tBX_PARKING_EVENT   =8\r\n\tBX_MANUAL      =8\r\n\t\0";
 //const char *config_data = "Blackbox Configuration\r\n\r\nPartitioning Size[Percentage]\r\n\tBX_NORMAL       =40\r\n\tBX_NORMAL_EVENT    =20\r\n\tBX_PARKING_EVENT   =10\r\n\tBX_MANUAL       =5\r\n\tBX_IMAGE        =5\r\n\tBX_ETC          =20\r\n\r\nPreallocation Setting[MB]\r\n\tBX_NORMAL      =32\r\n\tBX_NORMAL_EVENT    =32\r\n\tBX_PARKING_EVENT   =32\r\n\tBX_MANUAL      =32\r\n\t\0";
 
 unsigned char msdos_name[ MSDOS_NAME ] = "BXFS_CON";
@@ -117,10 +117,12 @@ static int read_config_data(struct super_block *sb, char *data)
 	sbi->bx_pre_size[BX_MANUAL]             = read_val[9];
 #endif
 #if 1
-	sbi->bx_pre_size[ BB_NORMAL ]    	  = read_val[6];
-	sbi->bx_pre_size[ BB_NORMAL_EVENT ]   = read_val[7];
-	sbi->bx_pre_size[ BB_PARKING ]		  = read_val[8];
-	sbi->bx_pre_size[ BB_MANUAL ]  		  = read_val[9];
+	sbi->bx_pre_size[ BB_NORMAL ]    	  = read_val[6]; //normal
+	sbi->bx_pre_size[ BB_NORMAL_EVENT ]   = read_val[7]; //event
+	sbi->bx_pre_size[ BB_PARKING ]		  = read_val[8]; //parking
+	sbi->bx_pre_size[ BB_MANUAL ]  		  = read_val[9]; //manual
+
+	sbi->bx_pre_size[ BB_ETC ] = sbi->bx_pre_size[ BB_IMAGE ] = sbi->bx_pre_size[ BB_MANUAL ]; //ETC/HANDWORK
 
 	printk("[cheon] %u \n", sbi->bx_pre_size[ BB_NORMAL ] );
     printk("[cheon] %u \n", sbi->bx_pre_size[ BB_NORMAL_EVENT ] ); 
