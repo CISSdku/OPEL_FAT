@@ -32,6 +32,7 @@
 #include <asm/unaligned.h>
 #include "fat.h"
 
+
 #ifndef CONFIG_FAT_DEFAULT_IOCHARSET
 /* if user don't select VFAT, this is undefined. */
 #define CONFIG_FAT_DEFAULT_IOCHARSET	""
@@ -634,27 +635,7 @@ void fat_table_update( struct super_block *sb, int start, int two_frag, int page
 		kfree(data[i]);
 }
 
-static int check_for_existing_file_conflicts( struct super_block *sb, int two_frag, unsigned int **data, int page_num, int area)
-{
-	struct msdos_sb_info *sbi = MSDOS_SB(sb);
-	unsigned int num_pre_alloc = (sbi->bx_pre_size[area] * 1024) / (sbi->cluster_size / 1024 );
-	
-	if( (two_frag > 0 && (data[page_num-1][1023] > sbi->bx_head[area] ) ))
-		return 1;
-	else if( sbi->bx_tail[area] < sbi->bx_head[area] )
-	{
-		if( (sbi->bx_tail[area] + num_pre_alloc) >= sbi->bx_head[area] )
-		{
-			if( sbi->bx_tail[area] + 1 == sbi->bx_head[area] ) //파일이 전부 지워진 상태면 문제 없음
-				return 0;
 
-			return 1;	
-		}
-	}
-	else;
-		
-	return 0;
-}
 
 #if 0 //4MB단위 할당 아닐 때 preAlloc에 추가해줘야함
 	if(page_offset != 0) //일단 4MB 단위에 맞춰 미리할당 진행하기로 해서 여기론 안들어옴
@@ -694,10 +675,88 @@ static int check_for_existing_file_conflicts( struct super_block *sb, int two_fr
 	}
 #endif
 
-
-
-
 #if 1
+static int preAlloc( struct inode *inode, unsigned int start, unsigned int end, int pa_cluster_num, int area )
+{
+	struct super_block *sb = inode->i_sb;
+	struct msdos_sb_info *sbi = MSDOS_SB( sb );
+	struct buffer_head *bh[300];
+
+	int i=0, j=0;
+	int cluster = start + 1;
+	int num_of_page = pa_cluster_num / CLUSTER_IN_PAGE;
+	int p_cnt = 0, num_buf = 0;
+
+	unsigned int *data[100];
+	unsigned int fat_block_pos = fat_block + start / CLUSTER_IN_BLOCK;
+
+	//printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
+
+	//printk("[cheon] start, end, pa_cluster_num, num_of_page, area : %u %u %d %d %d\n", start, end, pa_cluster_num, num_of_page, area );
+
+	for(i=0; i< num_of_page; i++)
+		data[i] = ( unsigned int*)kmalloc((SD_PAGE_SIZE * 1024),GFP_KERNEL);  
+
+	//data채우기
+	for(p_cnt=0; p_cnt<num_of_page; p_cnt++)
+	{
+		for(i=0; i<CLUSTER_IN_PAGE; i++)
+		{
+			data[ p_cnt ][i] = cluster;
+//			printk("%u ", data[p_cnt][i] );
+			cluster++;
+		}
+	}
+//	printk("p_cnt, i : %d %d \n", p_cnt, i );
+//	printk("[cheon] data start end : %d %d \n", data[0][0], data[p_cnt-1][1023] );
+	data[p_cnt-1][1023] = FAT_ENT_EOF; 
+
+	//First : Inode Update
+	MSDOS_I(inode)->i_start = start;
+	MSDOS_I(inode)->i_logstart = start;
+	inode->i_blocks = pa_cluster_num << (sbi->cluster_bits - 9);
+
+	//SB update// //할당한 만큼 free_cluster 빼주기
+	sbi->bx_free_clusters[area] -= pa_cluster_num;
+	sbi->free_clusters -= pa_cluster_num;
+
+
+	sbi->bx_next_start[area] = end + 1;
+	sbi->bx_prev_free[area] = end;
+	
+	////////////////////////////////////////////////////////////////////////////////
+	for( i=0; i<num_of_page; i++ )
+	{
+		for( j=0 ; j < BLOCK_IN_PAGE ; j++ )
+		{ 
+			//BLOCK_IN_PAGE : 8
+			bh[num_buf] = sb_bread(sb, fat_block_pos); //block 읽어와서 bh가 가리키게 하고
+			memcpy( bh[num_buf]->b_data , data[i] + ( j * CLUSTER_IN_BLOCK ), 512 ); //block chain쓰기
+	
+			mark_buffer_dirty( bh[ num_buf ] );
+
+			num_buf++;
+			fat_block_pos++;
+		}
+	}
+
+	fat_sync_bhs(bh, num_buf); 
+	opel_fat_mirror_bhs(sb,bh,num_buf);
+
+	for(i=0;i<num_buf;i++)
+		brelse( bh[i] ); //93
+
+
+	for( i = 0 ; i < num_of_page ; i++)
+		kfree(data[i]);
+
+	return 0;
+}
+#endif 
+
+
+
+#if 0
 //static void preAlloc(struct super_block *sb, unsigned int next, unsigned int prev, unsigned int* new_next,  \
 		unsigned int* new_prev, int allocated, int need_to_alloc, int area)
 static int preAlloc( struct inode *inode, unsigned int *next, unsigned int prev, unsigned int* new_next,  \
@@ -734,7 +793,7 @@ static int preAlloc( struct inode *inode, unsigned int *next, unsigned int prev,
 		data[i] = ( unsigned int*)kmalloc((SD_PAGE_SIZE * 1024),GFP_KERNEL);  
 
 	//Check Area Limit
-	two_frag = check_area_limit( sb, prev+1, need_to_alloc, area ); //end_cluster에 도달할 때 4MB단위 넘어선거 체크
+	two_frag = check_area_limit( sb, prev+1, need_to_alloc, area ); //end_cluster에 도달할 때 4MB단위 넘어선거 체크, two_frag 계산
 	//Fill Page with cluster chain & 영역 처음으로 왔을 때 위치 선정
 	temp_start = fill_page_and_repos_start( sb, two_frag, &chain, data, need_to_alloc, area );
 
@@ -833,6 +892,93 @@ static int check_chain_number_limit( struct super_block *sb, int two_frag, unsig
 	return page_num;
 }
 
+#if 1
+int fat_handle_cluster( struct inode *inode, int mode )
+{
+	struct super_block *sb = inode->i_sb;
+	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+	struct dentry *dentry = NULL;
+	struct PA_unit_t *punit = NULL; 
+	struct PA *pa = NULL;	
+	
+	int err = 0, cluster = 0, area = 0, rs;
+	int unit_num = 0;
+	int cnt = 0;
+//	printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
+
+	get_area_number( &area, inode );
+
+	//
+	pa = sbi->parea_PA[ area ];
+	//punit = sbi->parea_PA[ area ]->pa_unit;
+	punit = pa->pa_unit;
+	unit_num = pa->pa_num;
+
+	///////////
+	if( area == BB_ETC || sbi->fat_original_flag == ON )
+		goto NORMAL_ALLOC;			
+	dentry = list_entry( inode->i_dentry.first, struct dentry, d_u.d_alias );
+	if( dentry == NULL  || strstr( dentry->d_name.name, "mp4" ) == NULL )
+		goto NORMAL_ALLOC;
+
+	if( MSDOS_I(inode)->pre_alloced == ON ) //preAlloc함수 한번 타고 나오면 안들어간다.
+		return 0;
+
+	mutex_lock(&sbi->fat_lock);
+
+	MSDOS_I(inode)->pre_alloced = ON; //기존에는 inode->i_ino로 구별했었는데 변경함
+
+	do{
+		if( punit[ pa->cur_pa_cnt ].flag == FREE ){
+			rs = preAlloc( inode, punit[ pa->cur_pa_cnt ].start, punit[ pa->cur_pa_cnt ].end, pa->pa_cluster_num, area );				
+
+			if( !rs )
+			{
+				punit[ pa->cur_pa_cnt ].flag = USED;
+				break;
+			}
+		}
+		else;
+
+		pa->cur_pa_cnt++;
+		cnt++;
+		if( pa->cur_pa_cnt >= unit_num ) pa->cur_pa_cnt = 0;
+		if( cnt >= unit_num ){
+			printk("[cheon] There is no PA Unit \n");	
+			mutex_unlock( &sbi->fat_lock );
+			return -ENOSPC;
+		}
+
+	}while( pa->cur_pa_cnt < unit_num );
+
+	mutex_unlock(&sbi->fat_lock);
+
+	return err;
+
+NORMAL_ALLOC:
+	//origin
+
+	printk("[cheon] NORMAL ALLOC\n");
+
+	err = fat_alloc_clusters( inode, &cluster, 1 );
+	if (err)
+		return err;
+	/* FIXME: this cluster should be added after data of this
+	 * cluster is writed */
+	err = fat_chain_add(inode, cluster, 1);
+	if (err)
+	{
+		printk( KERN_ALERT "[cheon] fat_chain_add error !!!, fat_free_clusters\n");
+		fat_free_clusters(inode, cluster);
+	}
+	return err;
+}
+#endif
+
+
+
+
+#if 0
 int fat_handle_cluster( struct inode *inode, int mode )
 {
 	int err = 0, cluster = 0, area = 0, two_frag = -1, i;
@@ -894,7 +1040,6 @@ int fat_handle_cluster( struct inode *inode, int mode )
 			next = align_check( sbi, next, area );
 			prev = next - 1;
 
-			sbi->bx_head[area] = next;
 		}
 		// There are exist old file, need to check, cluster number 
 		else
@@ -955,6 +1100,7 @@ NORMAL_ALLOC:
 	}
 	return err;
 }
+#endif
 
 static int fat_add_cluster(struct inode *inode)
 {
@@ -1178,8 +1324,8 @@ int fat_update_super(struct super_block *sb){
 	fat_count_free_clusters_for_area( sb );
 
 	int i;	
-	for( i=0;i<8;i++)
-	spin_lock_init( &sbi->bx_lock[i] );
+//	for( i=0;i<8;i++)
+//	spin_lock_init( &sbi->bx_lock[i] );
 
 	//sbi->cluster_size
 

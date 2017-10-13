@@ -394,7 +394,7 @@ void thread_file_create(char **dirs, int selected_dir, int load_flag )
 	int setcond = 0;
 	//f_size = f_rand_size( &selected_dir, S_AUTOMATION, load_flag );
 	
-	f_size = 16500000 + rand()%10000000;
+	f_size = 2000000 + rand()%1000000;
 //	printf("f_size : %luM \t", f_size/1024/1024 );
 
 	switch( selected_dir )

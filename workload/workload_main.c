@@ -147,7 +147,7 @@ static void auto_select( int *selected_dir )
 	before_num = invoked;
 }   
 
-#define MAX_THREAD 8
+#define MAX_THREAD 4
 struct thread_arg{
 	char** dirs;
 	int load_flag;

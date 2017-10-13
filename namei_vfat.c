@@ -16,6 +16,7 @@
  */
 
 #define _FAT_
+#define __VARIABLE_EXT__
 #include<linux/kernel.h>
 
 #include <linux/module.h>
@@ -27,7 +28,7 @@
 #include "fat.h"
 
 
-//struct PA area_PA[ TOTAL_AREA_CNT ];
+struct PA area_PA[ TOTAL_AREA_CNT ];
 //struct PA_unit_t *punit;
 
 
@@ -1155,29 +1156,6 @@ static inline unsigned int align_check( struct msdos_sb_info *sbi, unsigned int 
 	return next;
 }
 
-static void show_the_status_unit_flag( struct PA_unit_t *punit, int area )
-{
-	int unit_cnt = area_PA[ area ].pa_num;
-	int i = 0, j = 0;
-
-	printk("[cheon] unit_flag \n");
-
-	for( i=0 ; i < unit_cnt ; i++ )
-	{
-		printk("%d ", punit[ i ].flag );	
-
-		j++;
-		if( j /10 )
-		{
-			printk("\n");
-			j=0;
-		}
-	}
-	printk("\n");
-	
-
-}
-
 static void setting_start_end_in_memory( struct super_block *sb )
 {
 	struct msdos_sb_info *sbi = MSDOS_SB( sb );
@@ -1203,7 +1181,7 @@ static void setting_start_end_in_memory( struct super_block *sb )
 			start += num_pre_alloc;	
 			
 			punit[cnt].flag = FREE; //일단 전부 FREE
-			printk("[cheon] start, end : %u, %u \n",  punit[cnt].start, punit[cnt].end );
+			//printk("[cheon] start, end : %u, %u \n",  punit[cnt].start, punit[cnt].end );
 
 			cnt++;
 			if( cnt == area_PA[ i ].pa_num  ){
@@ -1222,23 +1200,38 @@ static void PA_management( struct super_block *sb )
 
 	int i = 0;
 	
-	for( i = 1 ; i < (TOTAL_AREA_CNT-1) ; i++ ) // 테스트로 4개만 normal, event, parking. manual
+	for( i = 1 ; i < (TOTAL_AREA_CNT-1) ; i++ ) // 현재 4개만 normal, event, parking. manual
 	{
 		area_PA[ i ].pa_num = ( ( sbi->bx_end_cluster[ i ] - sbi->bx_start_cluster[ i ] + 1 ) ) /  ((sbi->bx_pre_size[ i ] * 1024) / (sbi->cluster_size / 1024)); //각 영역의 PA개수
 		area_PA[ i ].pa_num -= 1; //1개 뺴줌
+		area_PA[ i ].pa_cluster_num = ( sbi->bx_pre_size[ i ] * 1024 ) / ( sbi->cluster_size / 1024 );
+		area_PA[ i ].cur_pa_cnt = 0; 
 		printk("[cheon] area[%d].pa_num : %d \n", i, area_PA[ i ].pa_num );
 
 		area_PA[ i ].pa_unit = ( struct PA_unit_t  *)kmalloc( sizeof( struct PA_unit_t ) * area_PA[ i ].pa_num, GFP_KERNEL ); 
 		memset( ( void *)area_PA[ i ].pa_unit, 0x0, sizeof( struct PA_unit_t ) * area_PA[ i ].pa_num );
+
+		sbi->parea_PA[i]  = &area_PA[i];
 	}
 
 	setting_start_end_in_memory( sb );
 
 	for( i = 1 ; i < (TOTAL_AREA_CNT -1) ; i++ )
 		decide_each_pa_status( sb, area_PA[ i ].pa_unit, i );
+
+
+	sbi->bx_free_clusters[ BB_ETC ]			 = 0;
+	sbi->bx_free_clusters[ BB_NORMAL ]		 = 0;
+	sbi->bx_free_clusters[ BB_NORMAL_EVENT ] = 0;
+	sbi->bx_free_clusters[ BB_PARKING ]		 = 0;
+	sbi->bx_free_clusters[ BB_MANUAL ]		 = 0;
+	sbi->bx_free_clusters[ BB_IMAGE ] 		 = 0;
+
+	sbi->bx_free_valid = -1;
+	fat_count_free_clusters_for_area( sb ); //free_cluster 다시 계산
 	
 	for( i = 1 ; i < (TOTAL_AREA_CNT -1) ; i++ )
-		show_the_status_unit_flag( area_PA[ i ].pa_unit, i );
+		show_the_status_unit_flag( sb, i );
 }
 
 static int vfat_fill_super(struct super_block *sb, void *data, int silent)

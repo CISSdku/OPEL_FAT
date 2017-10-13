@@ -939,6 +939,35 @@ out:
 	return err;
 }
 
+void show_the_status_unit_flag( struct super_block *sb, int area )
+{
+	struct msdos_sb_info *sbi = MSDOS_SB( sb );
+	struct PA *pa = sbi->parea_PA[ area ];
+	struct PA_unit_t *punit = pa->pa_unit;
+	
+	int unit_num = pa->pa_num;
+	int i = 0, j = 0;
+
+	printk("[cheon] unit_flag \n");
+
+	for( i=0 ; i < unit_num ; i++ )
+	{
+		printk("%d ", punit[ i ].flag );	
+
+		j++;
+		if( j /10 )
+		{
+			printk("\n");
+			j=0;
+		}
+	}
+	printk("\n");
+	
+
+}
+EXPORT_SYMBOL_GPL( show_the_status_unit_flag );
+
+
 //static int get_area_number_for_free_func( struct inode *inode, int entry )
 static int get_area_number_for_free_func( struct super_block *sb, int entry )
 {
@@ -976,16 +1005,23 @@ int fat_free_clusters(struct inode *inode, int cluster)
 	struct fat_entry fatent;
 	struct buffer_head *bhs[MAX_BUF_PER_PAGE];
 	struct dentry *dentry = NULL;
+
+	struct PA_unit_t *punit = NULL;
+	struct PA *pa = NULL;
+	//
+	int p_cnt=0;	
+//
 	int i, err, nr_bhs;
 	int first_cl = cluster, dirty_fsinfo = 0;
 	int previous_cluster, temp_cluster= 0;
 
 	//choen
 	int area=0;
-	unsigned long flags;
 	//test
-	static unsigned int freed_cnt = 0;
+	//static unsigned int freed_cnt = 0;
 	static int cnt = 0;
+
+	//
 
 	nr_bhs = 0;
 	fatent_init(&fatent);
@@ -996,8 +1032,6 @@ int fat_free_clusters(struct inode *inode, int cluster)
 	do {
 		cluster = fat_ent_read(inode, &fatent, cluster);
 		if (cluster < 0) {
-
-//			printk("[cheon] fat_free_clusters check 1 \n");
 			err = cluster;
 			goto error;
 		} else if (cluster == FAT_ENT_FREE) {
@@ -1008,29 +1042,22 @@ int fat_free_clusters(struct inode *inode, int cluster)
 		}
 		else
 		{	
-			if( cluster != FAT_ENT_EOF )
-			{
-	//			printk( KERN_ALERT "%d ", cluster );
-				
+			if( cluster != FAT_ENT_EOF ){
+				//printk( KERN_ALERT "%d ", cluster );
 				if( cluster != temp_cluster + 1 )
-				{
 					cnt++;
-				}
 
 				temp_cluster = cluster;
 			}
-			else //EOF
-			{
+			else{ //EOF
 				cnt = cnt - 1;
-				printk("cnt = %d \n", cnt );
+				//printk("cnt = %d \n", cnt );
 				temp_cluster = 0;
 				cnt = 0;
 			}
 		}
 
-
 		if (sbi->options.discard) {
-//			printk("[cheon] fat_free_clusters check 2 \n");
 			/*
 			 * Issue discard for the sectors we no longer
 			 * care about, batching contiguous clusters
@@ -1048,43 +1075,36 @@ int fat_free_clusters(struct inode *inode, int cluster)
 			}
 		}
 
-//		printk( KERN_ALERT "[cheon] fat_free_clusters \n");
-#if 1 //origin
 		ops->ent_put(&fatent, FAT_ENT_FREE);
 		if (sbi->free_clusters != -1) {
 			sbi->free_clusters++;
 
-			if( sbi->fat_original_flag == OFF ) 
+			if( sbi->fat_original_flag == OFF )  //PA, Partitioning
 			{
-#if 1
-
 				area = get_area_number_for_free_func( sb, fatent.entry );
 				(sbi->bx_free_clusters[ area ])++;
-				freed_cnt++;
+				
+				/////////////PA_manage
+				pa = sbi->parea_PA[ area ];
+				punit = pa->pa_unit;
 			
-#if 1
+				//몇 번째 unit인지
+				p_cnt = (cluster - punit[ 0 ].start) / pa->pa_cluster_num;
+		//		printk("[cheon] free_clusters : %d %d %d \n", p_cnt, cluster, punit[0].start );
+				punit[ p_cnt ].flag = FREE;
+#if 0	
+				freed_cnt++;
 				if( cluster == FAT_ENT_EOF )				{
-			//		sbi->bx_head[area] = previous_cluster + 1;
-		//			printk("[cheon] fat_free_clusters, bx_head : %d \n", sbi->bx_head[area] );	
 //					printk("[cheon] fat_free_cluster, cluster : %d area : %d freed_cnt : %u \n", previous_cluster, area, freed_cnt );	
 					freed_cnt = 0;
 				}
 				else 
 					previous_cluster = cluster;		
 #endif
-
-#endif
-				#ifdef __DEBUG__
-				//			printk( KERN_ALERT "[cheon] sbi->free_clusters : %d sbi->bx_free_clusters[2] : %d  \n", sbi->free_clusters, sbi->bx_free_clusters[2] );
-				//			printk( KERN_ALERT "[cheon] fat_free_clusters , sbi->free_clusters : %d, fatent.entry : %d, sbi->bx_free_clusters[1] : %d \n", \
-				sbi->free_clusters, fatent.entry, sbi->bx_free_clusters[1]  );
-				//			printk( KERN_ALERT "[cheon] fatent.entry : %d ", fatent.entry );
-				#endif
 			}
 			dirty_fsinfo = 1;
 		}
 
-#endif
 		if (nr_bhs + fatent.nr_bhs > MAX_BUF_PER_PAGE) {
 			if (sb->s_flags & MS_SYNCHRONOUS) {
 			
@@ -1105,6 +1125,12 @@ int fat_free_clusters(struct inode *inode, int cluster)
 		}
 		fat_collect_bhs(bhs, &nr_bhs, &fatent);
 	} while (cluster != FAT_ENT_EOF);
+
+	//unit 상태 확인
+	show_the_status_unit_flag( sb,area );
+	
+
+
 
 	if (sb->s_flags & MS_SYNCHRONOUS) {
 		err = fat_sync_bhs(bhs, nr_bhs);
@@ -1221,6 +1247,8 @@ int fat_count_free_clusters_for_area(struct super_block *sb)
 	struct fat_entry fatent;
 	unsigned long reada_blocks, reada_mask, cur_block;
 	int free;
+	
+//	unsigned int normal_free = 0;
 
 	reada_blocks = FAT_READA_SIZE >> sb->s_blocksize_bits;
 	reada_mask = reada_blocks - 1;
@@ -1234,6 +1262,7 @@ int fat_count_free_clusters_for_area(struct super_block *sb)
 		goto area_out;
 
 
+	printk("[cheon] fat_count_free_clusters_for_area \n");
 	while (fatent.entry < sbi->max_cluster) {
 		/* readahead of fat blocks */
 		if ((cur_block & reada_mask) == 0) {
@@ -1256,7 +1285,10 @@ int fat_count_free_clusters_for_area(struct super_block *sb)
 					(sbi->bx_free_clusters[ BB_ETC ])++;
 		
 				else if( fatent.entry <= sbi->bx_end_cluster[ BB_NORMAL ] )
+				{
 					(sbi->bx_free_clusters[ BB_NORMAL ])++;
+//					normal_free++;
+				}
 
 				else if( fatent.entry <= sbi->bx_end_cluster[ BB_NORMAL_EVENT ] )
 					(sbi->bx_free_clusters[ BB_NORMAL_EVENT ])++;
@@ -1279,6 +1311,8 @@ int fat_count_free_clusters_for_area(struct super_block *sb)
 		} while (fat_ent_next(sbi, &fatent));
 	}
 
+//	printk("[cheon] normal_free : %d \n", normal_free );
+
 	sbi->bx_free_valid = 1;
 
 	sbi->free_clusters = free;
@@ -1289,6 +1323,7 @@ int fat_count_free_clusters_for_area(struct super_block *sb)
 area_out:
 	return 0;
 }
+EXPORT_SYMBOL_GPL( fat_count_free_clusters_for_area );
 
 
 static int __decide_each_pa_status( unsigned int start, unsigned int mid, unsigned int end, unsigned int pa_cnt, struct PA_unit_t *punit, struct super_block *sb )
@@ -1304,7 +1339,10 @@ static int __decide_each_pa_status( unsigned int start, unsigned int mid, unsign
 //	printk("__decide_each_pa_status %d \n", pa_cnt);
 
 	if( !( (end & mid) ^ FAT_ENT_EOF) || !( (end & start) ^ FAT_ENT_EOF) ) //중간 혹은 처음과 끝이 EOF면 연결
+	{
+		printk("[cheon] MIDEOF \n");
 		punit[ pa_cnt ].flag = MIDEOF;
+	}
 	else if( end == FAT_ENT_EOF && mid != FAT_ENT_EOF )
 	{
 		if( start == FAT_ENT_FREE )
@@ -1349,11 +1387,11 @@ static int __decide_each_pa_status( unsigned int start, unsigned int mid, unsign
 		
 			if( punit[ pa_cnt ].flag == MIDEOF )
 			{
-				printk("[cheon] MIDEOF \n");
+		//		printk("[cheon] MIDEOF \n");
 				if( ops->ent_get( &fatent ) == FAT_ENT_EOF && fatent.entry != punit[pa_cnt].end )
 				{
 					ops->ent_put( &fatent, fatent.entry + 1 );	
-					punit[ pa_cnt ].flag = FREE;
+				//	punit[ pa_cnt ].flag = USED;
 				}
 			}
 			else if( punit[ pa_cnt ].flag == GARBAGE )
@@ -1365,7 +1403,9 @@ static int __decide_each_pa_status( unsigned int start, unsigned int mid, unsign
 					if( ops->ent_get( &fatent ) != FAT_ENT_FREE )		
 					{
 						ops->ent_put( &fatent, FAT_ENT_FREE );	
-//						printk("[cheon] %u \n", ops->ent_get( &fatent ) );
+						printk("%u ", ops->ent_get( &fatent ) );
+
+					//	punit[ pa_cnt ].flag = FREE;
 					}
 				}
 #endif
@@ -1467,9 +1507,15 @@ int decide_each_pa_status( struct super_block *sb, struct PA_unit_t *punit, int 
 
 			if( fatent.entry == punit[ pa_cnt ].end )
 			{
+
+				__decide_each_pa_status( start, mid, end, pa_cnt, punit, sb );
+
+				if( punit[ pa_cnt ].flag == GARBAGE )  punit[ pa_cnt ].flag = FREE;
+				else if( punit[ pa_cnt ].flag == MIDEOF ) punit[ pa_cnt ].flag = USED;
+				else;
+
 				pa_cnt++;
 	//			printk("%u %u %u %u\n", start, mid, end, pa_cnt );
-				__decide_each_pa_status( start, mid, end, pa_cnt-1, punit, sb );
 
 				start = mid = end = FAT_ENT_FREE;
 

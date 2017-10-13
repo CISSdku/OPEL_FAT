@@ -15,8 +15,8 @@
 #define GARBAGE 0x4
 #define MIDEOF 0x8
 
-#define SD1_S_ID "sbd"
-#define SD2_S_ID "sdc1"
+#define SD1_S_ID "sdc1"
+#define SD2_S_ID "sbd"
 
 #define TOTAL_AREA_CNT 6
 #define OFF 0
@@ -167,9 +167,11 @@ struct PA_unit_t{
 
 struct PA{
 	struct PA_unit *pa_unit;
-	int pa_num;
+	int pa_num; //PA개수
+	int pa_cluster_num; //한 PA가 갖는 클러스터 개수
+	int cur_pa_cnt; //몇번 째 PA가 할당 될 것인가
 };
-
+#if 0
 #ifndef _FAT_
 	#ifndef __VARIABLE_EXT__
 		#define __VARIABLE_EXT__	extern 
@@ -182,6 +184,7 @@ struct PA{
 
 __VARIABLE_EXT__ struct PA area_PA[ TOTAL_AREA_CNT ];
 //__VARIABLE_EXT__ struct PA_unit_t *punit;
+#endif
 
 
 
@@ -238,10 +241,7 @@ struct msdos_sb_info {
 	unsigned int bx_prev_free[8];  /* Previously allocated cluster number for each area */
 	unsigned int bx_next_start[8];
 	//
-	unsigned int bx_head[8];
-	unsigned int bx_tail[8]; 
 	unsigned int bx_area_limit[8];
-	spinlock_t bx_lock[8];
 
 	int bx_free_valid; //valid check for bx
 
@@ -257,6 +257,8 @@ struct msdos_sb_info {
 
 	int fat_original_flag;
 	const char* file_name;
+
+	struct PA *parea_PA[8];
 };
 
 #define FAT_CACHE_VALID	0	/* special case for valid cache */
@@ -514,7 +516,6 @@ static inline void fatent_brelse(struct fat_entry *fatent)
 	fatent->fat_inode = NULL;
 }
 
-
 extern void de_reupdate(struct super_block *sb, struct inode *inode);
 extern void clusterchain_reupdate(struct super_block *sb, struct inode *inode);
 
@@ -526,6 +527,7 @@ extern int fat_just_init_super(struct super_block *sb);
 extern int fat_update_super(struct super_block *sb);
 extern int fat_config_init(struct super_block *sb);
 
+extern void show_the_status_unit_flag( struct super_block *sb, int area );
 
 
 ///////////////////////////////////
