@@ -1,6 +1,6 @@
 #include"manager.h"
 
-#define STN_SIZE 100
+#define STN_SIZE 150
 #if 0
 static unsigned long dir_size_cal( char *dn)
 {
@@ -71,7 +71,7 @@ static void file_old_remove( char *dn, int selected_dir )
 	DIR *dir;
 	struct dirent *de;
 	struct stat st, temp_st;
-	char fn[ 100 ], old_name[ 100 ];
+	char fn[ 150 ], old_name[ 150 ];
 	int fs_err=0;
 	unsigned long old_time = ULONG_MAX;
 	unsigned long old_inum = ULONG_MAX;
@@ -145,14 +145,18 @@ void detect_and_control( char **dirs, int dir_cnt )
 			printf("Full---------------------------------------------------------------------------------------------- \n");
 			printf("%s	%lu \n", dirs[ num ], size/1024 );
 
+//			while(1);
 			g_dir[ num ].full_count++;
 //			printf("full_count : %d \n", g_dir[ num ].full_count );
 
 			//꽉 차면 전체에서 일정 비율을 삭제할 거임
 			while( dir_size_cal( num )  > g_dir[ num ].check_portion ) 
 			{
+				printf("%s\n", dirs[num] );
+
 				file_old_remove( dirs[ num ], num );
-				file_old_remove( dirs[ num ], num );
+			//	file_old_remove( dirs[ num ], num );
+		//		while(1);
 			}
 
 //			printf("check_portion : %lu \n", g_dir[ num ].check_portion / 1024 );

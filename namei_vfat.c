@@ -874,9 +874,9 @@ static int vfat_rmdir(struct inode *dir, struct dentry *dentry)
 
 	//cheon
 	//TEST_i_atime
-		printk("[cheon] vfat_rmdir \n");
-		printk("inode->i_mtime.tv_sec : %lu \n", inode->i_mtime.tv_sec );
-		printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_mtime.tv_nsec );
+//		printk("[cheon] vfat_rmdir \n");
+	//	printk("inode->i_mtime.tv_sec : %lu \n", inode->i_mtime.tv_sec );
+	//	printk("inode->i_mtime.tv_nsec : %ld \n", inode->i_mtime.tv_nsec );
 
 	fat_detach(inode);
 out:
@@ -1181,7 +1181,7 @@ static void setting_start_end_in_memory( struct super_block *sb )
 			start += num_pre_alloc;	
 			
 			punit[cnt].flag = FREE; //일단 전부 FREE
-			//printk("[cheon] start, end : %u, %u \n",  punit[cnt].start, punit[cnt].end );
+			printk("[cheon] start, end : %u, %u \n",  punit[cnt].start, punit[cnt].end );
 
 			cnt++;
 			if( cnt == area_PA[ i ].pa_num  ){
@@ -1360,9 +1360,9 @@ static ssize_t size_show_s1( struct kobject *kobj, struct kobj_attribute *attr, 
 {
 	int i = 0;
 	int cnt = 0;
-	unsigned int used_size[10] = {0,};
-	unsigned int free_size[10] = {0,};
-	unsigned int total_size[10] = {0,};
+	unsigned long long used_size[10] = {0,};
+	unsigned long long free_size[10] = {0,};
+	unsigned long long  total_size[10] = {0,};
 
 	//if( strcmp( g_sb_s1->s_id, SD1_S_ID ) )
 	if( g_sb_s1 == NULL )
@@ -1381,9 +1381,17 @@ static ssize_t size_show_s1( struct kobject *kobj, struct kobj_attribute *attr, 
 		total_size[i] = g_total_cluster_s1[i] * (sbi->cluster_size/1024);
 	}
 
+#if 0
 	cnt = snprintf( buff, PAGE_SIZE, "%u\t%u\t%u\t%u\t%u\t%u \n%u\t%u\t%u\t%u\t%u\t%u \n%u\t%u\t%u\t%u\t%u\t%u \n", total_size[0], total_size[1],total_size[2], total_size[3], total_size[4], total_size[5], \
 																								  used_size[0], used_size[1], used_size[2], used_size[3], used_size[4], used_size[5], \
 																								  free_size[0], free_size[1], free_size[2], free_size[3], free_size[4], free_size[5] );
+#endif
+#if 1
+	cnt = snprintf( buff, PAGE_SIZE, "%llu\t%llu\t%llu\t%llu\t%llu\t%llu \n%llu\t%llu\t%llu\t%llu\t%llu\t%llu \n%llu\t%llu\t%llu\t%llu\t%llu\t%llu \n", total_size[0], total_size[1],total_size[2], total_size[3], total_size[4], total_size[5], \
+																								  used_size[0], used_size[1], used_size[2], used_size[3], used_size[4], used_size[5], \
+																								  free_size[0], free_size[1], free_size[2], free_size[3], free_size[4], free_size[5] );
+#endif
+
 	return cnt;
 }
 
@@ -1391,9 +1399,9 @@ static ssize_t size_show_s2( struct kobject *kobj, struct kobj_attribute *attr, 
 {
 	int i = 0;
 	int cnt = 0;
-	unsigned int used_size[10] = {0,};
-	unsigned int free_size[10] = {0,};
-	unsigned int total_size[10] = {0,};
+	unsigned long used_size[10] = {0,};
+	unsigned long free_size[10] = {0,};
+	unsigned long total_size[10] = {0,};
 	
 //	if( strcmp( g_sb_s2->s_id, SD2_S_ID ) )
 	if( g_sb_s2 == NULL  )
@@ -1412,7 +1420,7 @@ static ssize_t size_show_s2( struct kobject *kobj, struct kobj_attribute *attr, 
 		total_size[i] = g_total_cluster_s2[i] * (sbi->cluster_size/1024);
 	}
 
-	cnt = snprintf( buff, PAGE_SIZE, "%u\t%u\t%u\t%u\t%u\t%u \n%u\t%u\t%u\t%u\t%u\t%u \n%u\t%u\t%u\t%u\t%u\t%u \n", total_size[0], total_size[1],total_size[2], total_size[3], total_size[4], total_size[5], \
+	cnt = snprintf( buff, PAGE_SIZE, "%llu\t%llu\t%llu\t%llu\t%llu\t%llu \n%llu\t%llu\t%llu\t%llu\t%llu\t%llu \n%llu\t%llu\t%llu\t%llu\t%llu\t%llu \n", total_size[0], total_size[1],total_size[2], total_size[3], total_size[4], total_size[5], \
 																								  used_size[0], used_size[1], used_size[2], used_size[3], used_size[4], used_size[5], \
 																								  free_size[0], free_size[1], free_size[2], free_size[3], free_size[4], free_size[5] );
 

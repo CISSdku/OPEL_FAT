@@ -685,31 +685,58 @@ static int preAlloc( struct inode *inode, unsigned int start, unsigned int end, 
 	int i=0, j=0;
 	int cluster = start + 1;
 	int num_of_page = pa_cluster_num / CLUSTER_IN_PAGE;
-	int p_cnt = 0, num_buf = 0;
+	int page_offset = pa_cluster_num % CLUSTER_IN_PAGE;
+	int p_cnt = 0, num_buf = 0, cnt=0;
 
-	unsigned int *data[100];
+//	unsigned int *data[100];
+	unsigned int *data;
 	unsigned int fat_block_pos = fat_block + start / CLUSTER_IN_BLOCK;
+	
+//	if( sbi->cluster_size == 4096 ) num_of_page = pa_cluster_num / 1024;
+//	else if( sbi->cluster_size == 8192 ) num_of_page = pa_cluster_num / 512;
+//	else if( sbi->cluster_size == 16384 ) num_of_page = pa_cluster_num / 256;
+//	else num_of_page = pa_cluster_num / 128;
+	
+	printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
+	printk("[cheon] start, end, pa_cluster_num, num_of_page, area : %u %u %d %d %d\n", start, end, pa_cluster_num, num_of_page, area );
 
-	//printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
+//	for(i=0; i< num_of_page; i++)
+//		data[i] = ( unsigned int*)kmalloc((SD_PAGE_SIZE * 1024),GFP_KERNEL);  
 
-	//printk("[cheon] start, end, pa_cluster_num, num_of_page, area : %u %u %d %d %d\n", start, end, pa_cluster_num, num_of_page, area );
-
-	for(i=0; i< num_of_page; i++)
-		data[i] = ( unsigned int*)kmalloc((SD_PAGE_SIZE * 1024),GFP_KERNEL);  
+	data = ( unsigned int * )kmalloc( (end - start + 1), GFP_KERNEL );
 
 	//data채우기
-	for(p_cnt=0; p_cnt<num_of_page; p_cnt++)
-	{
-		for(i=0; i<CLUSTER_IN_PAGE; i++)
-		{
+#if 0
+	for(p_cnt=0; p_cnt<num_of_page; p_cnt++){
+		for(i=0; i<CLUSTER_IN_PAGE; i++){
 			data[ p_cnt ][i] = cluster;
 //			printk("%u ", data[p_cnt][i] );
 			cluster++;
 		}
 	}
-//	printk("p_cnt, i : %d %d \n", p_cnt, i );
+#endif
+#if 1		
+	for( cnt = cluster ; cnt <= (end+1) ; cnt++ )
+	{
+		data[i++] = cnt;
+	}
+#endif
+	printk("[cheon] i, end-start : %d %d \n", i, end-start );	
+
+
+//	printk("p_cnt, i : %d %d \n", p_cnt,i );
 //	printk("[cheon] data start end : %d %d \n", data[0][0], data[p_cnt-1][1023] );
-	data[p_cnt-1][1023] = FAT_ENT_EOF; 
+	printk("[cheon] data start end : %d %d \n", data[0], data[end-start] );
+
+//	kfree(data);
+//	return -ENOSPC;
+
+//	data[p_cnt-1][1023] = FAT_ENT_EOF; 
+	data[ end-start] = FAT_ENT_EOF;
+	
+//	for( cnt = 0 ; cnt <= (end-start) ; cnt ++ )
+//		printk("%u ", data[cnt] );
+
 
 	//First : Inode Update
 	MSDOS_I(inode)->i_start = start;
@@ -725,20 +752,29 @@ static int preAlloc( struct inode *inode, unsigned int start, unsigned int end, 
 	sbi->bx_prev_free[area] = end;
 	
 	////////////////////////////////////////////////////////////////////////////////
-	for( i=0; i<num_of_page; i++ )
-	{
-		for( j=0 ; j < BLOCK_IN_PAGE ; j++ )
-		{ 
+#if 0
+	for( i=0; i<num_of_page; i++ ){
+		for( j=0 ; j < BLOCK_IN_PAGE ; j++ ){ 
 			//BLOCK_IN_PAGE : 8
 			bh[num_buf] = sb_bread(sb, fat_block_pos); //block 읽어와서 bh가 가리키게 하고
 			memcpy( bh[num_buf]->b_data , data[i] + ( j * CLUSTER_IN_BLOCK ), 512 ); //block chain쓰기
-	
 			mark_buffer_dirty( bh[ num_buf ] );
 
 			num_buf++;
 			fat_block_pos++;
 		}
 	}
+#endif
+	for( i=0 ; i < (end-start+1)/128 ; i++ )	
+	{
+			bh[num_buf] = sb_bread(sb, fat_block_pos); //block 읽어와서 bh가 가리키게 하고
+			memcpy( bh[num_buf]->b_data , data + ( 128 * i ), 512 ); //block chain쓰기
+			mark_buffer_dirty( bh[ num_buf ] );
+
+			num_buf++;
+			fat_block_pos++;
+	}
+	printk("num_buf, fat_block_pos : %d %u \n", num_buf, fat_block_pos ); 
 
 	fat_sync_bhs(bh, num_buf); 
 	opel_fat_mirror_bhs(sb,bh,num_buf);
@@ -747,13 +783,15 @@ static int preAlloc( struct inode *inode, unsigned int start, unsigned int end, 
 		brelse( bh[i] ); //93
 
 
-	for( i = 0 ; i < num_of_page ; i++)
-		kfree(data[i]);
+//	for( i = 0 ; i < num_of_page ; i++)
+//	{
+		kfree(data);
+	//	kfree(data[i]);
+//	}
 
 	return 0;
 }
 #endif 
-
 
 
 #if 0
@@ -904,15 +942,16 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	int err = 0, cluster = 0, area = 0, rs;
 	int unit_num = 0;
 	int cnt = 0;
-//	printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
+	//printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
+//	static unsigned int num_pre_alloc = 0;
 
 	get_area_number( &area, inode );
-
-	//
+#if 0
 	pa = sbi->parea_PA[ area ];
 	//punit = sbi->parea_PA[ area ]->pa_unit;
 	punit = pa->pa_unit;
 	unit_num = pa->pa_num;
+#endif
 
 	///////////
 	if( area == BB_ETC || sbi->fat_original_flag == ON )
@@ -921,19 +960,59 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	if( dentry == NULL  || strstr( dentry->d_name.name, "mp4" ) == NULL )
 		goto NORMAL_ALLOC;
 
+//	printk("[cheon ] 33\n");
 	if( MSDOS_I(inode)->pre_alloced == ON ) //preAlloc함수 한번 타고 나오면 안들어간다.
 		return 0;
 
+//	printk("[cheon ] 44\n");
 	mutex_lock(&sbi->fat_lock);
+
+	pa = sbi->parea_PA[ area ];
+	//punit = sbi->parea_PA[ area ]->pa_unit;
+//	printk("[cheon ] 55\n");
+	punit = pa->pa_unit;
+	unit_num = pa->pa_num;
+
+//	printk("[cheon ] 66\n");
 
 	MSDOS_I(inode)->pre_alloced = ON; //기존에는 inode->i_ino로 구별했었는데 변경함
 
-	do{
-		if( punit[ pa->cur_pa_cnt ].flag == FREE ){
-			rs = preAlloc( inode, punit[ pa->cur_pa_cnt ].start, punit[ pa->cur_pa_cnt ].end, pa->pa_cluster_num, area );				
+//	printk("[cheon ] 77\n");
+	//num_pre_alloc = ( sbi->bx_pre_size[ area ] * 1024 ) / ( sbi->cluster_size / 1024 ); //위치 변경
 
+//	printk("[cheon ] 88\n");
+#if 0
+	if( (num_pre_alloc << 1) > sbi->bx_free_clusters[ area ] )
+	{
+		printk("[cheon] ===============Area Limit Check \n");
+		mutex_unlock(&sbi->fat_lock);
+		MSDOS_I(inode)->pre_alloced = OFF;
+		return -ENOSPC;
+	}
+	printk("[cheon] =============test ==================\n");
+#endif
+
+
+	do{
+#if 1
+		if( cnt >= unit_num ){
+			printk("[cheon] There is no PA Unit \n");	
+			MSDOS_I(inode)->pre_alloced = OFF;
+			//mutex_unlock( &sbi->fat_lock );
+			//return -ENOSPC;
+			show_the_status_unit_flag( sb,area );
+			err = -ENOSPC;
+			break;
+		}
+#endif
+
+
+		if( punit[ pa->cur_pa_cnt ].flag == FREE ){
+			
+			rs = preAlloc( inode, punit[ pa->cur_pa_cnt ].start, punit[ pa->cur_pa_cnt ].end, pa->pa_cluster_num, area );				
 			if( !rs )
 			{
+				printk("[cheon] allocted \n");
 				punit[ pa->cur_pa_cnt ].flag = USED;
 				break;
 			}
@@ -943,11 +1022,11 @@ int fat_handle_cluster( struct inode *inode, int mode )
 		pa->cur_pa_cnt++;
 		cnt++;
 		if( pa->cur_pa_cnt >= unit_num ) pa->cur_pa_cnt = 0;
-		if( cnt >= unit_num ){
-			printk("[cheon] There is no PA Unit \n");	
-			mutex_unlock( &sbi->fat_lock );
-			return -ENOSPC;
-		}
+//		if( cnt >= unit_num ){
+//			printk("[cheon] There is no PA Unit \n");	
+//			mutex_unlock( &sbi->fat_lock );
+//			return -ENOSPC;
+//		}
 
 	}while( pa->cur_pa_cnt < unit_num );
 

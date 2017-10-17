@@ -1027,7 +1027,8 @@ int fat_free_clusters(struct inode *inode, int cluster)
 	fatent_init(&fatent);
 	lock_fat(sbi);
 
-//	printk( KERN_ALERT "[cheon] fat_free_clusters : %d \n", cluster );
+	//printk( KERN_ALERT "[cheon] fat_free_clusters : %d \n", cluster );
+	//printk( KERN_ALERT "[cheon] fat_free_clusters \n");
 
 	do {
 		cluster = fat_ent_read(inode, &fatent, cluster);
@@ -1083,15 +1084,18 @@ int fat_free_clusters(struct inode *inode, int cluster)
 			{
 				area = get_area_number_for_free_func( sb, fatent.entry );
 				(sbi->bx_free_clusters[ area ])++;
-				
-				/////////////PA_manage
-				pa = sbi->parea_PA[ area ];
-				punit = pa->pa_unit;
 			
-				//몇 번째 unit인지
-				p_cnt = (cluster - punit[ 0 ].start) / pa->pa_cluster_num;
-		//		printk("[cheon] free_clusters : %d %d %d \n", p_cnt, cluster, punit[0].start );
-				punit[ p_cnt ].flag = FREE;
+				if( area != BB_ETC )
+				{
+					/////////////PA_manage
+					pa = sbi->parea_PA[ area ];
+					punit = pa->pa_unit;
+
+					//몇 번째 unit인지
+					p_cnt = (cluster - punit[ 0 ].start) / pa->pa_cluster_num;
+					//		printk("[cheon] free_clusters : %d %d %d \n", p_cnt, cluster, punit[0].start );
+					punit[ p_cnt ].flag = FREE;
+				}
 #if 0	
 				freed_cnt++;
 				if( cluster == FAT_ENT_EOF )				{
@@ -1127,7 +1131,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 	} while (cluster != FAT_ENT_EOF);
 
 	//unit 상태 확인
-	show_the_status_unit_flag( sb,area );
+//	show_the_status_unit_flag( sb,area );
 	
 
 

@@ -103,7 +103,7 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 		//	result = random_range( 512 * 1024, 1 * 1024 * 1024 ); 
 //			result = 30 * 1024 * 1024;
 	//		result = random_range( 10 * 1024 * 1024, 32 * 1024 * 1024 );
-			result = 	32 * 1024 * 1024; 
+			result = 	8 * 1024 * 1024; 
 
 		}
 		else  //AUTOMATION
