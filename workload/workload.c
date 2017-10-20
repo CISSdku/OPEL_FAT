@@ -424,9 +424,12 @@ void thread_file_create(char **dirs, int selected_dir, int load_flag )
 				exit(-1);
 			}
 
-			for( k=0 ; k < f_size ; k++)
+			for( k=1 ; k <= f_size ; k++)
 			{
 				retval = fwrite( "k",1, 1, fd1);
+					
+				if( !(k % 4096) ) fsync( fd1 ); 
+
 
 				if( retval <= 0 ) {
 					printf("retval : %d \n", retval );

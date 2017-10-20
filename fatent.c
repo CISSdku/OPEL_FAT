@@ -1131,7 +1131,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 	} while (cluster != FAT_ENT_EOF);
 
 	//unit 상태 확인
-//	show_the_status_unit_flag( sb,area );
+	show_the_status_unit_flag( sb,area );
 	
 
 
@@ -1266,7 +1266,7 @@ int fat_count_free_clusters_for_area(struct super_block *sb)
 		goto area_out;
 
 
-	printk("[cheon] fat_count_free_clusters_for_area \n");
+//	printk("[cheon] fat_count_free_clusters_for_area \n");
 	while (fatent.entry < sbi->max_cluster) {
 		/* readahead of fat blocks */
 		if ((cur_block & reada_mask) == 0) {

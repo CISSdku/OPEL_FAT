@@ -1181,7 +1181,7 @@ static void setting_start_end_in_memory( struct super_block *sb )
 			start += num_pre_alloc;	
 			
 			punit[cnt].flag = FREE; //일단 전부 FREE
-			printk("[cheon] start, end : %u, %u \n",  punit[cnt].start, punit[cnt].end );
+//			printk("[cheon] start, end : %u, %u \n",  punit[cnt].start, punit[cnt].end );
 
 			cnt++;
 			if( cnt == area_PA[ i ].pa_num  ){
@@ -1198,7 +1198,7 @@ static void PA_management( struct super_block *sb )
 	
 	printk("[cheon] PA_management Test \n");
 
-	int i = 0;
+	int i;
 	
 	for( i = 1 ; i < (TOTAL_AREA_CNT-1) ; i++ ) // 현재 4개만 normal, event, parking. manual
 	{

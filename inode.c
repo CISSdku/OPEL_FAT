@@ -697,15 +697,16 @@ static int preAlloc( struct inode *inode, unsigned int start, unsigned int end, 
 //	else if( sbi->cluster_size == 16384 ) num_of_page = pa_cluster_num / 256;
 //	else num_of_page = pa_cluster_num / 128;
 	
-	printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
-	printk("[cheon] start, end, pa_cluster_num, num_of_page, area : %u %u %d %d %d\n", start, end, pa_cluster_num, num_of_page, area );
+//	printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
+//	printk("[cheon] start, end, pa_cluster_num, num_of_page, area : %u %u %d %d %d\n", start, end, pa_cluster_num, num_of_page, area );
 
 //	for(i=0; i< num_of_page; i++)
 //		data[i] = ( unsigned int*)kmalloc((SD_PAGE_SIZE * 1024),GFP_KERNEL);  
 
-	data = ( unsigned int * )kmalloc( (end - start + 1), GFP_KERNEL );
-
 	//data채우기
+	//data = ( unsigned int * )kmalloc( (end - start + 1), GFP_KERNEL );
+	data = ( unsigned int * )kmalloc( (end-start+1) * sizeof(unsigned int)  , GFP_KERNEL ); //하나에 4byte
+
 #if 0
 	for(p_cnt=0; p_cnt<num_of_page; p_cnt++){
 		for(i=0; i<CLUSTER_IN_PAGE; i++){
@@ -721,12 +722,12 @@ static int preAlloc( struct inode *inode, unsigned int start, unsigned int end, 
 		data[i++] = cnt;
 	}
 #endif
-	printk("[cheon] i, end-start : %d %d \n", i, end-start );	
+//	printk("[cheon] i, end-start : %d %d \n", i, end-start );	
 
 
 //	printk("p_cnt, i : %d %d \n", p_cnt,i );
 //	printk("[cheon] data start end : %d %d \n", data[0][0], data[p_cnt-1][1023] );
-	printk("[cheon] data start end : %d %d \n", data[0], data[end-start] );
+//	printk("[cheon] data start end : %d %d \n", data[0], data[end-start] );
 
 //	kfree(data);
 //	return -ENOSPC;
@@ -774,7 +775,7 @@ static int preAlloc( struct inode *inode, unsigned int start, unsigned int end, 
 			num_buf++;
 			fat_block_pos++;
 	}
-	printk("num_buf, fat_block_pos : %d %u \n", num_buf, fat_block_pos ); 
+//	printk("num_buf, fat_block_pos : %d %u \n", num_buf, fat_block_pos ); 
 
 	fat_sync_bhs(bh, num_buf); 
 	opel_fat_mirror_bhs(sb,bh,num_buf);
@@ -1012,7 +1013,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 			rs = preAlloc( inode, punit[ pa->cur_pa_cnt ].start, punit[ pa->cur_pa_cnt ].end, pa->pa_cluster_num, area );				
 			if( !rs )
 			{
-				printk("[cheon] allocted \n");
+//				printk("[cheon] allocted \n");
 				punit[ pa->cur_pa_cnt ].flag = USED;
 				break;
 			}
@@ -1037,7 +1038,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 NORMAL_ALLOC:
 	//origin
 
-	printk("[cheon] NORMAL ALLOC\n");
+//	printk("[cheon] NORMAL ALLOC\n");
 
 	err = fat_alloc_clusters( inode, &cluster, 1 );
 	if (err)
