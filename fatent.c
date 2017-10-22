@@ -1131,7 +1131,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 	} while (cluster != FAT_ENT_EOF);
 
 	//unit 상태 확인
-	show_the_status_unit_flag( sb,area );
+//	show_the_status_unit_flag( sb,area );
 	
 
 
