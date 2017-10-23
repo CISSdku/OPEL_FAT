@@ -1006,13 +1006,10 @@ int fat_handle_cluster( struct inode *inode, int mode )
 			break;
 		}
 #endif
-
-
 		if( punit[ pa->cur_pa_cnt ].flag == FREE ){
 			
 			rs = preAlloc( inode, punit[ pa->cur_pa_cnt ].start, punit[ pa->cur_pa_cnt ].end, pa->pa_cluster_num, area );				
-			if( !rs )
-			{
+			if( !rs ){
 //				printk("[cheon] allocted \n");
 				punit[ pa->cur_pa_cnt ].flag = USED;
 				break;

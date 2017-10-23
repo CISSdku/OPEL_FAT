@@ -892,7 +892,7 @@ static int vfat_unlink(struct inode *dir, struct dentry *dentry)
 	struct fat_slot_info sinfo;
 	int err;
 
-	printk( KERN_ALERT "[cheon] vfat_unlink \n" );
+//	printk( KERN_ALERT "[cheon] vfat_unlink \n" );
 
 
 	mutex_lock(&MSDOS_SB(sb)->s_lock);
