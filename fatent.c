@@ -757,6 +757,10 @@ int fat_alloc_clusters(struct inode *inode, int *cluster, int nr_cluster)
 
 	BUG_ON(nr_cluster > (MAX_BUF_PER_PAGE / 2));	/* fixed limit */
 
+
+//	printk("[cheon] fat_alloc_clusters, pre_alloced : %d \n", MSDOS_I(inode)->pre_alloced );
+//	MSDOS_I(inode)->pre_alloced = ON;
+
 	//printk( KERN_ALERT "[cheon] =================fat_alloc_clusters=============== \n");
 	//[cheon]
 	//Get File name & parent directory name
@@ -933,6 +937,8 @@ out:
 		fat_free_clusters(inode, cluster[0]);
 	}
 
+	//printk("[cheon] fat_alloc_cluster : %d \n", *cluster );
+
 #ifdef __DEBUG__
 //	printk( KERN_ALERT "[cheon] fatent.entry : %d, sbi->free_clusters : %d, sbi->bx_free_clusters[ %d ] : %d  \n", fatent.entry, sbi->free_clusters, area, sbi->bx_free_clusters[area]  );
 #endif
@@ -1028,7 +1034,8 @@ int fat_free_clusters(struct inode *inode, int cluster)
 	lock_fat(sbi);
 
 	//printk( KERN_ALERT "[cheon] fat_free_clusters : %d \n", cluster );
-	//printk( KERN_ALERT "[cheon] fat_free_clusters \n");
+//	printk( KERN_ALERT "[cheon] fat_free_clusters %d \n", MSDOS_I( inode )->pre_alloced );
+	MSDOS_I( inode )->pre_alloced = 0;
 
 	do {
 		cluster = fat_ent_read(inode, &fatent, cluster);

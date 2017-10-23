@@ -1912,7 +1912,8 @@ EXPORT_SYMBOL_GPL(fat_build_inode);
 
 static void fat_evict_inode(struct inode *inode)
 {
-//	printk("[cheon] fat_evict_inode() \n");
+//	printk("[cheon] fat_evict_inode() %d  \n", MSDOS_I(inode)->pre_alloced );
+	
 
 	truncate_inode_pages(&inode->i_data, 0);
 	if (!inode->i_nlink) {

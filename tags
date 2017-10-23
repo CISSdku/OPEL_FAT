@@ -55,7 +55,7 @@ FAT_MAX_UNI_CHARS	dir.c	35;"	d	file:
 FAT_MAX_UNI_SIZE	dir.c	36;"	d	file:
 FAT_NFS_NOSTALE_RO	fat.h	128;"	d
 FAT_NFS_STALE_RW	fat.h	127;"	d
-FAT_READA_SIZE	fatent.c	1157;"	d	file:
+FAT_READA_SIZE	fatent.c	1167;"	d	file:
 FAT_VALID_MODE	file.c	460;"	d	file:
 FREE	fat.h	13;"	d
 GARBAGE	fat.h	15;"	d
@@ -200,7 +200,7 @@ cluster_bits	fat.h	/^	unsigned short cluster_bits;  \/* log2(cluster_size) *\/$/
 cluster_size	fat.h	/^	unsigned int cluster_size;    \/* cluster size *\/$/;"	m	struct:msdos_sb_info
 clusterchain_reupdate	inode.c	/^void clusterchain_reupdate(struct super_block *sb, struct inode *inode){$/;"	f
 codepage	fat.h	/^	unsigned short codepage;   \/* Codepage for shortname conversions *\/$/;"	m	struct:fat_mount_options
-config_data	config.c	/^const char *config_data = "Blackbox Configuration\\r\\n\\r\\nPartitioning Size[Percentage]\\r\\n\\tBX_NORMAL       =20\\r\\n\\tBX_NORMAL_EVENT    =15\\r\\n\\tBX_PARKING_EVENT   =15\\r\\n\\tBX_MANUAL       =15\\r\\n\\tBX_IMAGE        =15\\r\\n\\tBX_ETC          =20\\r\\n\\r\\nPreallocation Setting[MB]\\r\\n\\tBX_NORMAL      =12\\r\\n\\tBX_NORMAL_EVENT    =8\\r\\n\\tBX_PARKING_EVENT   =4\\r\\n\\tBX_MANUAL      =4\\r\\n\\t\\0";$/;"	v
+config_data	config.c	/^const char *config_data = "Blackbox Configuration\\r\\n\\r\\nPartitioning Size[Percentage]\\r\\n\\tBX_NORMAL       =20\\r\\n\\tBX_NORMAL_EVENT    =15\\r\\n\\tBX_PARKING_EVENT   =15\\r\\n\\tBX_MANUAL       =15\\r\\n\\tBX_IMAGE        =15\\r\\n\\tBX_ETC          =20\\r\\n\\r\\nPreallocation Setting[MB]\\r\\n\\tBX_NORMAL      =32\\r\\n\\tBX_NORMAL_EVENT    =32\\r\\n\\tBX_PARKING_EVENT   =32\\r\\n\\tBX_MANUAL      =32\\r\\n\\t\\0";$/;"	v
 control_attr1	namei_vfat.c	/^static struct kobj_attribute control_attr1 = __ATTR( SD1_control, 0644, control_show_s1, control_store );$/;"	v	typeref:struct:kobj_attribute	file:
 control_attr2	namei_vfat.c	/^static struct kobj_attribute control_attr2 = __ATTR( SD2_control, 0644, control_show_s2, control_store );$/;"	v	typeref:struct:kobj_attribute	file:
 control_attr3	namei_vfat.c	/^static struct kobj_attribute control_attr3 = __ATTR( SD1_size_monitoring, 0644, size_show_s1, control_store );$/;"	v	typeref:struct:kobj_attribute	file:
@@ -309,6 +309,7 @@ fat_config_init	config.c	/^EXPORT_SYMBOL_GPL( fat_config_init );$/;"	v
 fat_config_init	config.c	/^int fat_config_init(struct super_block *sb)$/;"	f
 fat_cont_expand	file.c	/^static int fat_cont_expand(struct inode *inode, loff_t size)$/;"	f	file:
 fat_count_free_clusters	fatent.c	/^int fat_count_free_clusters(struct super_block *sb)$/;"	f
+fat_count_free_clusters_for_area	fatent.c	/^EXPORT_SYMBOL_GPL( fat_count_free_clusters_for_area );$/;"	v
 fat_count_free_clusters_for_area	fatent.c	/^int fat_count_free_clusters_for_area(struct super_block *sb)$/;"	f
 fat_default_codepage	inode.c	/^static int fat_default_codepage = CONFIG_FAT_DEFAULT_CODEPAGE;$/;"	v	file:
 fat_default_iocharset	inode.c	/^static char fat_default_iocharset[] = CONFIG_FAT_DEFAULT_IOCHARSET;$/;"	v	file:
