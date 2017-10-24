@@ -1181,7 +1181,8 @@ static void setting_start_end_in_memory( struct super_block *sb )
 			start += num_pre_alloc;	
 			
 			punit[cnt].flag = FREE; //일단 전부 FREE
-//			printk("[cheon] start, end : %u, %u \n",  punit[cnt].start, punit[cnt].end );
+			if( i == 1 )	
+			printk("[cheon] start, end : %u, %u \n",  punit[cnt].start, punit[cnt].end );
 
 			cnt++;
 			if( cnt == area_PA[ i ].pa_num  ){

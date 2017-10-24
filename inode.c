@@ -698,7 +698,7 @@ static int preAlloc( struct inode *inode, unsigned int start, unsigned int end, 
 //	else num_of_page = pa_cluster_num / 128;
 	
 //	printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
-//	printk("[cheon] start, end, pa_cluster_num, num_of_page, area : %u %u %d %d %d\n", start, end, pa_cluster_num, num_of_page, area );
+	printk("[cheon] start, end, pa_cluster_num, area : %u %u %d %d \n", start, end, pa_cluster_num, area );
 
 //	for(i=0; i< num_of_page; i++)
 //		data[i] = ( unsigned int*)kmalloc((SD_PAGE_SIZE * 1024),GFP_KERNEL);  
@@ -727,7 +727,7 @@ static int preAlloc( struct inode *inode, unsigned int start, unsigned int end, 
 
 //	printk("p_cnt, i : %d %d \n", p_cnt,i );
 //	printk("[cheon] data start end : %d %d \n", data[0][0], data[p_cnt-1][1023] );
-//	printk("[cheon] data start end : %d %d \n", data[0], data[end-start] );
+	printk("[cheon] data start end : %d %d \n", data[0], data[end-start] );
 
 //	kfree(data);
 //	return -ENOSPC;
