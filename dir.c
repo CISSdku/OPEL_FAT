@@ -967,13 +967,8 @@ int fat_scan(struct inode *dir, const unsigned char *name,
 	sinfo->bh = NULL;
 	while (fat_get_short_entry(dir, &sinfo->slot_off, &sinfo->bh,
 			   &sinfo->de) >= 0) {
-//	while(1)
-//		printk( KERN_ALERT "[cheon] fat_scan test \n");
-//		printk( KERN_ALERT "sinfo->de->name : %s	%s\n", sinfo->de->name, name );
-//		printk( KERN_ALERT "sizeof : %d	%d\n", sizeof(sinfo->de->name), sizeof( name ) );
 	
 		if (!strncmp(sinfo->de->name, name, MSDOS_NAME)) {
-	//	if (!strcmp(sinfo->de->name, name)) {
 
 			sinfo->slot_off -= sizeof(*sinfo->de);
 			sinfo->nr_slots = 1;

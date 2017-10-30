@@ -272,6 +272,7 @@ struct msdos_inode_info {
 	int nr_caches;
 	/* for avoiding the race between fat_free() and fat_get_cluster() */
 	unsigned int cache_valid_id;
+	unsigned int pre_count;
 
 	/* NOTE: mmu_private is 64bits, so must hold ->i_mutex to access */
 	loff_t mmu_private;	/* physically allocated size */

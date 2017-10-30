@@ -697,8 +697,8 @@ static int preAlloc( struct inode *inode, unsigned int start, unsigned int end, 
 //	else if( sbi->cluster_size == 16384 ) num_of_page = pa_cluster_num / 256;
 //	else num_of_page = pa_cluster_num / 128;
 	
-//	printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
-	printk("[cheon] start, end, pa_cluster_num, area : %u %u %d %d \n", start, end, pa_cluster_num, area );
+	printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
+//	printk("[cheon] start, end, pa_cluster_num, area : %u %u %d %d \n", start, end, pa_cluster_num, area );
 
 //	for(i=0; i< num_of_page; i++)
 //		data[i] = ( unsigned int*)kmalloc((SD_PAGE_SIZE * 1024),GFP_KERNEL);  
@@ -940,59 +940,48 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	struct PA_unit_t *punit = NULL; 
 	struct PA *pa = NULL;	
 	
+	unsigned int num_pre_alloc;
+
 	int err = 0, cluster = 0, area = 0, rs;
 	int unit_num = 0;
 	int cnt = 0;
+	//
+	struct msdos_inode_info *ms_i;
+	struct hlist_head *head= sbi->inode_hashtable;
 	//printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
-//	static unsigned int num_pre_alloc = 0;
 
 	get_area_number( &area, inode );
-#if 0
-	pa = sbi->parea_PA[ area ];
-	//punit = sbi->parea_PA[ area ]->pa_unit;
-	punit = pa->pa_unit;
-	unit_num = pa->pa_num;
-#endif
+	num_pre_alloc = ( sbi->bx_pre_size[ area ] * 1024 ) / ( sbi->cluster_size / 1024 );
 
-	///////////
 	if( area == BB_ETC || sbi->fat_original_flag == ON )
 		goto NORMAL_ALLOC;			
 	dentry = list_entry( inode->i_dentry.first, struct dentry, d_u.d_alias );
 	if( dentry == NULL  || strstr( dentry->d_name.name, "mp4" ) == NULL )
 		goto NORMAL_ALLOC;
 
-//	printk("[cheon ] 33\n");
+	if( MSDOS_I( inode )->pre_count < num_pre_alloc)
+	{
+		MSDOS_I(inode)->pre_count++;
+//		printk("[cheon] %u \n", MSDOS_I( inode )->pre_count );
+	}
+	else
+	{
+		printk("[cheon] PA size exceeded \n");	
+		return -EIO;	
+	}
+	
 	if( MSDOS_I(inode)->pre_alloced == ON ) //preAlloc함수 한번 타고 나오면 안들어간다.
 		return 0;
 
-//	printk("[cheon ] 44\n");
+
 	mutex_lock(&sbi->fat_lock);
 
 	pa = sbi->parea_PA[ area ];
 	//punit = sbi->parea_PA[ area ]->pa_unit;
-//	printk("[cheon ] 55\n");
 	punit = pa->pa_unit;
 	unit_num = pa->pa_num;
 
-//	printk("[cheon ] 66\n");
-
 	MSDOS_I(inode)->pre_alloced = ON; //기존에는 inode->i_ino로 구별했었는데 변경함
-
-//	printk("[cheon ] 77\n");
-	//num_pre_alloc = ( sbi->bx_pre_size[ area ] * 1024 ) / ( sbi->cluster_size / 1024 ); //위치 변경
-
-//	printk("[cheon ] 88\n");
-#if 0
-	if( (num_pre_alloc << 1) > sbi->bx_free_clusters[ area ] )
-	{
-		printk("[cheon] ===============Area Limit Check \n");
-		mutex_unlock(&sbi->fat_lock);
-		MSDOS_I(inode)->pre_alloced = OFF;
-		return -ENOSPC;
-	}
-	printk("[cheon] =============test ==================\n");
-#endif
-
 
 	do{
 #if 1
@@ -1008,10 +997,11 @@ int fat_handle_cluster( struct inode *inode, int mode )
 #endif
 		if( punit[ pa->cur_pa_cnt ].flag == FREE ){
 			
+			punit[ pa->cur_pa_cnt ].flag = USED; //수정
 			rs = preAlloc( inode, punit[ pa->cur_pa_cnt ].start, punit[ pa->cur_pa_cnt ].end, pa->pa_cluster_num, area );				
 			if( !rs ){
 //				printk("[cheon] allocted \n");
-				punit[ pa->cur_pa_cnt ].flag = USED;
+			//	punit[ pa->cur_pa_cnt ].flag = USED;
 				break;
 			}
 		}
@@ -1027,6 +1017,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 //		}
 
 	}while( pa->cur_pa_cnt < unit_num );
+
 
 	mutex_unlock(&sbi->fat_lock);
 
@@ -1756,6 +1747,8 @@ struct inode *fat_iget(struct super_block *sb, loff_t i_pos)
 
 	spin_lock(&sbi->inode_hash_lock);
 	hlist_for_each_entry(i, head, i_fat_hash) {
+	//	printk("i->i_start : %d \n", i->i_start );
+
 		BUG_ON(i->vfs_inode.i_sb != sb);
 		if (i->i_pos != i_pos)
 			continue;
@@ -1999,6 +1992,7 @@ static struct inode *fat_alloc_inode(struct super_block *sb)
 		return NULL;
 
 	ei->pre_alloced =0; //cheon 
+	ei->pre_count = 0;
 
 	init_rwsem(&ei->truncate_lock);
 	return &ei->vfs_inode;

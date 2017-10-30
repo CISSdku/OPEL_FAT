@@ -1196,6 +1196,12 @@ static void setting_start_end_in_memory( struct super_block *sb )
 static void PA_management( struct super_block *sb )
 {
 	struct msdos_sb_info *sbi = MSDOS_SB( sb );
+
+//	struct dentry *root_de = sb->s_root;
+//	struct inode *root = root_de->d_inode;
+//	struct fat_slot_info sinfo;
+	struct msdos_inode_info *ms_i;
+	struct hlist_head *head = sbi->inode_hashtable;
 	
 	printk("[cheon] PA_management Test \n");
 
@@ -1233,6 +1239,51 @@ static void PA_management( struct super_block *sb )
 	
 	for( i = 1 ; i < (TOTAL_AREA_CNT -1) ; i++ )
 		show_the_status_unit_flag( sb, i );
+
+	printk("[cheon] ==test==\n");
+//	printk("[cheon] test1 : %d \n", root->i_ino );	
+
+	spin_lock( &sbi->inode_hash_lock );
+
+//	ms_i = hlist_entry_safe( (head)->first, typeof(*(ms_i)), i_fat_hash );
+
+//	if( ms_i )
+//		printk("[cheon] ms_i : %d \n", ms_i->i_start );
+
+
+
+
+
+#if 0
+	ms_i = hlist_entry_safe( (ms_i)->i_fat_hash.next, typeof(*(ms_i)), i_fat_hash );
+	printk("[cheon] ms_i : %d \n", ms_i->i_start );
+	ms_i = hlist_entry_safe( (ms_i)->i_fat_hash.next, typeof(*(ms_i)), i_fat_hash );
+	printk("[cheon] ms_i : %d \n", ms_i->i_start );
+	ms_i = hlist_entry_safe( (ms_i)->i_fat_hash.next, typeof(*(ms_i)), i_fat_hash );
+	printk("[cheon] ms_i : %d \n", ms_i->i_start );
+	ms_i = hlist_entry_safe( (ms_i)->i_fat_hash.next, typeof(*(ms_i)), i_fat_hash );
+	printk("[cheon] ms_i : %d \n", ms_i->i_start );
+	ms_i = hlist_entry_safe( (ms_i)->i_fat_hash.next, typeof(*(ms_i)), i_fat_hash );
+	printk("[cheon] ms_i : %d \n", ms_i->i_start );
+	ms_i = hlist_entry_safe( (ms_i)->i_fat_hash.next, typeof(*(ms_i)), i_fat_hash );
+	printk("[cheon] ms_i : %d \n", ms_i->i_start );
+#endif
+
+
+
+#if 0
+	h
+	hlist_for_each_entry( ms_i, head, i_fat_hash )
+	{
+		printk("%d %d %u\n", ms_i->i_start, ms_i->i_logstart, ms_i->i_pos );	
+
+//		break;	
+	}
+#endif
+	spin_unlock( &sbi->inode_hash_lock );
+
+
+
 }
 
 static int vfat_fill_super(struct super_block *sb, void *data, int silent)
