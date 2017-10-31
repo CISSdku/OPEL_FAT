@@ -744,12 +744,13 @@ static struct dentry *vfat_lookup(struct inode *dir, struct dentry *dentry,
 				  unsigned int flags)
 {
 	struct super_block *sb = dir->i_sb;
+	struct msdos_sb_info *sbi = MSDOS_SB( sb );
 	struct fat_slot_info sinfo;
 	struct inode *inode;
 	struct dentry *alias;
 	int err;
 
-//	printk( KERN_ALERT "[cheon] vfat_lookup \n");
+	printk( KERN_ALERT "[cheon] vfat_lookup \n");
 
 	mutex_lock(&MSDOS_SB(sb)->s_lock);
 
@@ -786,6 +787,18 @@ static struct dentry *vfat_lookup(struct inode *dir, struct dentry *dentry,
 		return alias;
 	} else
 		dput(alias);
+/////////////////////////////////////////////////////add
+#if 1
+	if( inode->i_size > 0 && !S_ISDIR( inode->i_mode )  )
+	{
+	//	printk("[cheon] vfat_lookup \n");
+
+		MSDOS_I( inode )->pre_alloced = ON;	
+		MSDOS_I( inode )->pre_count = (inode->i_size) / (sbi->cluster_size);
+
+		printk("[cheon] vfat_lookup : %d %u  \n", MSDOS_I( inode )->pre_alloced, MSDOS_I( inode )->pre_count );
+	}
+#endif
 
 out:
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
@@ -797,6 +810,12 @@ out:
 
 		//dentry->d_time = 99;
 	}
+
+	//printk("[cheon] vfat_lookup : %lu %lu %lu \n", inode->i_ino, inode->i_size, inode->i_blocks );
+	//printk("[cheon] vfat_lookup : %lu \n", MSDOS_I( inode )->i_start );
+	
+
+
 	return dentry;
 
 error:

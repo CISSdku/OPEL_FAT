@@ -1035,7 +1035,10 @@ int fat_free_clusters(struct inode *inode, int cluster)
 
 	//printk( KERN_ALERT "[cheon] fat_free_clusters : %d \n", cluster );
 //	printk( KERN_ALERT "[cheon] fat_free_clusters %d \n", MSDOS_I( inode )->pre_alloced );
+
+	//FOR copy, > 
 	MSDOS_I( inode )->pre_alloced = 0;
+	MSDOS_I( inode )->pre_count = 0; 
 
 	do {
 		cluster = fat_ent_read(inode, &fatent, cluster);

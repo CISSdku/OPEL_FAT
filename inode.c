@@ -947,9 +947,8 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	int cnt = 0;
 	//
 	struct msdos_inode_info *ms_i;
-	struct hlist_head *head= sbi->inode_hashtable;
 	//printk( KERN_ALERT "[cheon] ========fat_handle_cluster========= \n");
-
+	
 	get_area_number( &area, inode );
 	num_pre_alloc = ( sbi->bx_pre_size[ area ] * 1024 ) / ( sbi->cluster_size / 1024 );
 
@@ -959,6 +958,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 	if( dentry == NULL  || strstr( dentry->d_name.name, "mp4" ) == NULL )
 		goto NORMAL_ALLOC;
 
+	//////////////////////
 	if( MSDOS_I( inode )->pre_count < num_pre_alloc)
 	{
 		MSDOS_I(inode)->pre_count++;
@@ -969,10 +969,9 @@ int fat_handle_cluster( struct inode *inode, int mode )
 		printk("[cheon] PA size exceeded \n");	
 		return -EIO;	
 	}
-	
+
 	if( MSDOS_I(inode)->pre_alloced == ON ) //preAlloc함수 한번 타고 나오면 안들어간다.
 		return 0;
-
 
 	mutex_lock(&sbi->fat_lock);
 
@@ -1745,6 +1744,7 @@ struct inode *fat_iget(struct super_block *sb, loff_t i_pos)
 	struct msdos_inode_info *i;
 	struct inode *inode = NULL;
 
+//	printk("[cheon] fat_iget \n");
 	spin_lock(&sbi->inode_hash_lock);
 	hlist_for_each_entry(i, head, i_fat_hash) {
 	//	printk("i->i_start : %d \n", i->i_start );
@@ -1756,7 +1756,11 @@ struct inode *fat_iget(struct super_block *sb, loff_t i_pos)
 		if (inode)
 			break;
 	}
+
+//	printk("[cheon] fat_iget : %lu %lu %lu \n", i->vfs_inode.i_ino, i->vfs_inode.i_size, i->vfs_inode.i_blocks );
+
 	spin_unlock(&sbi->inode_hash_lock);
+
 	return inode;
 }
 
@@ -1893,6 +1897,12 @@ struct inode *fat_build_inode(struct super_block *sb,
 	}
 	fat_attach(inode, i_pos);
 	insert_inode_hash(inode);
+
+
+//	if( inode->i_size > 0 )
+		
+
+
 out:
 	fat_unlock_build_inode(MSDOS_SB(sb));
 	return inode;
@@ -1991,8 +2001,14 @@ static struct inode *fat_alloc_inode(struct super_block *sb)
 	if (!ei)
 		return NULL;
 
+	//printk("[cheon] fat_alloc_inode \n");
+
 	ei->pre_alloced =0; //cheon 
 	ei->pre_count = 0;
+
+//	printk("[cheon] i_ino : %lu \n", ei->vfs_inode.i_ino );
+//	printk("[cheon] i_blocks : %lu \n", ei->vfs_inode.i_blocks );
+//	printk("[cheon] i_size : %lu \n", ei->vfs_inode.i_size );
 
 	init_rwsem(&ei->truncate_lock);
 	return &ei->vfs_inode;
