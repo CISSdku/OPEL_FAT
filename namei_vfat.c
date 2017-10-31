@@ -750,7 +750,7 @@ static struct dentry *vfat_lookup(struct inode *dir, struct dentry *dentry,
 	struct dentry *alias;
 	int err;
 
-	printk( KERN_ALERT "[cheon] vfat_lookup \n");
+//	printk( KERN_ALERT "[cheon] vfat_lookup \n");
 
 	mutex_lock(&MSDOS_SB(sb)->s_lock);
 
@@ -796,7 +796,7 @@ static struct dentry *vfat_lookup(struct inode *dir, struct dentry *dentry,
 		MSDOS_I( inode )->pre_alloced = ON;	
 		MSDOS_I( inode )->pre_count = (inode->i_size) / (sbi->cluster_size);
 
-		printk("[cheon] vfat_lookup : %d %u  \n", MSDOS_I( inode )->pre_alloced, MSDOS_I( inode )->pre_count );
+//		printk("[cheon] vfat_lookup : %d %u  \n", MSDOS_I( inode )->pre_alloced, MSDOS_I( inode )->pre_count );
 	}
 #endif
 
