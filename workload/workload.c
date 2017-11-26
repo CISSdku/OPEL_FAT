@@ -112,10 +112,10 @@ static unsigned long f_rand_size( int *selected_dir, int sinario, int load_flag 
 			{
 				//  범위
 #if 1
-				case NORMAL 		: result = random_range( 1 * 1024 * 1024, 12 * 1024 * 1024 );    break;//상시
-				case NORMAL_EVENT 	: result = random_range( 1 * 1024 * 1024, 8 * 1024 * 1024 );  break;//상시 이벤트
-				case PARKING 		: result = random_range( 1 * 1024 * 1024, 4 * 1024 * 1024 );   break;//주차
-				case PARKING_EVENT  : result = random_range( 1 * 1024 * 1024, 4 * 1024 * 1024 );     break; //주차 이벤트
+				case NORMAL 		: result = random_range( 50 * 1024 * 1024, 80 * 1024 * 1024 );    break;//상시
+				case NORMAL_EVENT 	: result = random_range( 40 * 1024 * 1024, 49 * 1024 * 1024 );  break;//상시 이벤트
+				case PARKING 		: result = random_range( 20 * 1024 * 1024, 39 * 1024 * 1024 );   break;//주차
+				case PARKING_EVENT  : result = random_range( 10 * 1024 * 1024, 19 * 1024 * 1024 );     break; //주차 이벤트
 #endif
 #if 0
 				case NORMAL 		: result = 	28 * 1024 * 1024;   break;//상시
@@ -385,25 +385,38 @@ void thread_file_create(char **dirs, int selected_dir, int load_flag )
 	FILE *fd1;
 	char fn1[ NAME_SIZE ] = {0,};//, in_name[10];
 	char temp_full_file[ NAME_SIZE ];
-	int k;
+	unsigned long long int k;
 	
 	static int file_creator[ DIR_NUM ] = { 0, };
-	unsigned long f_size = 0;
+	unsigned long long f_size = 0;
 	static unsigned long sleep_cnt = 1;
 	int retval = 0;
 	int setcond = 0;
-	//f_size = f_rand_size( &selected_dir, S_AUTOMATION, load_flag );
+
+//	f_size = f_rand_size( &selected_dir, S_AUTOMATION, load_flag );
 	
-	f_size = 2000000 + rand()%1000000;
-//	printf("f_size : %luM \t", f_size/1024/1024 );
+//	f_size = 2000000 + rand()%1000000;
+//	printf("f_size : %luM \n", f_size/1024/1024 );
+
+	
+
 
 	switch( selected_dir )
 	{
 		//	case ETC 			: file_creator[ ETC ]++; break;
-		case NORMAL 		: file_creator[ NORMAL ]++; 		break;
-		case NORMAL_EVENT 	: file_creator[ NORMAL_EVENT ]++; 	break;
-		case PARKING		: file_creator[ PARKING ]++; 		break;
-		case PARKING_EVENT 	: file_creator[ PARKING_EVENT ]++; 	break;
+		case NORMAL 		: file_creator[ NORMAL ]++; 		
+							  f_size = 70*1024*1024 + rand() % 10*1024*1024; 
+							  break;
+		case NORMAL_EVENT 	: file_creator[ NORMAL_EVENT ]++; 	
+							  f_size = 40*1024*1024 + rand() % 10*1024*1024; 
+							  break;
+		case PARKING		: file_creator[ PARKING ]++; 		
+							  f_size = 29*1024*1024 + rand() % 10*1024*1024; 
+							  break;
+
+		case PARKING_EVENT 	: file_creator[ PARKING_EVENT ]++; 	
+							  f_size = 10*1024*1024 + rand() % 10*1024*1024; 
+							  break;
 		case HANDWORK		: file_creator[ HANDWORK ]++; 		break;
 
 		default : printf("*selected_dir error \n"); 			break;
@@ -428,8 +441,8 @@ void thread_file_create(char **dirs, int selected_dir, int load_flag )
 			{
 				retval = fwrite( "k",1, 1, fd1);
 					
-				if( !(k % 4096) ) fsync( fd1 ); 
-
+				if( !(k % 256 * 1024) ) sync();
+//
 
 				if( retval <= 0 ) {
 					printf("retval : %d \n", retval );
@@ -468,11 +481,11 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 	char fn1[ NAME_SIZE ];//, in_name[10];
 	char fn2[ NAME_SIZE ];//, in_name[10];
 	char temp_full_file[ NAME_SIZE ];
-	int k;
+	unsigned long long k;
 	int sleep_cnt = 1;
 	
 	static int file_creator[ DIR_NUM ] = { 100, };
-	unsigned long f_size = 0;
+	unsigned long long f_size = 0;
 
 
 	f_size = f_rand_size( selected_dir, sinario, load_flag );
@@ -495,15 +508,15 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 		printf("File name : %d \t", file_creator[ *selected_dir ] );
 		sprintf(fn1,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".mp4"  );
 
-//		printf("File name : %d \t\n", ++file_creator[ *selected_dir ]   );
-//		sprintf(fn2,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".mp4"  );
+		printf("File name : %d \t\n", ++file_creator[ *selected_dir ]   );
+		sprintf(fn2,"%s%d%s", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ], ".mp4"  );
 
 		//sprintf(fn,"%s%d", dirs[ *selected_dir -1 ], file_creator[ *selected_dir ] );
 		//printf("%s \n", fn );
 		//실제 타겟 파일에 설정된 크기 만큼, 파일을 생성하고 씀
 #if 1
-		if( (fd1 = fopen(fn1,"w")) == NULL ) {
-		//if( (fd1 = fopen(fn1,"w")) == NULL || (fd2 = fopen(fn2,"w")) == NULL ) {
+	//	if( (fd1 = fopen(fn1,"w")) == NULL ) {
+		if( (fd1 = fopen(fn1,"w")) == NULL || (fd2 = fopen(fn2,"w")) == NULL ) {
 
 			printf("g_total.file_counter : %lu \n", g_total.file_counter );	
 			printf("File create error\n");
@@ -514,15 +527,15 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 		{
 			
 			fputs("k",fd1);
-//			fputs("k",fd2);
+			fputs("k",fd2);
 	//		fprintf( stderr, "%s\n", strerror(errno));
 
+			if( !(k % (256 * 1024)) ) sync();
 			
 		}
 
 		fclose( fd1 );
-//		fclose( fd2 );
-		//	fflush(stdout);
+		fclose( fd2 );
 #endif
 #if 0
 		fd = open( fn, O_WRONLY | O_CREAT, 0644);

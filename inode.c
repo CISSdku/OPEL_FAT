@@ -697,7 +697,7 @@ static int preAlloc( struct inode *inode, unsigned int start, unsigned int end, 
 //	else if( sbi->cluster_size == 16384 ) num_of_page = pa_cluster_num / 256;
 //	else num_of_page = pa_cluster_num / 128;
 	
-	printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
+//	printk("[cheon] fat_block_pos : %u \n", fat_block_pos );
 //	printk("[cheon] start, end, pa_cluster_num, area : %u %u %d %d \n", start, end, pa_cluster_num, area );
 
 //	for(i=0; i< num_of_page; i++)
@@ -727,7 +727,7 @@ static int preAlloc( struct inode *inode, unsigned int start, unsigned int end, 
 
 //	printk("p_cnt, i : %d %d \n", p_cnt,i );
 //	printk("[cheon] data start end : %d %d \n", data[0][0], data[p_cnt-1][1023] );
-	printk("[cheon] data start end : %d %d \n", data[0], data[end-start] );
+//	printk("[cheon] data start end : %d %d \n", data[0], data[end-start] );
 
 //	kfree(data);
 //	return -ENOSPC;
@@ -972,6 +972,8 @@ int fat_handle_cluster( struct inode *inode, int mode )
 
 	if( MSDOS_I(inode)->pre_alloced == ON ) //preAlloc함수 한번 타고 나오면 안들어간다.
 		return 0;
+
+//	printk("[cheon] fat_handle_cluster\n");
 
 	mutex_lock(&sbi->fat_lock);
 

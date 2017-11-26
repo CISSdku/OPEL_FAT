@@ -1,5 +1,9 @@
 #include"workload.h"
 #include <pthread.h>
+
+
+
+
 static int open_files( char *target_direcotry, char **dirs, char ***pbuf )
 {
 	FILE *fp = fopen( target_direcotry, "r" );	
@@ -208,6 +212,10 @@ int main( int argc, char *argv[] )
 		line_to_read,
 		line_cnt = 0;
 	
+	struct timeval start_point, end_point;
+	double operating_time;
+	int op_time = 0;
+
 
 	srand( time( NULL ) );
 	if( argc < 4 )
@@ -236,6 +244,9 @@ int main( int argc, char *argv[] )
 
 	line_to_read = atoi( argv[4] );
 
+	gettimeofday(&start_point, NULL);
+
+
 	int run_count = 0;
 //	printf("test\n");
 	while(1)
@@ -243,13 +254,17 @@ int main( int argc, char *argv[] )
 		if( load_flag == ON )
 		{
 //			sleep(1);
-			sync();
+//			sync();
 			
 		}
 		
 		line_cnt++;
 		if( line_cnt >= line_to_read )
 		{
+			gettimeofday(&end_point, NULL);
+			operating_time = (double)(end_point.tv_sec)+(double)(end_point.tv_usec)/1000000.0-(double)(start_point.tv_sec)-(double)(start_point.tv_usec)/1000000.0;
+			printf("%f\n",operating_time);
+
 			printf("I have reached the goal line\n");
 			break;
 		}
