@@ -466,7 +466,7 @@ int fat_setattr(struct dentry *dentry, struct iattr *attr)
 	unsigned int ia_valid;
 	int error;
 
-//	printk( KERN_ALERT "[cheon] fat_setattr \n");
+	printk( KERN_ALERT "[cheon] fat_setattr \n");
 
 	/* Check for setting the inode time. */
 	ia_valid = attr->ia_valid;

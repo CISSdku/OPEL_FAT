@@ -553,7 +553,7 @@ void file_create(char **dirs, int *selected_dir, int sinario, int load_flag )
 		//printf("File create: %-20s \t %10luM \t dir_size(): %10luM \n",fn, f_size/1024/1024, dir_size( dirs[ *selected_dir ] )/1024/1024 );
 //		printf("File create: %-20s %-20s\t %10luK \t dir_size(): %10luK \n", fn1, fn2, f_size/1024, dir_size( dirs[ *selected_dir - 1 ] )/1024 );
 	//	printf("File create: %-20s %-20s\t %10luK \n", fn1, fn2, f_size/1024 );
-		printf("File create: %-20s\t %10luK \n", fn1,  f_size/1024 );
+		printf("File create: %-20s\t %-20s\t %10luK \n", fn1, fn2,  f_size/1024 );
 
 		//		detect_file_counter( g_total.file_counter, load_flag );
 	}

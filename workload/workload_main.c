@@ -90,16 +90,16 @@ static void init( int sinario, int *selected_dir, char *argv3 , int *load_flag )
 	{
 		//AUTOMATION의 의미는 상시, 상시이벤트, 주차, 주차이벤트를 랜덤으로 섞어서 파일을 만들어 내는거임
 		//AUTOMATION을 제외한 나머지 실험은 아직 제대로 정의 안되어 있음 
-		case S_NORMAL_DRIVING 		: printf("sinario : NORMAL_DRIVING \n");  		  *selected_dir = S_NORMAL_DRIVING; 	       break;
-		case S_NORMAL_DRIVING_SHOCK : printf("sinario : NORMAL_DRIVING_SHOCK \n");    *selected_dir = S_NORMAL_DRIVING_SHOCK;      break;
-		case S_PARKING     		    : printf("sinario : PARKING \n");           	  *selected_dir = S_PARKING;    	     	   break;
-		case S_PARKING_SHOCK  		: printf("sinario : PARKING_SHOCK \n");     	  *selected_dir = S_PARKING_SHOCK;     		   break;
-		case S_HANDWORK        	    : printf("sinario : SHOCK \n");             	  *selected_dir = S_HANDWORK;      	 		   break;
+		case S_NORMAL_DRIVING 		: printf("scenario : NORMAL_DRIVING \n");  		  *selected_dir = S_NORMAL_DRIVING; 	       break;
+		case S_NORMAL_DRIVING_SHOCK : printf("scenario : NORMAL_DRIVING_SHOCK \n");    *selected_dir = S_NORMAL_DRIVING_SHOCK;      break;
+		case S_PARKING     		    : printf("scenario : PARKING \n");           	  *selected_dir = S_PARKING;    	     	   break;
+		case S_PARKING_SHOCK  		: printf("scenario : PARKING_SHOCK \n");     	  *selected_dir = S_PARKING_SHOCK;     		   break;
+		case S_HANDWORK        	    : printf("scenario : SHOCK \n");             	  *selected_dir = S_HANDWORK;      	 		   break;
 
-		case S_AUTOMATION    	    : printf("sinario : AUTOMATION \n");        	  *selected_dir = S_AUTOMATION;		 	 	   break;
+		case S_AUTOMATION    	    : printf("scenario : AUTOMATION \n");        	  *selected_dir = S_AUTOMATION;		 	 	   break;
 		case 7: printf("sinario : multi thread\n");        	  *selected_dir = 7;		 	 	   break;
 
-		default           	  	 	: printf("sinario is ?? \n");                          		 	    					 	 	   break;
+		default           	  	 	: printf("scenario is ?? \n");                          		 	    					 	 	   break;
 	}
 
 //	g_time.start_point = clock();
@@ -222,16 +222,16 @@ int main( int argc, char *argv[] )
 	{
 		//printf("%d \n", argc );
 		
-		printf("USAGE : ./a.out (sinario_num) (target_list dir) (load_flag) (line_to_read)  \n");
+		printf("USAGE : ./a.out (scenario_num) (target_list dir) (load_flag) (line_to_read)  \n");
 
-		printf("sinario 1 : normal driving \n");
-		printf("sinario 2 : normal driving shock \n");
-		printf("sinario 3 : parking \n");
-		printf("sinario 4 : parking shock\n");
-		printf("sinario 5 : handwork\n");
-		printf("sinario 6 : automation \n");
+		printf("scenario 1 : normal driving \n");
+		printf("scenario 2 : normal driving shock \n");
+		printf("scenario 3 : parking \n");
+		printf("scenario 4 : parking shock\n");
+		printf("scenario 5 : handwork\n");
+		printf("scenario 6 : automation \n");
 
-		printf("sinario 7 : muti_thread : 8ea\n");
+		printf("scenario 7 : muti_thread : 8ea\n");
 
 		//printf("Select sinario_num flag_mode( origina || opel ) :");
 

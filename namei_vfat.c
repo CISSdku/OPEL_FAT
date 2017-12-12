@@ -832,21 +832,28 @@ static int vfat_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 	struct timespec ts;
 	int err;
 
-//	printk( KERN_ALERT "[cheon] vfat_create \n");
+	printk( KERN_ALERT "[cheon] vfat_create \n");
 
 	mutex_lock(&MSDOS_SB(sb)->s_lock);
 
 //	ts = CURRENT_TIME_SEC_OPEL;
 	ts = CURRENT_TIME_SEC;
 	err = vfat_add_entry(dir, &dentry->d_name, 0, 0, &ts, &sinfo);
+	
+	printk("[cheon] dentry %s \n", dentry->d_name.name );
+
 	if (err)
+	{
+		printk("[cheon] vfat_create1 : %d \n", err ); 
 		goto out;
+	}
 	dir->i_version++;
 
 	inode = fat_build_inode(sb, sinfo.de, sinfo.i_pos);
 	brelse(sinfo.bh);
 	if (IS_ERR(inode)) {
 		err = PTR_ERR(inode);
+		printk("[cheon] vfat_create2 : %d \n", err ); 
 		goto out;
 	}
 	inode->i_version++;
