@@ -992,6 +992,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 			//mutex_unlock( &sbi->fat_lock );
 			//return -ENOSPC;
 			show_the_status_unit_flag( sb,area );
+
 			err = -ENOSPC;
 			break;
 		}
@@ -1217,6 +1218,7 @@ static int fat_add_cluster(struct inode *inode)
 #if 1 
 
 	val = fat_handle_cluster( inode, FAT_ALLOC_CLUSTER );
+
 
 #endif
 #if 0

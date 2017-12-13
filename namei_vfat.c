@@ -831,16 +831,67 @@ static int vfat_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 	struct fat_slot_info sinfo;
 	struct timespec ts;
 	int err;
-
+	
+	//////////
+	struct msdos_sb_info *sbi = MSDOS_SB( sb );
+	//////
 	printk( KERN_ALERT "[cheon] vfat_create \n");
+#if 0
+	printk("%u\t%u\t%u\t%u\t%u\t%u\n",
 
+	sbi->bx_free_clusters[ BB_ETC ],			 
+	sbi->bx_free_clusters[ BB_NORMAL ],
+	sbi->bx_free_clusters[ BB_NORMAL_EVENT ],
+	sbi->bx_free_clusters[ BB_PARKING ],
+	sbi->bx_free_clusters[ BB_MANUAL ],
+	sbi->bx_free_clusters[ BB_IMAGE ] );
+#endif
+	////////////////////////////////////////////////////////
 	mutex_lock(&MSDOS_SB(sb)->s_lock);
+
+#if 1
+	struct dentry *upper_dentry = NULL;
+
+	if( S_ISDIR( dir->i_mode ) )
+	{
+		upper_dentry = dentry->d_parent;
+		printk("[cheon] dentry %s \n", dentry->d_name.name );
+		printk("[cheon] upper_dentry %s \n", upper_dentry->d_name.name );
+
+		if( upper_dentry->d_name.name != NULL )
+		{
+			if(strcmp(upper_dentry->d_name.name, DIR_1 ) == 0 ){
+				if( sbi->bx_free_clusters[ BB_NORMAL ] == 0 )		return -ENOSPC;
+			}	
+			else if(strcmp(upper_dentry->d_name.name, DIR_2 ) == 0 ){
+				if( sbi->bx_free_clusters[ BB_NORMAL_EVENT ] == 0 )	return -ENOSPC;
+			}	
+
+			else if(strcmp(upper_dentry->d_name.name, DIR_3 ) == 0 ){
+				if( sbi->bx_free_clusters[ BB_PARKING ] == 0 )		return -ENOSPC;
+			}	
+
+			else if(strcmp(upper_dentry->d_name.name, DIR_4 ) == 0 ){
+				if( sbi->bx_free_clusters[ BB_MANUAL ] == 0 )		return -ENOSPC;
+			}	
+
+			else if(strcmp(upper_dentry->d_name.name, DIR_5 ) == 0 ){
+				if( sbi->bx_free_clusters[ BB_IMAGE ] == 0 )		return -ENOSPC;
+			}	
+			else 
+			{
+				if( sbi->bx_free_clusters[ BB_ETC ] == 0 )			return -ENOSPC;
+			}
+		}
+	}
+#endif
+
 
 //	ts = CURRENT_TIME_SEC_OPEL;
 	ts = CURRENT_TIME_SEC;
 	err = vfat_add_entry(dir, &dentry->d_name, 0, 0, &ts, &sinfo);
 	
-	printk("[cheon] dentry %s \n", dentry->d_name.name );
+//	printk("[cheon] dentry %s \n", dentry->d_name.name );
 
 	if (err)
 	{
@@ -910,6 +961,8 @@ out:
 
 	return err;
 }
+
+
 
 static int vfat_unlink(struct inode *dir, struct dentry *dentry)
 {

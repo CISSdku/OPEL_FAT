@@ -1253,6 +1253,8 @@ void get_area_number( int *area, struct inode *inode )
 		*area =temp_area;
 //	printk("[cheon] get_area_number : %d\n", *area );
 }
+EXPORT_SYMBOL_GPL( get_area_number );
+
 
 int fat_count_free_clusters_for_area(struct super_block *sb)
 {

@@ -16,6 +16,7 @@
 0x98b0fc40	fat_scan_opel	/home/cheon/다운로드/OPEL/filesystem/fat_test/OPEL_FAT/fat	EXPORT_SYMBOL_GPL
 0x359df40c	fat_search_long	/home/cheon/다운로드/OPEL/filesystem/fat_test/OPEL_FAT/fat	EXPORT_SYMBOL_GPL
 0xf65d7f98	fat_alloc_new_dir	/home/cheon/다운로드/OPEL/filesystem/fat_test/OPEL_FAT/fat	EXPORT_SYMBOL_GPL
+0xde3ee0d6	get_area_number	/home/cheon/다운로드/OPEL/filesystem/fat_test/OPEL_FAT/fat	EXPORT_SYMBOL_GPL
 0x4502602a	fat_fill_super	/home/cheon/다운로드/OPEL/filesystem/fat_test/OPEL_FAT/fat	EXPORT_SYMBOL_GPL
 0xee6ba18e	fat_scan	/home/cheon/다운로드/OPEL/filesystem/fat_test/OPEL_FAT/fat	EXPORT_SYMBOL_GPL
 0x4717aed7	fat_remove_entries	/home/cheon/다운로드/OPEL/filesystem/fat_test/OPEL_FAT/fat	EXPORT_SYMBOL_GPL
