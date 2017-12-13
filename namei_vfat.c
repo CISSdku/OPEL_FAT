@@ -834,53 +834,69 @@ static int vfat_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 	
 	//////////
 	struct msdos_sb_info *sbi = MSDOS_SB( sb );
+	struct PA *pa = NULL;
 	//////
-	printk( KERN_ALERT "[cheon] vfat_create \n");
-#if 0
-	printk("%u\t%u\t%u\t%u\t%u\t%u\n",
+//	printk( KERN_ALERT "[cheon] vfat_create \n");
 
-	sbi->bx_free_clusters[ BB_ETC ],			 
-	sbi->bx_free_clusters[ BB_NORMAL ],
-	sbi->bx_free_clusters[ BB_NORMAL_EVENT ],
-	sbi->bx_free_clusters[ BB_PARKING ],
-	sbi->bx_free_clusters[ BB_MANUAL ],
-	sbi->bx_free_clusters[ BB_IMAGE ] );
+#if 0
+	printk("%d\t%d\t%d\t%d\n",
+
+	sbi->parea_PA[ BB_NORMAL ]->active_pa_cnt,
+	sbi->parea_PA[ BB_NORMAL_EVENT ]->active_pa_cnt,
+	sbi->parea_PA[ BB_PARKING ]->active_pa_cnt,
+	sbi->parea_PA[ BB_MANUAL ]->active_pa_cnt );
 #endif
 	////////////////////////////////////////////////////////
 	mutex_lock(&MSDOS_SB(sb)->s_lock);
 
 #if 1
 	struct dentry *upper_dentry = NULL;
+	
 
 	if( S_ISDIR( dir->i_mode ) )
 	{
 		upper_dentry = dentry->d_parent;
-		printk("[cheon] dentry %s \n", dentry->d_name.name );
-		printk("[cheon] upper_dentry %s \n", upper_dentry->d_name.name );
+//		printk("[cheon] dentry %s \n", dentry->d_name.name );
+//		printk("[cheon] upper_dentry %s \n", upper_dentry->d_name.name );
 
 		if( upper_dentry->d_name.name != NULL )
 		{
 			if(strcmp(upper_dentry->d_name.name, DIR_1 ) == 0 ){
-				if( sbi->bx_free_clusters[ BB_NORMAL ] == 0 )		return -ENOSPC;
+				pa = sbi->parea_PA[ BB_NORMAL ];
+				if( pa->active_pa_cnt == pa->pa_num ){
+					err = -ENOSPC;
+					goto out;
+				}
 			}	
 			else if(strcmp(upper_dentry->d_name.name, DIR_2 ) == 0 ){
-				if( sbi->bx_free_clusters[ BB_NORMAL_EVENT ] == 0 )	return -ENOSPC;
+				pa = sbi->parea_PA[ BB_NORMAL_EVENT ];
+				if( pa->active_pa_cnt == pa->pa_num ){
+					err = -ENOSPC;
+					goto out;
+				}
 			}	
-
 			else if(strcmp(upper_dentry->d_name.name, DIR_3 ) == 0 ){
-				if( sbi->bx_free_clusters[ BB_PARKING ] == 0 )		return -ENOSPC;
+				pa = sbi->parea_PA[ BB_PARKING ];
+				if( pa->active_pa_cnt == pa->pa_num ){
+					err = -ENOSPC;
+					goto out;
+				}
 			}	
-
 			else if(strcmp(upper_dentry->d_name.name, DIR_4 ) == 0 ){
-				if( sbi->bx_free_clusters[ BB_MANUAL ] == 0 )		return -ENOSPC;
+				pa = sbi->parea_PA[ BB_MANUAL ];
+				if( pa->active_pa_cnt == pa->pa_num ){
+					err = -ENOSPC;
+					goto out;
+				}
 			}	
-
 			else if(strcmp(upper_dentry->d_name.name, DIR_5 ) == 0 ){
-				if( sbi->bx_free_clusters[ BB_IMAGE ] == 0 )		return -ENOSPC;
+	//			pa = sbi->parea_PA[ BB_IMAGE ] 
+	//			if( pa->active_pa_cnt == pa->pa_num )		return -ENOSPC;
 			}	
-			else 
-			{
-				if( sbi->bx_free_clusters[ BB_ETC ] == 0 )			return -ENOSPC;
+			else{
+			//	pa = sbi->parea_PA[ BB_ETC ] 
+			//	if( pa->active_pa_cnt == pa->pa_num )		return -ENOSPC;
+		
 			}
 		}
 	}
@@ -1292,6 +1308,8 @@ static void PA_management( struct super_block *sb )
 		area_PA[ i ].pa_num -= 1; //1개 뺴줌
 		area_PA[ i ].pa_cluster_num = ( sbi->bx_pre_size[ i ] * 1024 ) / ( sbi->cluster_size / 1024 );
 		area_PA[ i ].cur_pa_cnt = 0; 
+		area_PA[ i ].active_pa_cnt = 0;
+
 		printk("[cheon] area[%d].pa_num : %d \n", i, area_PA[ i ].pa_num );
 
 		area_PA[ i ].pa_unit = ( struct PA_unit_t  *)kmalloc( sizeof( struct PA_unit_t ) * area_PA[ i ].pa_num, GFP_KERNEL ); 
@@ -1319,47 +1337,7 @@ static void PA_management( struct super_block *sb )
 	for( i = 1 ; i < (TOTAL_AREA_CNT -1) ; i++ )
 		show_the_status_unit_flag( sb, i );
 
-	printk("[cheon] ==test==\n");
-//	printk("[cheon] test1 : %d \n", root->i_ino );	
 
-	spin_lock( &sbi->inode_hash_lock );
-
-//	ms_i = hlist_entry_safe( (head)->first, typeof(*(ms_i)), i_fat_hash );
-
-//	if( ms_i )
-//		printk("[cheon] ms_i : %d \n", ms_i->i_start );
-
-
-
-
-
-#if 0
-	ms_i = hlist_entry_safe( (ms_i)->i_fat_hash.next, typeof(*(ms_i)), i_fat_hash );
-	printk("[cheon] ms_i : %d \n", ms_i->i_start );
-	ms_i = hlist_entry_safe( (ms_i)->i_fat_hash.next, typeof(*(ms_i)), i_fat_hash );
-	printk("[cheon] ms_i : %d \n", ms_i->i_start );
-	ms_i = hlist_entry_safe( (ms_i)->i_fat_hash.next, typeof(*(ms_i)), i_fat_hash );
-	printk("[cheon] ms_i : %d \n", ms_i->i_start );
-	ms_i = hlist_entry_safe( (ms_i)->i_fat_hash.next, typeof(*(ms_i)), i_fat_hash );
-	printk("[cheon] ms_i : %d \n", ms_i->i_start );
-	ms_i = hlist_entry_safe( (ms_i)->i_fat_hash.next, typeof(*(ms_i)), i_fat_hash );
-	printk("[cheon] ms_i : %d \n", ms_i->i_start );
-	ms_i = hlist_entry_safe( (ms_i)->i_fat_hash.next, typeof(*(ms_i)), i_fat_hash );
-	printk("[cheon] ms_i : %d \n", ms_i->i_start );
-#endif
-
-
-
-#if 0
-	h
-	hlist_for_each_entry( ms_i, head, i_fat_hash )
-	{
-		printk("%d %d %u\n", ms_i->i_start, ms_i->i_logstart, ms_i->i_pos );	
-
-//		break;	
-	}
-#endif
-	spin_unlock( &sbi->inode_hash_lock );
 
 
 

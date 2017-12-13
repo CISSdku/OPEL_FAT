@@ -170,6 +170,7 @@ struct PA{
 	int pa_num; //PA개수
 	int pa_cluster_num; //한 PA가 갖는 클러스터 개수
 	int cur_pa_cnt; //몇번 째 PA가 할당 될 것인가
+	int active_pa_cnt;
 };
 #if 0
 #ifndef _FAT_
