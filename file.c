@@ -344,7 +344,9 @@ static int fat_free(struct inode *inode, int skip)
 			fat_fs_error(sb,
 				     "%s: invalid cluster chain (i_pos %lld)",
 				     __func__, MSDOS_I(inode)->i_pos);
-			ret = -EIO;
+		//	ret = -EIO;
+			ret = -ENOMEM; // 1215 correct
+
 		} else if (ret > 0) {
 			
 	//		printk("[cheon] fat_free, fat_ent_write() \n");

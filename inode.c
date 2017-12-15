@@ -1051,15 +1051,14 @@ int fat_handle_cluster( struct inode *inode, int mode )
 
 			vfat_unlink_opel( upper_dentry->d_inode, dentry );
 
+			//err = -ENOMEM;
 			err = -ENOSPC;
 			break;
 		}
 #endif
 		if( punit[ pa->cur_pa_cnt ].flag == FREE ){
-			
 			punit[ pa->cur_pa_cnt ].flag = USED; //수정
 	//		pa->active_pa_cnt++;
-
 			rs = preAlloc( inode, punit[ pa->cur_pa_cnt ].start, punit[ pa->cur_pa_cnt ].end, pa->pa_cluster_num, area );				
 			if( !rs ){
 //				printk("[cheon] allocted \n");
