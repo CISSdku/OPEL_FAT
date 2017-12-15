@@ -930,6 +930,54 @@ static int check_chain_number_limit( struct super_block *sb, int two_frag, unsig
 
 	return page_num;
 }
+/* returns the length of a struct qstr, ignoring trailing dots */
+static unsigned int __vfat_striptail_len_opel(unsigned int len, const char *name)
+{
+	    while (len && name[len - 1] == '.')
+			        len--;
+		    return len;
+}
+
+static unsigned int vfat_striptail_len_opel(const struct qstr *qstr)
+{
+	    return __vfat_striptail_len_opel(qstr->len, qstr->name);
+}
+
+static int vfat_find_opel( struct inode *dir, struct qstr *qname, struct fat_slot_info *sinfo )
+{
+	unsigned int len = vfat_striptail_len_opel( qname );
+	if(len==0) return ENOENT;
+
+	return fat_search_long( dir, qname->name, len, sinfo );
+}
+
+static int vfat_unlink_opel( struct inode *dir, struct dentry *dentry )
+{
+	struct inode *inode = dentry->d_inode;
+	struct super_block *sb = dir->i_sb;
+	struct fat_slot_info sinfo;
+	int err;
+
+	printk( KERN_ALERT "[cheon] vfat_unlink_opel\n" );
+
+	mutex_lock(&MSDOS_SB(sb)->s_lock);
+
+	err = vfat_find_opel(dir, &dentry->d_name, &sinfo);
+	if (err)
+		goto out;
+
+	err = fat_remove_entries(dir, &sinfo);  /* and releases bh */
+	if (err)
+		goto out;
+	clear_nlink(inode);
+	inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC;
+
+	fat_detach(inode);
+out:
+	mutex_unlock(&MSDOS_SB(sb)->s_lock);
+
+	return err;
+}
 
 #if 1
 int fat_handle_cluster( struct inode *inode, int mode )
@@ -984,6 +1032,14 @@ int fat_handle_cluster( struct inode *inode, int mode )
 
 	MSDOS_I(inode)->pre_alloced = ON; //기존에는 inode->i_ino로 구별했었는데 변경함
 
+	struct dentry *upper_dentry = NULL;	
+	upper_dentry = dentry->d_parent;
+
+//	printk("[cheon] dentry %s \n", dentry->d_name.name );
+//	printk("[cheon] upper_dentry %s \n", upper_dentry->d_name.name );
+
+
+
 	do{
 #if 1
 		if( cnt >= unit_num ){
@@ -993,6 +1049,8 @@ int fat_handle_cluster( struct inode *inode, int mode )
 			//return -ENOSPC;
 			show_the_status_unit_flag( sb,area );
 
+			vfat_unlink_opel( upper_dentry->d_inode, dentry );
+
 			err = -ENOSPC;
 			break;
 		}
@@ -1000,7 +1058,7 @@ int fat_handle_cluster( struct inode *inode, int mode )
 		if( punit[ pa->cur_pa_cnt ].flag == FREE ){
 			
 			punit[ pa->cur_pa_cnt ].flag = USED; //수정
-			pa->active_pa_cnt++;
+	//		pa->active_pa_cnt++;
 
 			rs = preAlloc( inode, punit[ pa->cur_pa_cnt ].start, punit[ pa->cur_pa_cnt ].end, pa->pa_cluster_num, area );				
 			if( !rs ){

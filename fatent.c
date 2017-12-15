@@ -960,7 +960,7 @@ void show_the_status_unit_flag( struct super_block *sb, int area )
 	{
 		printk("%d ", punit[ i ].flag );	
 
-		if( punit[ i ].flag == USED ) pa->active_pa_cnt++;
+//		if( punit[ i ].flag == USED ) pa->active_pa_cnt++;
 
 		j++;
 		if( j /10 )
@@ -969,7 +969,7 @@ void show_the_status_unit_flag( struct super_block *sb, int area )
 			j=0;
 		}
 	}
-	printk("[cheon] active_pa_cnt : %d", pa->active_pa_cnt );
+//	printk("[cheon] active_pa_cnt : %d", pa->active_pa_cnt );
 
 	printk("\n");
 	
@@ -1109,7 +1109,7 @@ int fat_free_clusters(struct inode *inode, int cluster)
 					p_cnt = (cluster - punit[ 0 ].start) / pa->pa_cluster_num;
 					//		printk("[cheon] free_clusters : %d %d %d \n", p_cnt, cluster, punit[0].start );
 					punit[ p_cnt ].flag = FREE;
-					pa->active_pa_cnt--;
+				//	pa->active_pa_cnt--;
 				}
 #if 0	
 				freed_cnt++;

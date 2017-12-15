@@ -823,6 +823,7 @@ error:
 	return ERR_PTR(err);
 }
 
+static int vfat_unlink(struct inode *dir, struct dentry *dentry);
 static int vfat_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		       bool excl)
 {
@@ -849,42 +850,69 @@ static int vfat_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 	////////////////////////////////////////////////////////
 	mutex_lock(&MSDOS_SB(sb)->s_lock);
 
-#if 1
+#if 0
 	struct dentry *upper_dentry = NULL;
-	
+//	struct dentry *test_dentry = NULL;
+
 
 	if( S_ISDIR( dir->i_mode ) )
 	{
 		upper_dentry = dentry->d_parent;
 //		printk("[cheon] dentry %s \n", dentry->d_name.name );
 //		printk("[cheon] upper_dentry %s \n", upper_dentry->d_name.name );
-
+	
+//		test_dentry = list_entry( dir->i_dentry.first, struct dentry, d_u.d_alias );
+//		printk("[cheon] test_dentry %s \n", test_dentry->d_name.name );
+//		printk("[cheon] testupper_dentry %s \n", test_dentry->d_parent->d_name.name );
+	
 		if( upper_dentry->d_name.name != NULL )
 		{
+#if 0
 			if(strcmp(upper_dentry->d_name.name, DIR_1 ) == 0 ){
-				pa = sbi->parea_PA[ BB_NORMAL ];
-				if( pa->active_pa_cnt == pa->pa_num ){
+				//pa = sbi->parea_PA[ BB_NORMAL ];
+				//if( pa->active_pa_cnt == pa->pa_num ){
+				if( ( sbi->bx_free_clusters[ BB_NORMAL ] ) / ((sbi->bx_pre_size[ BB_NORMAL ] * 1024) / (sbi->cluster_size / 1024)) < 1 )
+				{
+
+					//printk("[cheon] vfat_create normal %d %d \n", pa->active_pa_cnt, pa->pa_num);
+					printk("[cheon] vfat_create normal \n");
+				
+					mutex_unlock(&MSDOS_SB(sb)->s_lock);
+					
+					vfat_unlink( dir, dentry );
+
+					return -ENOSPC;
+
 					err = -ENOSPC;
 					goto out;
 				}
 			}	
 			else if(strcmp(upper_dentry->d_name.name, DIR_2 ) == 0 ){
-				pa = sbi->parea_PA[ BB_NORMAL_EVENT ];
-				if( pa->active_pa_cnt == pa->pa_num ){
+				//pa = sbi->parea_PA[ BB_NORMAL_EVENT ];
+				//if( pa->active_pa_cnt == pa->pa_num ){
+				if( ( sbi->bx_free_clusters[ BB_NORMAL_EVENT ] ) / ((sbi->bx_pre_size[ BB_NORMAL_EVENT ] * 1024) / (sbi->cluster_size / 1024)) < 1 )
+				{
+					//printk("[cheon] vfat_create event %d %d \n", pa->active_pa_cnt, pa->pa_num);
 					err = -ENOSPC;
 					goto out;
 				}
 			}	
 			else if(strcmp(upper_dentry->d_name.name, DIR_3 ) == 0 ){
-				pa = sbi->parea_PA[ BB_PARKING ];
-				if( pa->active_pa_cnt == pa->pa_num ){
+				//pa = sbi->parea_PA[ BB_PARKING ];
+				//if( pa->active_pa_cnt == pa->pa_num ){
+				if( ( sbi->bx_free_clusters[ BB_PARKING ] ) / ((sbi->bx_pre_size[ BB_PARKING ] * 1024) / (sbi->cluster_size / 1024)) < 1 )
+				{
+					//printk("[cheon] vfat_create parking %d %d \n", pa->active_pa_cnt, pa->pa_num);
 					err = -ENOSPC;
 					goto out;
 				}
 			}	
 			else if(strcmp(upper_dentry->d_name.name, DIR_4 ) == 0 ){
-				pa = sbi->parea_PA[ BB_MANUAL ];
-				if( pa->active_pa_cnt == pa->pa_num ){
+				//pa = sbi->parea_PA[ BB_MANUAL ];
+				//if( pa->active_pa_cnt == pa->pa_num ){
+				if( ( sbi->bx_free_clusters[ BB_MANUAL ] ) / ((sbi->bx_pre_size[ BB_MANUAL ] * 1024) / (sbi->cluster_size / 1024)) < 1 )
+				{
+					//printk("[cheon] vfat_create manual %d %d \n", pa->active_pa_cnt, pa->pa_num);
 					err = -ENOSPC;
 					goto out;
 				}
@@ -898,6 +926,7 @@ static int vfat_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 			//	if( pa->active_pa_cnt == pa->pa_num )		return -ENOSPC;
 		
 			}
+#endif
 		}
 	}
 #endif
@@ -977,7 +1006,6 @@ out:
 
 	return err;
 }
-
 
 
 static int vfat_unlink(struct inode *dir, struct dentry *dentry)
@@ -1305,10 +1333,10 @@ static void PA_management( struct super_block *sb )
 	for( i = 1 ; i < (TOTAL_AREA_CNT-1) ; i++ ) // 현재 4개만 normal, event, parking. manual
 	{
 		area_PA[ i ].pa_num = ( ( sbi->bx_end_cluster[ i ] - sbi->bx_start_cluster[ i ] + 1 ) ) /  ((sbi->bx_pre_size[ i ] * 1024) / (sbi->cluster_size / 1024)); //각 영역의 PA개수
-		area_PA[ i ].pa_num -= 1; //1개 뺴줌
+	//	area_PA[ i ].pa_num -= 1; //1개 뺴줌
 		area_PA[ i ].pa_cluster_num = ( sbi->bx_pre_size[ i ] * 1024 ) / ( sbi->cluster_size / 1024 );
 		area_PA[ i ].cur_pa_cnt = 0; 
-		area_PA[ i ].active_pa_cnt = 0;
+	//	area_PA[ i ].active_pa_cnt = 0;
 
 		printk("[cheon] area[%d].pa_num : %d \n", i, area_PA[ i ].pa_num );
 
