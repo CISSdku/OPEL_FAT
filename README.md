@@ -2,9 +2,9 @@ FL_FAT
 ===========================
 FAT-compatible High-performance File System for Embedded System
 
--FAT-conpliant
+- FAT-conpliant
 
--Partitioning
+- Partitioning
 
--Pre-allocation
+- Pre-allocation
 
