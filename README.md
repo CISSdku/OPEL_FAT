@@ -1,3 +1,7 @@
 FL_FAT
 ===========================
-Distinguished cluster allocation of each separate directory in FAT file system
+FAT-compatible High-performance File System for Embedded System
+-FAT-conpliant
+-Partitioning
+-Pre-allocation
+
