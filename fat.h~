@@ -15,8 +15,8 @@
 #define GARBAGE 0x4
 #define MIDEOF 0x8
 
-#define SD1_S_ID "sdd1"
-#define SD2_S_ID "sdasdasdd1"
+#define SD1_S_ID "sdddc1"
+#define SD2_S_ID "sdd1"
 
 #define TOTAL_AREA_CNT 6
 #define OFF 0

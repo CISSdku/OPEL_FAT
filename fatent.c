@@ -958,16 +958,18 @@ void show_the_status_unit_flag( struct super_block *sb, int area )
 
 	for( i=0 ; i < unit_num ; i++ )
 	{
-		printk("%d ", punit[ i ].flag );	
+//		printk("%d ", punit[ i ].flag );	
 
 //		if( punit[ i ].flag == USED ) pa->active_pa_cnt++;
 
+#if 0
 		j++;
 		if( j /10 )
 		{
-			printk("\n");
+//			printk("\n");
 			j=0;
 		}
+#endif
 	}
 //	printk("[cheon] active_pa_cnt : %d", pa->active_pa_cnt );
 

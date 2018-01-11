@@ -1304,8 +1304,8 @@ static void setting_start_end_in_memory( struct super_block *sb )
 			start += num_pre_alloc;	
 			
 			punit[cnt].flag = FREE; //일단 전부 FREE
-			if( i == 1 )	
-			printk("[cheon] start, end : %u, %u \n",  punit[cnt].start, punit[cnt].end );
+//			if( i == 1 )	
+	//		printk("[cheon] start, end : %u, %u \n",  punit[cnt].start, punit[cnt].end );
 
 			cnt++;
 			if( cnt == area_PA[ i ].pa_num  ){
@@ -1367,8 +1367,6 @@ static void PA_management( struct super_block *sb )
 
 
 
-
-
 }
 
 static int vfat_fill_super(struct super_block *sb, void *data, int silent)
@@ -1387,35 +1385,46 @@ static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 		fat_config_init( sb );
 		fat_update_super( sb );
 
-		g_sb_s1 = NULL;
-		g_sb_s2 = NULL;
+//debugging with seungbu 1/11
+//		g_sb_s1 = NULL;
+//		g_sb_s2 = NULL;
 
 		if( sbi->fat_original_flag == ON ) //ORIGINAL FAT //특정 영역 공간 부족
 		{
 			if( !strcmp( sb->s_id, SD1_S_ID ) )
+			{	
+				g_sb_s1 = NULL;
 				strcpy( manager_control_sd1, "START_ORIGINAL" );
+			}
 			else
+			{
+				g_sb_s2 = NULL;
 				strcpy( manager_control_sd2, "START_ORIGINAL" );
+			}
 		}
 		else  //OPEL
 		{
 
 			if( !strcmp( sb->s_id, SD1_S_ID ) )
 			{
+
+				g_sb_s1 = NULL;
+				printk("[cheon] 0000 \n");
 				strcpy( manager_control_sd1, "START_OPEL" );
-				
 				PA_management( sb );
 			}
 			else
 			{
+				g_sb_s2 = NULL;
+				printk("[cheon] 1111 \n");
 				strcpy( manager_control_sd2, "START_OPEL" );
-				
 				PA_management( sb );
 			}
 		}
 
 		if( !strcmp( sb->s_id, SD1_S_ID ) )
 		{
+			printk("[cheon] 222 \n");
 			g_sb_s1 = sb;
 			if( g_sb_s2 == NULL )
 				strcpy( manager_control_sd2, "Not mounted" );
@@ -1423,12 +1432,10 @@ static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 
 			for(i=0;i<TOTAL_AREA_CNT;i++)	
 				g_total_cluster_s1[i] = sbi->bx_end_cluster[i] - sbi->bx_start_cluster[i] + 1;
-
-			//			for(i=0;i<TOTAL_AREA_CNT;i++)	
-			//				printk("[cheon] SD1 total free clusters : %u \n", g_total_cluster_s1[i] );
 		}
 		else
 		{
+			printk("[cheon] 333 \n");
 			g_sb_s2 = sb;
 			if( g_sb_s1 == NULL )
 				strcpy( manager_control_sd1, "Not mounted" );
@@ -1436,10 +1443,6 @@ static int vfat_fill_super(struct super_block *sb, void *data, int silent)
 
 			for(i=0;i<TOTAL_AREA_CNT;i++)	
 				g_total_cluster_s2[i] = sbi->bx_end_cluster[i] - sbi->bx_start_cluster[i] + 1;
-
-			//			for(i=0;i<TOTAL_AREA_CNT;i++)	
-			//				printk("[cheon] SD2 total free clusters : %u \n", g_total_cluster_s2[i] );
-
 		}
 
 		printk( KERN_ALERT "manager_control_sd1 : %s \n", manager_control_sd1 );
@@ -1631,9 +1634,11 @@ static void opel_kill_block_super( struct super_block *sb )
 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
 	int i = 0;
 	
-	for( i = 0 ; i < ( TOTAL_AREA_CNT - 1 ) ; i++ )
-		kfree( area_PA[ i ].pa_unit );
+	printk("[cheon] opel_kill_block_super \n");
 
+
+//	for( i = 0 ; i < ( TOTAL_AREA_CNT - 1 ) ; i++ )
+//		kfree( area_PA[ i ].pa_unit );
 
 	if( sbi->fat_original_flag != ON )
 	{
@@ -1681,7 +1686,7 @@ static int __init init_vfat_fs(void)
 
 static void __exit exit_vfat_fs(void)
 {
-//	printk("[cheon] bye\n");
+	printk("[cheon] bye\n");
 	do_fs_sysfs_unregistration();
 	unregister_filesystem(&vfat_fs_type);
 }

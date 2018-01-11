@@ -29,7 +29,7 @@ COUNT_AREA_2	inode.c	46;"	d	file:
 COUNT_AREA_3	inode.c	47;"	d	file:
 COUNT_AREA_4	inode.c	48;"	d	file:
 COUNT_AREA_5	inode.c	49;"	d	file:
-CURRENT_TIME_SEC_OPEL	fat.h	636;"	d
+CURRENT_TIME_SEC_OPEL	fat.h	637;"	d
 DAYS_DELTA	misc.c	184;"	d	file:
 DIR_1	fat.h	35;"	d
 DIR_2	fat.h	36;"	d
@@ -39,7 +39,7 @@ DIR_5	fat.h	39;"	d
 ETC_AREA_RATIO	fat.h	106;"	d
 ETC_DIRECTORY	fat.h	59;"	d
 FAT_ALLOC_CLUSTER	fat.h	76;"	d
-FAT_CACHE_VALID	fat.h	264;"	d
+FAT_CACHE_VALID	fat.h	265;"	d
 FAT_ERRORS_CONT	fat.h	123;"	d
 FAT_ERRORS_PANIC	fat.h	124;"	d
 FAT_ERRORS_RO	fat.h	125;"	d
@@ -55,8 +55,8 @@ FAT_MAX_UNI_CHARS	dir.c	35;"	d	file:
 FAT_MAX_UNI_SIZE	dir.c	36;"	d	file:
 FAT_NFS_NOSTALE_RO	fat.h	128;"	d
 FAT_NFS_STALE_RW	fat.h	127;"	d
-FAT_READA_SIZE	fatent.c	1171;"	d	file:
-FAT_VALID_MODE	file.c	460;"	d	file:
+FAT_READA_SIZE	fatent.c	1176;"	d	file:
+FAT_VALID_MODE	file.c	462;"	d	file:
 FREE	fat.h	13;"	d
 GARBAGE	fat.h	15;"	d
 HANDWORK_DIRECTORY	fat.h	57;"	d
@@ -139,7 +139,7 @@ SD_PAGE_SIZE	fat.h	65;"	d
 SECS_PER_DAY	misc.c	182;"	d	file:
 SECS_PER_HOUR	misc.c	181;"	d	file:
 SECS_PER_MIN	misc.c	180;"	d	file:
-TIMES_SET_FLAGS	file.c	458;"	d	file:
+TIMES_SET_FLAGS	file.c	460;"	d	file:
 TOTAL_AREA_CNT	fat.h	21;"	d
 USED	fat.h	14;"	d
 VFAT_IOCTL_READDIR_BOTH32	dir.c	828;"	d	file:
@@ -163,6 +163,7 @@ __fat_readdir	dir.c	/^static int __fat_readdir(struct inode *inode, struct file 
 __fat_remove_entries	dir.c	/^static int __fat_remove_entries(struct inode *dir, loff_t pos, int nr_slots)$/;"	f	file:
 __fat_write_inode	inode.c	/^static int __fat_write_inode(struct inode *inode, int wait)$/;"	f	file:
 __vfat_striptail_len	namei_vfat.c	/^static unsigned int __vfat_striptail_len(unsigned int len, const char *name)$/;"	f	file:
+__vfat_striptail_len_opel	inode.c	/^static unsigned int __vfat_striptail_len_opel(unsigned int len, const char *name)$/;"	f	file:
 _fat_bmap	inode.c	/^static sector_t _fat_bmap(struct address_space *mapping, sector_t block)$/;"	f	file:
 _fat_chain_add	config.c	/^static int _fat_chain_add(struct inode *inode, int new_dclus, int nr_cluster)$/;"	f	file:
 align_check	inode.c	/^static inline unsigned int align_check( struct msdos_sb_info *sbi, unsigned int next, int area )$/;"	f	file:
@@ -356,8 +357,8 @@ fat_flush_inodes	inode.c	/^int fat_flush_inodes(struct super_block *sb, struct i
 fat_free	file.c	/^static int fat_free(struct inode *inode, int skip)$/;"	f	file:
 fat_free_clusters	fatent.c	/^EXPORT_SYMBOL_GPL(fat_free_clusters);$/;"	v
 fat_free_clusters	fatent.c	/^int fat_free_clusters(struct inode *inode, int cluster)$/;"	f
-fat_fs_error	fat.h	584;"	d
-fat_fs_error_ratelimit	fat.h	586;"	d
+fat_fs_error	fat.h	585;"	d
+fat_fs_error_ratelimit	fat.h	587;"	d
 fat_generic_compat_ioctl	file.c	/^static long fat_generic_compat_ioctl(struct file *filp, unsigned int cmd,$/;"	f	file:
 fat_generic_ioctl	file.c	/^long fat_generic_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)$/;"	f
 fat_get_blknr_offset	fat.h	/^static inline void fat_get_blknr_offset(struct msdos_sb_info *sbi,$/;"	f
@@ -399,7 +400,7 @@ fat_mirror_bhs	fatent.c	/^static int fat_mirror_bhs(struct super_block *sb, stru
 fat_mode_can_hold_ro	fat.h	/^static inline int fat_mode_can_hold_ro(struct inode *inode)$/;"	f
 fat_mount_options	fat.h	/^struct fat_mount_options {$/;"	s
 fat_msg	misc.c	/^void fat_msg(struct super_block *sb, const char *level, const char *fmt, ...)$/;"	f
-fat_msg_ratelimit	fat.h	590;"	d
+fat_msg_ratelimit	fat.h	591;"	d
 fat_name_match	dir.c	/^static inline int fat_name_match(struct msdos_sb_info *sbi,$/;"	f	file:
 fat_nfs_get_inode	nfs.c	/^static struct inode *fat_nfs_get_inode(struct super_block *sb,$/;"	f	file:
 fat_original_flag	fat.h	/^	int fat_original_flag;$/;"	m	struct:msdos_sb_info
@@ -623,6 +624,7 @@ vfat_dir_inode_operations	namei_vfat.c	/^static const struct inode_operations vf
 vfat_fill_super	namei_vfat.c	/^static int vfat_fill_super(struct super_block *sb, void *data, int silent)$/;"	f	file:
 vfat_find	namei_vfat.c	/^static int vfat_find(struct inode *dir, struct qstr *qname,$/;"	f	file:
 vfat_find_form	namei_vfat.c	/^static int vfat_find_form(struct inode *dir, unsigned char *name)$/;"	f	file:
+vfat_find_opel	inode.c	/^static int vfat_find_opel( struct inode *dir, struct qstr *qname, struct fat_slot_info *sinfo )$/;"	f	file:
 vfat_fs_type	namei_vfat.c	/^static struct file_system_type vfat_fs_type = {$/;"	v	typeref:struct:file_system_type	file:
 vfat_hash	namei_vfat.c	/^static int vfat_hash(const struct dentry *dentry, const struct inode *inode,$/;"	f	file:
 vfat_hashi	namei_vfat.c	/^static int vfat_hashi(const struct dentry *dentry, const struct inode *inode,$/;"	f	file:
@@ -638,8 +640,10 @@ vfat_revalidate_shortname	namei_vfat.c	/^static int vfat_revalidate_shortname(st
 vfat_rmdir	namei_vfat.c	/^static int vfat_rmdir(struct inode *dir, struct dentry *dentry)$/;"	f	file:
 vfat_skip_char	namei_vfat.c	/^static wchar_t vfat_skip_char(wchar_t w)$/;"	f	file:
 vfat_striptail_len	namei_vfat.c	/^static unsigned int vfat_striptail_len(const struct qstr *qstr)$/;"	f	file:
+vfat_striptail_len_opel	inode.c	/^static unsigned int vfat_striptail_len_opel(const struct qstr *qstr)$/;"	f	file:
 vfat_tokens	inode.c	/^static const match_table_t vfat_tokens = {$/;"	v	file:
 vfat_unlink	namei_vfat.c	/^static int vfat_unlink(struct inode *dir, struct dentry *dentry)$/;"	f	file:
+vfat_unlink_opel	inode.c	/^static int vfat_unlink_opel( struct inode *dir, struct dentry *dentry )$/;"	f	file:
 vfs_inode	fat.h	/^	struct inode vfs_inode;$/;"	m	struct:msdos_inode_info	typeref:struct:msdos_inode_info::inode
 writeback_inode	inode.c	/^static int writeback_inode(struct inode *inode)$/;"	f	file:
 xlate_to_uni	namei_vfat.c	/^xlate_to_uni(const unsigned char *name, int len, unsigned char *outname,$/;"	f	file:

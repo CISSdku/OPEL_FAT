@@ -2,9 +2,9 @@ make clean
 make
 insmod fat.ko
 insmod vfat.ko
-mkfs.vfat /dev/sbd 
+mkfs.vfat /dev/sdd1
 #mkfs.vfat /dev/sdc1
-mount /dev/sbd /mnt
+mount /dev/sdd1 /mnt
 #mount /dev/sdc1 /mnt
 
 mkdir /mnt/normal
